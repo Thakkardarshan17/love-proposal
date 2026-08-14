@@ -1,5 +1,6 @@
 import { MemoryItem } from '../types';
 import { saveVideoBlob } from './mediaStore';
+import { getRealtimeDateTimeString, getRealtimeLocation } from './dateTimeLocation';
 
 /**
  * Utility functions for handling photo and video media uploads, resizing,
@@ -241,6 +242,13 @@ export const processMediaFile = async (
   const isVideo = isVideoFile(file);
   const memId = `mem-${Date.now()}-${index}-${Math.random().toString(36).substring(2, 6)}`;
 
+  // Capture real-time Date & Time + Location automatically
+  const fileDate = (file.lastModified && (Date.now() - file.lastModified) < 86400000 * 365 * 10)
+    ? new Date(file.lastModified)
+    : new Date();
+  const realTimeDate = getRealtimeDateTimeString(fileDate);
+  const realTimeLocation = await getRealtimeLocation();
+
   if (isVideo) {
     // Generate lightweight video thumbnail
     const thumbnail = await createVideoThumbnail(file, 0.5);
@@ -257,8 +265,8 @@ export const processMediaFile = async (
       id: memId,
       title,
       description: 'A magical video dream and promise we will cherish forever and always.',
-      date: 'Our Video Memory',
-      location: 'With You Forever',
+      date: realTimeDate,
+      location: realTimeLocation,
       image: thumbnail,
       mediaType: 'video',
       videoUrl,
@@ -273,8 +281,8 @@ export const processMediaFile = async (
       id: memId,
       title,
       description: 'A magical dream and beautiful moment forever etched in our hearts.',
-      date: 'Our Sweet Journey',
-      location: 'Everywhere with You',
+      date: realTimeDate,
+      location: realTimeLocation,
       image: optimizedDataUrl,
       mediaType: 'image',
       rotationDeg: ((index % 2 === 0 ? -1 : 1) * ((index % 3) + 1.5)),

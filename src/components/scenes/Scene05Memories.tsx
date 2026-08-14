@@ -188,6 +188,12 @@ export const Scene05Memories: React.FC<Scene05MemoriesProps> = ({
                       {isVideo && <Film className="w-2.5 h-2.5 text-[#2A101B]" />}
                       <span>{mem.date}</span>
                     </p>
+                    {mem.location && (
+                      <p className="text-[8px] text-[#2A101B]/60 font-sans tracking-tight truncate flex items-center justify-center gap-0.5 mt-0.5">
+                        <span>📍</span>
+                        <span>{mem.location}</span>
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>

@@ -14,7 +14,10 @@ import {
   Video,
   Play,
   Film,
-  Layers
+  Layers,
+  Clock,
+  Navigation,
+  Loader2
 } from 'lucide-react';
 import { MemoryItem } from '../types';
 import {
@@ -25,6 +28,7 @@ import {
   ROMANTIC_PRESET_PHOTOS,
   ROMANTIC_PRESET_VIDEOS
 } from '../utils/imageUtils';
+import { getRealtimeDateTimeString, getRealtimeLocation } from '../utils/dateTimeLocation';
 
 interface EditMemoryModalProps {
   isOpen: boolean;
@@ -49,8 +53,8 @@ export const EditMemoryModal: React.FC<EditMemoryModalProps> = ({
         id: `mem-${Date.now()}`,
         title: 'A Special Moment',
         description: 'Every moment spent with you is a memory I treasure forever.',
-        date: 'Our Beautiful Day',
-        location: 'With You',
+        date: getRealtimeDateTimeString(),
+        location: 'Detecting location...',
         image: ROMANTIC_PRESET_PHOTOS[0].url,
         mediaType: 'image',
         rotationDeg: -2,
@@ -64,12 +68,13 @@ export const EditMemoryModal: React.FC<EditMemoryModalProps> = ({
   const [urlInput, setUrlInput] = useState('');
   const [videoUrlInput, setVideoUrlInput] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isDetectingLocation, setIsDetectingLocation] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [uploadCountNotice, setUploadCountNotice] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Update formData when selected memory changes
+  // Update formData when selected memory changes or auto-detect real-time date & location on new item
   useEffect(() => {
     if (memory) {
       setFormData(memory);
@@ -78,8 +83,44 @@ export const EditMemoryModal: React.FC<EditMemoryModalProps> = ({
       } else {
         setUrlInput(memory.image.startsWith('http') ? memory.image : '');
       }
+    } else {
+      // New Memory: Set real-time date/time & detect real-time location
+      const nowStr = getRealtimeDateTimeString();
+      setFormData(prev => ({
+        ...prev,
+        date: nowStr
+      }));
+
+      getRealtimeLocation().then(loc => {
+        setFormData(prev => ({
+          ...prev,
+          location: loc
+        }));
+      }).catch(() => {
+        setFormData(prev => ({
+          ...prev,
+          location: 'With You Forever'
+        }));
+      });
     }
-  }, [memory]);
+  }, [memory, isOpen]);
+
+  const handleRefreshDateTime = () => {
+    const nowStr = getRealtimeDateTimeString();
+    setFormData(prev => ({ ...prev, date: nowStr }));
+  };
+
+  const handleDetectLocation = async () => {
+    try {
+      setIsDetectingLocation(true);
+      const loc = await getRealtimeLocation();
+      setFormData(prev => ({ ...prev, location: loc }));
+    } catch {
+      // fallback
+    } finally {
+      setIsDetectingLocation(false);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -93,7 +134,7 @@ export const EditMemoryModal: React.FC<EditMemoryModalProps> = ({
         // Multi-file batch upload (Photos and/or Videos)
         const newItems = await processMultipleMediaFiles(files);
         onSaveMultiple(newItems);
-        setUploadCountNotice(`Successfully added ${files.length} new dream photos & videos!`);
+        setUploadCountNotice(`Successfully added ${files.length} new dream photos & videos with live time & location!`);
         setSaveSuccess(true);
         setTimeout(() => {
           setSaveSuccess(false);
@@ -104,10 +145,13 @@ export const EditMemoryModal: React.FC<EditMemoryModalProps> = ({
         const item = await processMediaFile(files[0]);
         setFormData(prev => ({
           ...prev,
+          title: (!memory || prev.title === 'A Special Moment') ? item.title : prev.title,
           image: item.image,
           mediaType: item.mediaType,
           videoUrl: item.videoUrl,
           videoType: item.videoType,
+          date: item.date || prev.date || getRealtimeDateTimeString(),
+          location: item.location || prev.location,
           badge: item.mediaType === 'video' ? '🎥 Video' : (prev.badge || 'Dream')
         }));
       }
@@ -128,7 +172,7 @@ export const EditMemoryModal: React.FC<EditMemoryModalProps> = ({
         if (files.length > 1 && onSaveMultiple && !memory) {
           const newItems = await processMultipleMediaFiles(files);
           onSaveMultiple(newItems);
-          setUploadCountNotice(`Successfully added ${files.length} new dream photos & videos!`);
+          setUploadCountNotice(`Successfully added ${files.length} new dream photos & videos with live time & location!`);
           setSaveSuccess(true);
           setTimeout(() => {
             setSaveSuccess(false);
@@ -139,10 +183,13 @@ export const EditMemoryModal: React.FC<EditMemoryModalProps> = ({
           const item = await processMediaFile(files[0]);
           setFormData(prev => ({
             ...prev,
+            title: (!memory || prev.title === 'A Special Moment') ? item.title : prev.title,
             image: item.image,
             mediaType: item.mediaType,
             videoUrl: item.videoUrl,
             videoType: item.videoType,
+            date: item.date || prev.date || getRealtimeDateTimeString(),
+            location: item.location || prev.location,
             badge: item.mediaType === 'video' ? '🎥 Video' : (prev.badge || 'Dream')
           }));
         }
@@ -591,15 +638,25 @@ export const EditMemoryModal: React.FC<EditMemoryModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#F7B8C5] uppercase tracking-wider mb-1 flex items-center gap-1">
-                  <Calendar className="w-3 h-3 text-[#D8A06C]" />
-                  <span>Date / Time</span>
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-semibold text-[#F7B8C5] uppercase tracking-wider flex items-center gap-1">
+                    <Clock className="w-3.5 h-3.5 text-[#D8A06C]" />
+                    <span>Real-time Date & Time</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handleRefreshDateTime}
+                    className="text-[10px] text-[#D8A06C] hover:text-white flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-white/5 hover:bg-white/10 transition-colors cursor-pointer"
+                    title="Set to Current Real-time"
+                  >
+                    <span>Now 🕒</span>
+                  </button>
+                </div>
                 <input
                   type="text"
                   value={formData.date}
                   onChange={e => setFormData({ ...formData, date: e.target.value })}
-                  placeholder="e.g. Golden Hour Dreams"
+                  placeholder="e.g. 14 Aug 2026, 12:05 PM"
                   className="w-full bg-[#12080D] border border-[#E8899D]/30 rounded-xl px-3.5 py-2 text-sm text-[#FFF3EF] focus:outline-none focus:border-[#E8899D]"
                 />
               </div>
@@ -607,15 +664,36 @@ export const EditMemoryModal: React.FC<EditMemoryModalProps> = ({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-[#F7B8C5] uppercase tracking-wider mb-1 flex items-center gap-1">
-                  <MapPin className="w-3 h-3 text-[#E8899D]" />
-                  <span>Location (Optional)</span>
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-semibold text-[#F7B8C5] uppercase tracking-wider flex items-center gap-1">
+                    <MapPin className="w-3.5 h-3.5 text-[#E8899D]" />
+                    <span>Location</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handleDetectLocation}
+                    disabled={isDetectingLocation}
+                    className="text-[10px] text-[#E8899D] hover:text-white flex items-center gap-1 px-1.5 py-0.5 rounded bg-white/5 hover:bg-white/10 transition-colors cursor-pointer disabled:opacity-50"
+                    title="Detect Current Live Location"
+                  >
+                    {isDetectingLocation ? (
+                      <>
+                        <Loader2 className="w-2.5 h-2.5 animate-spin" />
+                        <span>Locating...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Navigation className="w-2.5 h-2.5" />
+                        <span>Live GPS 📍</span>
+                      </>
+                    )}
+                  </button>
+                </div>
                 <input
                   type="text"
                   value={formData.location || ''}
                   onChange={e => setFormData({ ...formData, location: e.target.value })}
-                  placeholder="e.g. Our favorite beach"
+                  placeholder="e.g. Mumbai, India / Our favorite spot"
                   className="w-full bg-[#12080D] border border-[#E8899D]/30 rounded-xl px-3.5 py-2 text-sm text-[#FFF3EF] focus:outline-none focus:border-[#E8899D]"
                 />
               </div>
