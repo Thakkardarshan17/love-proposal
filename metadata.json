@@ -1,0 +1,6 @@
+{
+  "name": "Our Love Story ❤️ - Interactive Proposal",
+  "description": "A cinematic, romantic mobile-first interactive proposal web application featuring 16 animated scenes, love shayari, 7 sacred lifetime promises, 5 pillars of love, interactive timeline, memory polaroids, audio player, petal effects, and emotional proposal celebration.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
