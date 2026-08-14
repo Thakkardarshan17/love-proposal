@@ -76,7 +76,17 @@ export default function App() {
   const [config, setConfig] = useState<ProposalConfig>(() => {
     try {
       const saved = localStorage.getItem('romantic_proposal_config');
-      return saved ? JSON.parse(saved) : initialProposalConfig;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.yourName === 'DARSHAN' || parsed.yourName === 'Darshan') {
+          parsed.yourName = 'Deep';
+        }
+        if (parsed.partnerName === 'MY LOVE' || parsed.partnerName === 'My Love') {
+          parsed.partnerName = 'Labdhi';
+        }
+        return parsed;
+      }
+      return initialProposalConfig;
     } catch {
       return initialProposalConfig;
     }

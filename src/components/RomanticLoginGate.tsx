@@ -15,8 +15,8 @@ interface RomanticLoginGateProps {
 
 export const RomanticLoginGate: React.FC<RomanticLoginGateProps> = ({
   onLoginSuccess,
-  partnerName = 'My Love',
-  yourName = 'Darshan'
+  partnerName = 'Labdhi',
+  yourName = 'Deep'
 }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');

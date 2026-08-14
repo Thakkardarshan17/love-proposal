@@ -28,8 +28,8 @@ export const WhatsAppAnswerModal: React.FC<WhatsAppAnswerModalProps> = ({
   onAnswerSent
 }) => {
   const recipientNumber = config.whatsappNumber || '+91 7201030048';
-  const partner = config.partnerName || 'My Love';
-  const proposer = config.yourName || 'Darshan';
+  const partner = config.partnerName || 'Labdhi';
+  const proposer = config.yourName || 'Deep';
 
   const defaultTemplates = [
     `YES! ❤️ A thousand times YES! I accept your proposal with all my heart! 💍✨ Forever & Always yours, ${partner}!`,

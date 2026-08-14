@@ -1,8 +1,8 @@
 import { ProposalConfig, TimelineEvent, MemoryItem, ReasonItem, MusicTrack } from '../types';
 
 export const initialProposalConfig: ProposalConfig = {
-  yourName: "DARSHAN",
-  partnerName: "MY LOVE",
+  yourName: "Deep",
+  partnerName: "Labdhi",
   question: "Will You Be Mine? ❤️",
   subQuestion: "I don't know what the future holds... But I know who I want beside me.",
   finalMessage: "From This Moment... Every Smile, Every Dream, Every Adventure... I Want To Share It With You. Forever & Always ❤️",

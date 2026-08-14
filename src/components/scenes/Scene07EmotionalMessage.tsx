@@ -9,7 +9,7 @@ interface Scene07EmotionalMessageProps {
 
 export const Scene07EmotionalMessage: React.FC<Scene07EmotionalMessageProps> = ({
   onNext,
-  partnerName = 'My Love'
+  partnerName = 'Labdhi'
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
