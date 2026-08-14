@@ -23,7 +23,6 @@ export const RomanticLoginGate: React.FC<RomanticLoginGateProps> = ({
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
-  const [showHint, setShowHint] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,7 +51,6 @@ export const RomanticLoginGate: React.FC<RomanticLoginGateProps> = ({
       }, 900);
     } else {
       setError('Secret love credentials do not match! Please check the spelling.');
-      setShowHint(true);
     }
   };
 
@@ -190,17 +188,6 @@ export const RomanticLoginGate: React.FC<RomanticLoginGateProps> = ({
             )}
           </button>
         </form>
-
-        {/* Credentials Clue / Hint */}
-        <div className="mt-5 pt-4 border-t border-white/10 w-full flex flex-col items-center gap-1.5 text-center">
-          <div className="text-[11px] text-[#F7B8C5]/70">
-            <span>Username: </span>
-            <strong className="text-[#FFF3EF] font-mono">I LOVE YOU</strong>
-            <span className="mx-1.5">•</span>
-            <span>Password: </span>
-            <strong className="text-[#D8A06C] font-mono">I LOVE YOU 2</strong>
-          </div>
-        </div>
       </div>
 
       {/* Sweet footer footnote */}
