@@ -14,13 +14,16 @@ import { EditStoryModal } from './components/EditStoryModal';
 import { WhatsAppAnswerModal } from './components/WhatsAppAnswerModal';
 import { RomanticLoginGate } from './components/RomanticLoginGate';
 import { CloudSyncIndicator } from './components/CloudSyncIndicator';
+import { RomanticChatWidget } from './components/RomanticChatWidget';
 import {
   initAuth,
   subscribeToSharedProposal,
   saveSharedProposalData,
+  defaultSharedData,
   SharedProposalData
 } from './lib/firebase';
 import { getVideoObjectUrl, deleteVideoBlob } from './utils/mediaStore';
+import { audioEngine } from './utils/audioSynthesizer';
 
 // Scenes 01 - 16
 import { Scene01Loading } from './components/scenes/Scene01Loading';
@@ -47,8 +50,8 @@ import {
   initialMemories,
   initialReasons
 } from './config/proposalData';
-import { ProposalConfig, MemoryItem, TimelineEvent } from './types';
-import { SlidersHorizontal, ChevronLeft, ChevronRight, MessageCircle, Lock, Sparkles } from 'lucide-react';
+import { ProposalConfig, MemoryItem, TimelineEvent, ChatMessage } from './types';
+import { SlidersHorizontal, ChevronLeft, ChevronRight, MessageCircle, Lock, Sparkles, MessageCircleHeart } from 'lucide-react';
 
 const SCENE_NAMES: Record<number, string> = {
   1: 'Loading',
@@ -72,11 +75,27 @@ const SCENE_NAMES: Record<number, string> = {
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
     try {
-      return sessionStorage.getItem('proposal_user_authenticated') === 'true';
+      return (
+        sessionStorage.getItem('proposal_user_authenticated') === 'true' ||
+        localStorage.getItem('proposal_user_authenticated') === 'true'
+      );
     } catch {
       return false;
     }
   });
+
+  const [currentUserName, setCurrentUserName] = useState<string>(() => {
+    try {
+      return localStorage.getItem('romantic_chat_user_name') || sessionStorage.getItem('romantic_chat_user_name') || 'Labdhi';
+    } catch {
+      return 'Labdhi';
+    }
+  });
+
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>(() => {
+    return defaultSharedData.chatMessages || [];
+  });
+
 
   const [hasSentYesAnswer, setHasSentYesAnswer] = useState<boolean>(() => {
     try {
@@ -152,7 +171,7 @@ export default function App() {
   // Global Primary Dream Photo (dynamically updates everywhere when Dreams/Memories change)
   const primaryPhoto = memories[0]?.image || (memories[0] as any)?.photoUrl;
 
-  // Hydrate local video ObjectURLs from IndexedDB on initial load
+  // Hydrate local video ObjectURLs and saved custom music on initial load
   useEffect(() => {
     const hydrateLocalVideos = async () => {
       let changed = false;
@@ -173,6 +192,49 @@ export default function App() {
       }
     };
     hydrateLocalVideos();
+
+    // Hydrate saved audio configurations
+    try {
+      const savedConfigStr = localStorage.getItem('romantic_proposal_config');
+      if (savedConfigStr) {
+        const parsed = JSON.parse(savedConfigStr);
+        if (parsed.bgMusicUrl) {
+          audioEngine.setCustomAudioUrl(parsed.bgMusicUrl, parsed.bgMusicName || parsed.musicTitle, false);
+        }
+        if (parsed.selectedTrackId) {
+          audioEngine.selectTrackById(parsed.selectedTrackId, false);
+        }
+      }
+    } catch {}
+
+    // Auto-start music by default when user enters application
+    const startMusic = () => {
+      try {
+        audioEngine.init();
+        if (!audioEngine.getIsPlaying()) {
+          audioEngine.play();
+        }
+      } catch {}
+    };
+
+    startMusic();
+
+    const handleFirstInteraction = () => {
+      startMusic();
+      window.removeEventListener('click', handleFirstInteraction);
+      window.removeEventListener('touchstart', handleFirstInteraction);
+      window.removeEventListener('keydown', handleFirstInteraction);
+    };
+
+    window.addEventListener('click', handleFirstInteraction, { once: true });
+    window.addEventListener('touchstart', handleFirstInteraction, { once: true });
+    window.addEventListener('keydown', handleFirstInteraction, { once: true });
+
+    return () => {
+      window.removeEventListener('click', handleFirstInteraction);
+      window.removeEventListener('touchstart', handleFirstInteraction);
+      window.removeEventListener('keydown', handleFirstInteraction);
+    };
   }, []);
 
   // Real-time Cloud Firestore subscription across all devices
@@ -193,6 +255,18 @@ export default function App() {
               try {
                 localStorage.setItem('romantic_proposal_config', JSON.stringify(cloudData.config));
               } catch {}
+
+              // Sync background music URL and track selection across devices
+              if (cloudData.config.bgMusicUrl) {
+                audioEngine.setCustomAudioUrl(
+                  cloudData.config.bgMusicUrl,
+                  cloudData.config.bgMusicName || cloudData.config.musicTitle || 'Custom Love Song',
+                  false
+                );
+              }
+              if (cloudData.config.selectedTrackId) {
+                audioEngine.selectTrackById(cloudData.config.selectedTrackId, false);
+              }
             }
 
             if (cloudData.storyEvents && Array.isArray(cloudData.storyEvents) && cloudData.storyEvents.length > 0) {
@@ -236,6 +310,10 @@ export default function App() {
                   sessionStorage.setItem('proposal_user_sent_yes', 'true');
                 } catch {}
               }
+            }
+
+            if (cloudData.chatMessages && Array.isArray(cloudData.chatMessages)) {
+              setChatMessages(cloudData.chatMessages);
             }
           },
           (err) => {
@@ -390,10 +468,18 @@ export default function App() {
     return 'burgundy';
   };
 
-  const handleLoginSuccess = () => {
+  const handleLoginSuccess = (userName?: string) => {
     setIsAuthenticated(true);
+    if (userName && userName.trim()) {
+      setCurrentUserName(userName.trim());
+      try {
+        localStorage.setItem('romantic_chat_user_name', userName.trim());
+        sessionStorage.setItem('romantic_chat_user_name', userName.trim());
+      } catch {}
+    }
     try {
       sessionStorage.setItem('proposal_user_authenticated', 'true');
+      localStorage.setItem('proposal_user_authenticated', 'true');
     } catch {}
   };
 
@@ -402,7 +488,9 @@ export default function App() {
     setHasSentYesAnswer(false);
     try {
       sessionStorage.removeItem('proposal_user_authenticated');
+      localStorage.removeItem('proposal_user_authenticated');
       sessionStorage.removeItem('proposal_user_sent_yes');
+      localStorage.removeItem('proposal_user_sent_yes');
     } catch {}
   };
 
@@ -793,6 +881,17 @@ export default function App() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* 11. Cross-Device Real-Time Couple Chat Widget */}
+      <RomanticChatWidget
+        currentUserName={currentUserName}
+        onUpdateUserName={(name) => setCurrentUserName(name)}
+        partnerName={config.partnerName}
+        yourName={config.yourName}
+        chatMessages={chatMessages}
+        lastUpdatedBy={lastUpdatedBy}
+        isCloudSynced={syncStatus === 'synced'}
+      />
     </main>
   );
 }

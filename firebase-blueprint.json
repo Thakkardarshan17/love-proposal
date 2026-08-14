@@ -1,0 +1,53 @@
+{
+  "entities": {
+    "Proposal": {
+      "title": "Proposal",
+      "description": "Shared couple love story, proposal state, customizations and memories",
+      "type": "object",
+      "properties": {
+        "config": { "type": "object", "description": "Proposal configuration and couple names" },
+        "storyEvents": { "type": "array", "description": "Timeline milestones" },
+        "memories": { "type": "array", "description": "Memory photo polaroids" },
+        "reasons": { "type": "array", "description": "Reasons for loving partner" },
+        "chatMessages": { "type": "array", "description": "List of recent chat messages" },
+        "hasAnsweredYes": { "type": "boolean", "description": "Whether partner accepted proposal" },
+        "yesTimestamp": { "type": "number", "description": "Timestamp of acceptance" },
+        "lastUpdatedBy": { "type": "string", "description": "Name of user who last modified state" },
+        "updatedAt": { "type": "number", "description": "Last update timestamp" }
+      },
+      "required": ["config", "hasAnsweredYes"]
+    },
+    "ChatMessage": {
+      "title": "ChatMessage",
+      "description": "Individual real-time chat message between Deep and Labdhi with optional media and location",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique message identifier" },
+        "senderName": { "type": "string", "description": "Sender display name" },
+        "senderRole": { "type": "string", "description": "Sender role (boyfriend or girlfriend)" },
+        "senderId": { "type": "string", "description": "Optional sender device identifier" },
+        "text": { "type": "string", "description": "Text message content" },
+        "createdAt": { "type": "number", "description": "Creation timestamp in milliseconds" },
+        "dateTimeStr": { "type": "string", "description": "Human-readable date and time" },
+        "location": { "type": "string", "description": "Location tag at time of sending" },
+        "reaction": { "type": "string", "description": "Emoji reaction attached to message" },
+        "sticker": { "type": "string", "description": "Romantic sticker tag" },
+        "mediaUrl": { "type": "string", "description": "Compressed photo or video URL" },
+        "mediaType": { "type": "string", "description": "Media type (image or video)" },
+        "mediaName": { "type": "string", "description": "Original file name" },
+        "mediaThumbnail": { "type": "string", "description": "Video preview thumbnail" }
+      },
+      "required": ["id", "senderName", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/proposals/{proposalId}": {
+      "schema": "Proposal",
+      "description": "Stores shared proposal state and customizations"
+    },
+    "/love_chat_messages/{messageId}": {
+      "schema": "ChatMessage",
+      "description": "Real-time atomic messages for instant couple chat"
+    }
+  }
+}

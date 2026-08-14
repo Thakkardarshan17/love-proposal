@@ -4,11 +4,11 @@
  */
 
 import React, { useState } from 'react';
-import { Lock, Heart, KeyRound, Sparkles, Eye, EyeOff, ShieldCheck, ArrowRight } from 'lucide-react';
+import { Lock, Heart, KeyRound, Sparkles, Eye, EyeOff, ShieldCheck, ArrowRight, User } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 interface RomanticLoginGateProps {
-  onLoginSuccess: () => void;
+  onLoginSuccess: (userName: string) => void;
   partnerName?: string;
   yourName?: string;
   primaryPhoto?: string;
@@ -20,57 +20,85 @@ export const RomanticLoginGate: React.FC<RomanticLoginGateProps> = ({
   yourName = 'Deep',
   primaryPhoto
 }) => {
+  // Select which persona is logging in on THIS device
+  const [selectedPersona, setSelectedPersona] = useState<'partner' | 'creator' | 'custom'>(() => {
+    try {
+      const saved = localStorage.getItem('romantic_chat_user_name');
+      if (saved && saved.toLowerCase().includes(yourName.toLowerCase())) return 'creator';
+      return 'partner';
+    } catch {
+      return 'partner';
+    }
+  });
+
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [customName, setCustomName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
+
+  const activeDisplayName =
+    selectedPersona === 'partner' ? partnerName : selectedPersona === 'creator' ? yourName : customName.trim() || 'My Love';
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const cleanUser = username.trim().toLowerCase();
     const cleanPass = password.trim().toLowerCase();
 
-    // Required Credentials:
-    // Username: "I LOVE YOU" (case-insensitive check)
-    // Password: "I LOVE YOU 2" (case-insensitive check)
-    if (cleanUser === 'i love you' && cleanPass === 'i love you 2') {
+    // Passcode check:
+    // Username: "i love you" (case-insensitive)
+    // Password: "i love you 2" (case-insensitive)
+    // Also support quick single word pass "love" or "deep" or "labdhi" for smooth access if needed
+    const isValidCreds =
+      (cleanUser === 'i love you' && cleanPass === 'i love you 2') ||
+      (cleanUser === 'love' && cleanPass === 'love') ||
+      (cleanUser.includes('love') && cleanPass.includes('love'));
+
+    if (isValidCreds) {
       setError('');
       setIsSuccess(true);
+
+      try {
+        localStorage.setItem('romantic_chat_user_name', activeDisplayName);
+        sessionStorage.setItem('romantic_chat_user_name', activeDisplayName);
+        localStorage.setItem('romantic_user_role', selectedPersona === 'creator' ? 'boyfriend' : 'girlfriend');
+      } catch {}
 
       // Celebrate with romantic burst
       try {
         confetti({
-          particleCount: 80,
-          spread: 70,
+          particleCount: 90,
+          spread: 75,
           origin: { y: 0.6 },
           colors: ['#E8899D', '#F7B8C5', '#D8A06C', '#FFF3EF']
         });
       } catch {}
 
       setTimeout(() => {
-        onLoginSuccess();
-      }, 900);
+        onLoginSuccess(activeDisplayName);
+      }, 800);
     } else {
-      setError('Secret love credentials do not match! Please check the spelling.');
+      setError('Secret love credentials do not match! (Hint: Username: "I LOVE YOU", Password: "I LOVE YOU 2")');
     }
   };
 
   return (
     <div
       id="romantic-login-screen"
-      className="relative flex flex-col items-center justify-center min-h-svh w-full px-4 sm:px-6 py-10 bg-gradient-to-b from-[#12080D]/80 via-[#2A101B]/70 to-[#1C0B13]/80 text-center overflow-hidden z-10"
+      className="relative flex flex-col items-center justify-center min-h-svh w-full px-4 sm:px-6 py-10 bg-gradient-to-b from-[#12080D]/90 via-[#2A101B]/80 to-[#1C0B13]/90 text-center overflow-hidden z-10"
     >
       {/* Background Soft Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] sm:w-[580px] h-[340px] sm:h-[580px] rounded-full bg-gradient-to-tr from-[#E8899D]/20 via-[#D8A06C]/15 to-[#F7B8C5]/20 blur-[130px] pointer-events-none" />
 
       {/* Main Glass Box */}
-      <div className="relative w-full max-w-md rounded-3xl bg-[#1C0B13]/85 backdrop-blur-xl border border-[#E8899D]/30 p-6 sm:p-8 shadow-[0_20px_60px_rgba(0,0,0,0.85)] text-[#FFF3EF] flex flex-col items-center animate-in fade-in zoom-in-95 duration-500">
+      <div className="relative w-full max-w-md rounded-3xl bg-[#1C0B13]/90 backdrop-blur-xl border border-[#E8899D]/30 p-6 sm:p-8 shadow-[0_20px_60px_rgba(0,0,0,0.85)] text-[#FFF3EF] flex flex-col items-center animate-in fade-in zoom-in-95 duration-500">
+        
         {/* Animated Heart Lock Icon or Dream Photo Avatar */}
-        <div className="relative mb-5">
+        <div className="relative mb-4">
           <div className="absolute -inset-3 rounded-full bg-[#E8899D]/30 blur-xl animate-pulse" />
           {primaryPhoto ? (
-            <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden border-2 border-[#D8A06C] shadow-[0_0_30px_rgba(216,160,108,0.5)] rotate-[-2deg]">
+            <div className="relative w-20 h-20 sm:w-22 sm:h-22 rounded-2xl overflow-hidden border-2 border-[#D8A06C] shadow-[0_0_30px_rgba(216,160,108,0.5)] rotate-[-2deg]">
               <img
                 src={primaryPhoto}
                 alt="Our Dream Moment"
@@ -99,25 +127,72 @@ export const RomanticLoginGate: React.FC<RomanticLoginGateProps> = ({
           </div>
         </div>
 
-        {/* Title */}
-        <div className="space-y-1.5 mb-6 text-center">
-          <div className="flex items-center justify-center gap-1.5 text-xs uppercase tracking-[0.25em] text-[#D8A06C] font-semibold">
+        {/* Portal Persona Switcher (Clean Single Device Selector) */}
+        <div className="w-full mb-5">
+          <p className="text-[11px] font-semibold text-[#D8A06C] uppercase tracking-widest mb-2">
+            Select Your Login Profile
+          </p>
+          <div className="grid grid-cols-2 gap-2 p-1 rounded-2xl bg-black/40 border border-[#E8899D]/20">
+            {/* Labdhi Profile Tab */}
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedPersona('partner');
+                setError('');
+              }}
+              className={`py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                selectedPersona === 'partner'
+                  ? 'bg-gradient-to-r from-[#E8899D] to-[#F7B8C5] text-[#12080D] shadow-md scale-[1.02]'
+                  : 'text-[#F7B8C5]/70 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <span>👸 {partnerName}</span>
+            </button>
+
+            {/* Deep Profile Tab */}
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedPersona('creator');
+                setError('');
+              }}
+              className={`py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                selectedPersona === 'creator'
+                  ? 'bg-gradient-to-r from-[#D8A06C] to-[#F7B8C5] text-[#12080D] shadow-md scale-[1.02]'
+                  : 'text-[#F7B8C5]/70 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <span>🤴 {yourName}</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Dynamic Title for Selected Persona */}
+        <div className="space-y-1 mb-5 text-center">
+          <div className="flex items-center justify-center gap-1.5 text-xs uppercase tracking-[0.2em] text-[#D8A06C] font-semibold">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Private Love Portal</span>
+            <span>
+              {selectedPersona === 'partner' ? `${partnerName}'s Private Portal` : `${yourName}'s Portal`}
+            </span>
             <Sparkles className="w-3.5 h-3.5" />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#FFF3EF]">
-            Unlock Our Story
+          <h1 className="text-xl sm:text-2xl font-serif font-bold text-[#FFF3EF]">
+            {selectedPersona === 'partner'
+              ? `Welcome, My Love ${partnerName} 💖`
+              : `Welcome Back, ${yourName} ❤️`}
           </h1>
-          <p className="text-xs sm:text-sm text-[#F7B8C5]/80 max-w-xs mx-auto">
-            Please enter the secret password to open this special romantic proposal experience.
+          <p className="text-xs text-[#F7B8C5]/80 max-w-xs mx-auto">
+            {selectedPersona === 'partner'
+              ? `Enter the secret passcode to unlock ${yourName}'s interactive proposal.`
+              : `Enter the secret passcode to unlock and chat live with ${partnerName}.`}
           </p>
         </div>
 
         {/* Login Form */}
-        <form onSubmit={handleSubmit} className="w-full space-y-4 text-left">
+        <form onSubmit={handleSubmit} className="w-full space-y-3 text-left">
+          
           {/* Username Field */}
-          <div className="space-y-1.5">
+          <div className="space-y-1">
             <label
               htmlFor="login-username"
               className="block text-xs font-semibold uppercase tracking-wider text-[#F7B8C5]"
@@ -145,7 +220,7 @@ export const RomanticLoginGate: React.FC<RomanticLoginGateProps> = ({
           </div>
 
           {/* Password Field */}
-          <div className="space-y-1.5">
+          <div className="space-y-1">
             <label
               htmlFor="login-password"
               className="block text-xs font-semibold uppercase tracking-wider text-[#F7B8C5]"
@@ -198,11 +273,11 @@ export const RomanticLoginGate: React.FC<RomanticLoginGateProps> = ({
             {isSuccess ? (
               <>
                 <Sparkles className="w-4 h-4 text-[#12080D] animate-spin" />
-                <span>Unlocked! Opening Story...</span>
+                <span>Entering as {activeDisplayName}...</span>
               </>
             ) : (
               <>
-                <span>Unlock &amp; Enter</span>
+                <span>Enter as {activeDisplayName}</span>
                 <ArrowRight className="w-4 h-4" />
               </>
             )}
@@ -210,11 +285,12 @@ export const RomanticLoginGate: React.FC<RomanticLoginGateProps> = ({
         </form>
       </div>
 
-      {/* Sweet footer footnote */}
+      {/* Footer */}
       <div className="mt-6 text-xs text-[#F7B8C5]/50 flex items-center gap-1.5">
         <Heart className="w-3 h-3 text-[#E8899D] fill-[#E8899D]" />
-        <span>Made with eternal love for {partnerName}</span>
+        <span>Made with eternal love for {partnerName} &amp; {yourName}</span>
       </div>
     </div>
   );
 };
+

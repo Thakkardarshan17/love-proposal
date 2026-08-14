@@ -2,7 +2,7 @@
  * Romantic Audio Engine with Audio Element streaming, custom uploaded audio files,
  * and Web Audio API synthesizer fallback
  */
-import { getAudioFile, saveAudioFile } from './audioStorage';
+import { getAudioFile, saveAudioFile, getAllAudioFiles, deleteAudioFile } from './audioStorage';
 
 export interface AudioTrackInfo {
   id: string;
@@ -29,7 +29,7 @@ class RomanticAudioEngine {
   
   // HTML5 Audio element for custom uploads / streams
   private audioElement: HTMLAudioElement | null = null;
-  private customAudioObjectUrl: string | null = null;
+  private objectUrls: Map<string, string> = new Map();
   private currentTime: number = 0;
   private duration: number = 0;
 
@@ -92,7 +92,15 @@ class RomanticAudioEngine {
   private listeners: ((playing: boolean, trackIdx: number, track: AudioTrackInfo, currentTime: number, duration: number) => void)[] = [];
 
   constructor() {
-    // Attempt restoring saved custom audio from IndexedDB on startup
+    // Restore saved volume if present
+    try {
+      const savedVol = localStorage.getItem('romantic_music_volume');
+      if (savedVol !== null) {
+        this.volume = Math.max(0, Math.min(1, parseFloat(savedVol)));
+      }
+    } catch {}
+
+    // Attempt restoring saved custom audio from IndexedDB and custom URL from localStorage
     if (typeof window !== 'undefined') {
       this.loadSavedCustomAudio();
     }
@@ -100,12 +108,64 @@ class RomanticAudioEngine {
 
   private async loadSavedCustomAudio() {
     try {
-      const saved = await getAudioFile('custom_user_bg_music');
-      if (saved && saved.blob) {
-        this.setCustomAudioBlob(saved.blob, saved.name, false);
+      // 1. Restore any custom URL saved
+      const savedUrl = localStorage.getItem('romantic_custom_audio_url');
+      const savedUrlName = localStorage.getItem('romantic_custom_audio_name') || 'Custom Love Song';
+      if (savedUrl && savedUrl.trim()) {
+        const customTrack: AudioTrackInfo = {
+          id: 'custom-url-track',
+          name: savedUrlName,
+          artist: 'Special Audio Stream ❤️',
+          type: 'stream',
+          url: savedUrl.trim()
+        };
+        const existIdx = this.tracks.findIndex(t => t.id === 'custom-url-track');
+        if (existIdx >= 0) {
+          this.tracks[existIdx] = customTrack;
+        } else {
+          this.tracks.unshift(customTrack);
+        }
       }
+
+      // 2. Restore all uploaded audio files from IndexedDB
+      const allSaved = await getAllAudioFiles();
+      if (allSaved && allSaved.length > 0) {
+        for (const item of allSaved) {
+          if (item.blob) {
+            let objUrl = this.objectUrls.get(item.id);
+            if (!objUrl) {
+              objUrl = URL.createObjectURL(item.blob);
+              this.objectUrls.set(item.id, objUrl);
+            }
+            const fileTrack: AudioTrackInfo = {
+              id: item.id,
+              name: item.name || 'My Uploaded Song',
+              artist: 'My Custom Song ❤️',
+              type: 'custom',
+              url: objUrl
+            };
+            const existIdx = this.tracks.findIndex(t => t.id === item.id);
+            if (existIdx >= 0) {
+              this.tracks[existIdx] = fileTrack;
+            } else {
+              this.tracks.unshift(fileTrack);
+            }
+          }
+        }
+      }
+
+      // 3. Restore chosen track selection
+      const savedTrackId = localStorage.getItem('romantic_selected_track_id');
+      if (savedTrackId) {
+        const foundIdx = this.tracks.findIndex(t => t.id === savedTrackId);
+        if (foundIdx >= 0) {
+          this.currentTrackIndex = foundIdx;
+        }
+      }
+
+      this.notify();
     } catch (e) {
-      console.warn('Failed to load custom audio from IndexedDB', e);
+      console.warn('Failed to restore custom audio tracks:', e);
     }
   }
 
@@ -177,6 +237,12 @@ class RomanticAudioEngine {
 
   public setVolume(vol: number) {
     this.volume = Math.max(0, Math.min(1, vol));
+    try {
+      localStorage.setItem('romantic_music_volume', this.volume.toString());
+    } catch {}
+    if (!this.audioElement) {
+      this.init();
+    }
     if (this.masterGain && this.ctx) {
       this.masterGain.gain.setValueAtTime(this.volume, this.ctx.currentTime);
     }
@@ -198,22 +264,49 @@ class RomanticAudioEngine {
     }
   }
 
-  public async setCustomAudioFile(file: File): Promise<void> {
+  public async setCustomAudioFile(file: File): Promise<string> {
+    const trackId = `custom-audio-${Date.now()}`;
     const trackName = file.name.replace(/\.[^/.]+$/, '');
-    await saveAudioFile('custom_user_bg_music', trackName, file);
-    this.setCustomAudioBlob(file, trackName, true);
-  }
+    await saveAudioFile(trackId, trackName, file);
 
-  public setCustomAudioUrl(url: string, name: string = 'Custom Love Song') {
+    const blobUrl = URL.createObjectURL(file);
+    this.objectUrls.set(trackId, blobUrl);
+
     const customTrack: AudioTrackInfo = {
-      id: 'custom-user-track',
-      name: name,
-      artist: 'My Uploaded Special Song ❤️',
-      type: 'stream',
-      url: url
+      id: trackId,
+      name: trackName,
+      artist: 'My Uploaded Song ❤️',
+      type: 'custom',
+      url: blobUrl
     };
 
-    const existingIdx = this.tracks.findIndex(t => t.id === 'custom-user-track');
+    this.tracks.unshift(customTrack);
+    this.currentTrackIndex = 0;
+
+    try {
+      localStorage.setItem('romantic_selected_track_id', trackId);
+      localStorage.setItem('romantic_custom_audio_name', trackName);
+    } catch {}
+
+    this.stop();
+    this.play();
+    return trackId;
+  }
+
+  public setCustomAudioUrl(url: string, name: string = 'Custom Love Song', autoPlay: boolean = true) {
+    const cleanUrl = url.trim();
+    if (!cleanUrl) return;
+
+    const trackId = 'custom-url-track';
+    const customTrack: AudioTrackInfo = {
+      id: trackId,
+      name: name,
+      artist: 'My Special Online Song ❤️',
+      type: 'stream',
+      url: cleanUrl
+    };
+
+    const existingIdx = this.tracks.findIndex(t => t.id === trackId);
     if (existingIdx >= 0) {
       this.tracks[existingIdx] = customTrack;
       this.currentTrackIndex = existingIdx;
@@ -222,7 +315,13 @@ class RomanticAudioEngine {
       this.currentTrackIndex = 0;
     }
 
-    if (this.isPlaying) {
+    try {
+      localStorage.setItem('romantic_custom_audio_url', cleanUrl);
+      localStorage.setItem('romantic_custom_audio_name', name);
+      localStorage.setItem('romantic_selected_track_id', trackId);
+    } catch {}
+
+    if (autoPlay) {
       this.stop();
       this.play();
     } else {
@@ -230,30 +329,24 @@ class RomanticAudioEngine {
     }
   }
 
-  public setCustomAudioBlob(blob: Blob, name: string = 'Our Special Background Song', autoPlay: boolean = true) {
-    if (this.customAudioObjectUrl) {
-      URL.revokeObjectURL(this.customAudioObjectUrl);
+  public async deleteCustomTrack(trackId: string): Promise<void> {
+    await deleteAudioFile(trackId);
+    const existingUrl = this.objectUrls.get(trackId);
+    if (existingUrl) {
+      URL.revokeObjectURL(existingUrl);
+      this.objectUrls.delete(trackId);
     }
-    this.customAudioObjectUrl = URL.createObjectURL(blob);
-
-    const customTrack: AudioTrackInfo = {
-      id: 'custom-user-track',
-      name: name,
-      artist: 'My Uploaded Romantic Song ❤️',
-      type: 'custom',
-      url: this.customAudioObjectUrl
-    };
-
-    const existingIdx = this.tracks.findIndex(t => t.id === 'custom-user-track');
-    if (existingIdx >= 0) {
-      this.tracks[existingIdx] = customTrack;
-      this.currentTrackIndex = existingIdx;
-    } else {
-      this.tracks.unshift(customTrack);
+    this.tracks = this.tracks.filter(t => t.id !== trackId);
+    if (this.currentTrackIndex >= this.tracks.length) {
       this.currentTrackIndex = 0;
     }
-
-    if (autoPlay) {
+    const current = this.getCurrentTrack();
+    if (current) {
+      try {
+        localStorage.setItem('romantic_selected_track_id', current.id);
+      } catch {}
+    }
+    if (this.isPlaying) {
       this.stop();
       this.play();
     } else {
@@ -264,7 +357,29 @@ class RomanticAudioEngine {
   public selectTrack(index: number) {
     if (index >= 0 && index < this.tracks.length) {
       this.currentTrackIndex = index;
+      const track = this.getCurrentTrack();
+      try {
+        localStorage.setItem('romantic_selected_track_id', track.id);
+      } catch {}
+
       if (this.isPlaying) {
+        this.stop();
+        this.play();
+      } else {
+        this.notify();
+      }
+    }
+  }
+
+  public selectTrackById(trackId: string, autoPlay?: boolean) {
+    const idx = this.tracks.findIndex(t => t.id === trackId);
+    if (idx >= 0) {
+      this.currentTrackIndex = idx;
+      try {
+        localStorage.setItem('romantic_selected_track_id', trackId);
+      } catch {}
+
+      if (autoPlay || this.isPlaying) {
         this.stop();
         this.play();
       } else {

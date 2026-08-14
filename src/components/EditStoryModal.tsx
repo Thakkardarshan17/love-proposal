@@ -361,10 +361,8 @@ export const EditStoryModal: React.FC<EditStoryModalProps> = ({
               <button
                 type="button"
                 onClick={() => {
-                  if (confirm('Are you sure you want to remove this story chapter?')) {
-                    onDelete(event.id);
-                    onClose();
-                  }
+                  onDelete(event.id);
+                  onClose();
                 }}
                 className="flex items-center gap-1.5 text-xs text-rose-400 hover:text-rose-300 p-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 transition-colors cursor-pointer"
               >

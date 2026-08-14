@@ -74,6 +74,25 @@ export async function getAudioFile(id: string): Promise<SavedAudioTrack | null> 
   }
 }
 
+export async function getAllAudioFiles(): Promise<SavedAudioTrack[]> {
+  try {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE_NAME, 'readonly');
+      const store = tx.objectStore(STORE_NAME);
+      const request = store.getAll();
+
+      request.onsuccess = () => {
+        resolve(request.result || []);
+      };
+      request.onerror = () => reject(request.error);
+    });
+  } catch (err) {
+    console.warn('Could not read all audio from IndexedDB:', err);
+    return [];
+  }
+}
+
 export async function deleteAudioFile(id: string): Promise<void> {
   try {
     const db = await openDB();

@@ -14,7 +14,8 @@ import {
   Link,
   ListMusic,
   Heart,
-  CheckCircle2
+  CheckCircle2,
+  Trash2
 } from 'lucide-react';
 import { audioEngine, AudioTrackInfo } from '../utils/audioSynthesizer';
 
@@ -247,30 +248,57 @@ export const FloatingMusicPlayer: React.FC<FloatingMusicPlayerProps> = ({
           {showTrackList ? (
             <div className="space-y-1.5 mb-3 max-h-56 overflow-y-auto pr-1">
               <p className="text-[11px] uppercase tracking-wider text-[#F7B8C5]/70 font-semibold mb-1">
-                Select Soundtrack
+                Select Soundtrack &amp; Saved Music
               </p>
               {allTracks.map((t, idx) => (
-                <button
+                <div
                   key={t.id}
-                  type="button"
-                  onClick={() => {
-                    audioEngine.selectTrack(idx);
-                    setShowTrackList(false);
-                  }}
-                  className={`w-full p-2 rounded-xl text-left text-xs transition-all flex items-center justify-between gap-2 border cursor-pointer ${
+                  className={`w-full p-2 rounded-xl text-left text-xs transition-all flex items-center justify-between gap-2 border ${
                     trackIndex === idx
                       ? 'bg-[#E8899D]/25 border-[#E8899D] text-[#FFF3EF] shadow-[0_0_10px_rgba(232,137,157,0.3)]'
                       : 'bg-white/5 border-transparent hover:bg-white/10 text-white/80'
                   }`}
                 >
-                  <div className="min-w-0 flex-1">
-                    <p className="font-semibold truncate">{t.name}</p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      audioEngine.selectTrack(idx);
+                      setShowTrackList(false);
+                    }}
+                    className="min-w-0 flex-1 text-left cursor-pointer"
+                  >
+                    <div className="flex items-center gap-1.5">
+                      <p className="font-semibold truncate">{t.name}</p>
+                      {t.type === 'custom' && (
+                        <span className="px-1.5 py-0.5 rounded bg-emerald-500/25 text-emerald-300 text-[9px] font-semibold">
+                          Saved
+                        </span>
+                      )}
+                    </div>
                     <p className="text-[10px] text-[#F7B8C5]/70 truncate">{t.artist}</p>
+                  </button>
+
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    {trackIndex === idx && (
+                      <Heart className="w-3.5 h-3.5 text-[#E8899D] fill-[#E8899D]" />
+                    )}
+                    {t.type === 'custom' && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (confirm(`Remove "${t.name}" from saved music?`)) {
+                            audioEngine.deleteCustomTrack(t.id);
+                          }
+                        }}
+                        className="p-1 rounded-lg text-white/40 hover:text-rose-400 hover:bg-rose-500/20 transition-colors"
+                        title="Delete saved song"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    )}
                   </div>
-                  {trackIndex === idx && (
-                    <Heart className="w-3.5 h-3.5 text-[#E8899D] fill-[#E8899D] shrink-0" />
-                  )}
-                </button>
+                </div>
               ))}
             </div>
           ) : (

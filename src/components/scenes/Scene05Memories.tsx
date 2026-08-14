@@ -2,7 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Heart, Sparkles, ChevronRight, Eye, Camera, Plus, Upload, Video, Film, Play } from 'lucide-react';
 import gsap from 'gsap';
 import { MemoryItem } from '../../types';
-import { processMultipleMediaFiles } from '../../utils/imageUtils';
+import { compressMultipleImages } from '../../utils/imageUtils';
+import { getRealtimeDateTimeString, getRealtimeLocation } from '../../utils/dateTimeLocation';
 
 interface Scene05MemoriesProps {
   memories: MemoryItem[];
@@ -50,10 +51,28 @@ export const Scene05Memories: React.FC<Scene05MemoriesProps> = ({
 
     try {
       setIsProcessingBatch(true);
-      const newItems = await processMultipleMediaFiles(files);
+      const compressedUrls = await compressMultipleImages(files);
+      const realTimeDate = getRealtimeDateTimeString();
+      const realTimeLocation = await getRealtimeLocation();
+      const newItems: MemoryItem[] = compressedUrls.map((url, idx) => {
+        const file = files[idx];
+        const cleanName = file ? file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ') : `Dream ${idx + 1}`;
+        const title = cleanName.length > 2 ? cleanName.charAt(0).toUpperCase() + cleanName.slice(1) : `Dream Moment ${idx + 1}`;
+        return {
+          id: `mem-${Date.now()}-${idx}`,
+          title,
+          description: 'Every moment spent with you is a memory I treasure forever.',
+          date: realTimeDate,
+          location: realTimeLocation,
+          image: url,
+          mediaType: 'image',
+          rotationDeg: (idx % 2 === 0 ? -1 : 1) * ((idx % 3) + 1.5),
+          badge: 'Dream'
+        };
+      });
       onAddMultipleMemories(newItems);
     } catch (err) {
-      console.error('Batch media upload error:', err);
+      console.error('Batch image upload error:', err);
     } finally {
       setIsProcessingBatch(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -70,11 +89,11 @@ export const Scene05Memories: React.FC<Scene05MemoriesProps> = ({
       <div className="absolute top-1/3 right-10 w-[300px] h-[300px] rounded-full bg-[#E8899D]/15 blur-[100px] pointer-events-none" />
       <div className="absolute bottom-1/4 left-10 w-[300px] h-[300px] rounded-full bg-[#D8A06C]/10 blur-[100px] pointer-events-none" />
 
-      {/* Hidden batch upload file input for photos and videos */}
+      {/* Hidden batch upload file input for photos */}
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/*,video/*"
+        accept="image/*"
         multiple
         className="hidden"
         onChange={handleBatchFileChange}
@@ -84,7 +103,7 @@ export const Scene05Memories: React.FC<Scene05MemoriesProps> = ({
       <div className="memories-header text-center pt-1 mb-2 max-w-lg">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#2A101B] border border-[#E8899D]/30 text-xs text-[#F7B8C5] mb-2 font-medium">
           <Sparkles className="w-3 h-3 text-[#D8A06C]" />
-          <span>{memories.length} Captured Dream Moments &amp; Videos ✨ (No Limit)</span>
+          <span>{memories.length} Captured Dream Photos ✨ (No Limit)</span>
         </div>
         <h2 className="text-2xl sm:text-4xl font-serif font-bold text-[#FFF3EF] tracking-wide flex items-center justify-center gap-2">
           <span>Our Beautiful</span>
@@ -92,7 +111,7 @@ export const Scene05Memories: React.FC<Scene05MemoriesProps> = ({
           <Heart className="w-5 h-5 sm:w-6 sm:h-6 text-[#E8899D] fill-[#E8899D] animate-pulse-heart inline" />
         </h2>
         <p className="text-xs sm:text-sm text-[#F7B8C5]/80 mt-1 font-light">
-          Tap any dream Polaroid to view uncropped photo, play videos &amp; read its story
+          Tap any dream Polaroid to view uncropped photo &amp; read its story
         </p>
 
         {/* Quick Action Buttons */}
@@ -104,7 +123,7 @@ export const Scene05Memories: React.FC<Scene05MemoriesProps> = ({
               className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#E8899D]/20 hover:bg-[#E8899D]/35 border border-[#E8899D]/40 text-xs text-[#F7B8C5] hover:text-[#FFF3EF] transition-all cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5 text-[#D8A06C]" />
-              <span>+ Add Photo / Video</span>
+              <span>+ Add Photo Dream</span>
             </button>
           )}
 
@@ -116,7 +135,7 @@ export const Scene05Memories: React.FC<Scene05MemoriesProps> = ({
               className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gradient-to-r from-[#E8899D]/30 to-[#D8A06C]/30 hover:from-[#E8899D]/50 hover:to-[#D8A06C]/50 border border-[#D8A06C]/40 text-xs text-[#FFF3EF] transition-all cursor-pointer shadow-xs"
             >
               <Upload className="w-3.5 h-3.5 text-[#D8A06C]" />
-              <span>{isProcessingBatch ? 'Processing Media...' : '+ Batch Upload Media (Photos & Videos)'}</span>
+              <span>{isProcessingBatch ? 'Processing Photos...' : '+ Batch Upload Photos'}</span>
             </button>
           )}
         </div>

@@ -22,11 +22,8 @@ import {
 import { MemoryItem } from '../types';
 import {
   compressAndResizeImage,
-  processMediaFile,
-  processMultipleMediaFiles,
-  parseVideoUrl,
-  ROMANTIC_PRESET_PHOTOS,
-  ROMANTIC_PRESET_VIDEOS
+  compressMultipleImages,
+  ROMANTIC_PRESET_PHOTOS
 } from '../utils/imageUtils';
 import { getRealtimeDateTimeString, getRealtimeLocation } from '../utils/dateTimeLocation';
 
@@ -63,10 +60,8 @@ export const EditMemoryModal: React.FC<EditMemoryModalProps> = ({
     );
   });
 
-  const [activeTab, setActiveTab] = useState<'upload' | 'video-url' | 'image-url' | 'presets'>('upload');
-  const [presetSubTab, setPresetSubTab] = useState<'photos' | 'videos'>('photos');
+  const [activeTab, setActiveTab] = useState<'upload' | 'image-url' | 'presets'>('upload');
   const [urlInput, setUrlInput] = useState('');
-  const [videoUrlInput, setVideoUrlInput] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDetectingLocation, setIsDetectingLocation] = useState(false);
   const [dragOver, setDragOver] = useState(false);
@@ -78,11 +73,7 @@ export const EditMemoryModal: React.FC<EditMemoryModalProps> = ({
   useEffect(() => {
     if (memory) {
       setFormData(memory);
-      if (memory.mediaType === 'video' || memory.videoUrl) {
-        setVideoUrlInput(memory.videoUrl || '');
-      } else {
-        setUrlInput(memory.image.startsWith('http') ? memory.image : '');
-      }
+      setUrlInput(memory.image.startsWith('http') ? memory.image : '');
     } else {
       // New Memory: Set real-time date/time & detect real-time location
       const nowStr = getRealtimeDateTimeString();
@@ -131,10 +122,27 @@ export const EditMemoryModal: React.FC<EditMemoryModalProps> = ({
     try {
       setIsProcessing(true);
       if (files.length > 1 && onSaveMultiple && !memory) {
-        // Multi-file batch upload (Photos and/or Videos)
-        const newItems = await processMultipleMediaFiles(files);
+        const compressedUrls = await compressMultipleImages(files);
+        const realTimeDate = getRealtimeDateTimeString();
+        const realTimeLocation = await getRealtimeLocation();
+        const newItems: MemoryItem[] = compressedUrls.map((url, idx) => {
+          const file = files[idx];
+          const cleanName = file ? file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ') : `Dream ${idx + 1}`;
+          const title = cleanName.length > 2 ? cleanName.charAt(0).toUpperCase() + cleanName.slice(1) : `Dream Moment ${idx + 1}`;
+          return {
+            id: `mem-${Date.now()}-${idx}`,
+            title,
+            description: 'Every moment spent with you is a memory I treasure forever.',
+            date: realTimeDate,
+            location: realTimeLocation,
+            image: url,
+            mediaType: 'image',
+            rotationDeg: (idx % 2 === 0 ? -1 : 1) * ((idx % 3) + 1.5),
+            badge: 'Dream'
+          };
+        });
         onSaveMultiple(newItems);
-        setUploadCountNotice(`Successfully added ${files.length} new dream photos & videos with live time & location!`);
+        setUploadCountNotice(`Successfully added ${files.length} new dream photos with live time & location!`);
         setSaveSuccess(true);
         setTimeout(() => {
           setSaveSuccess(false);
@@ -142,21 +150,24 @@ export const EditMemoryModal: React.FC<EditMemoryModalProps> = ({
           onClose();
         }, 1200);
       } else {
-        const item = await processMediaFile(files[0]);
+        const compressedUrl = await compressAndResizeImage(files[0]);
+        const file = files[0];
+        const cleanName = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ');
+        const title = cleanName.length > 2 ? cleanName.charAt(0).toUpperCase() + cleanName.slice(1) : 'A Special Moment';
         setFormData(prev => ({
           ...prev,
-          title: (!memory || prev.title === 'A Special Moment') ? item.title : prev.title,
-          image: item.image,
-          mediaType: item.mediaType,
-          videoUrl: item.videoUrl,
-          videoType: item.videoType,
-          date: item.date || prev.date || getRealtimeDateTimeString(),
-          location: item.location || prev.location,
-          badge: item.mediaType === 'video' ? '🎥 Video' : (prev.badge || 'Dream')
+          title: (!memory || prev.title === 'A Special Moment') ? title : prev.title,
+          image: compressedUrl,
+          mediaType: 'image',
+          videoUrl: undefined,
+          videoEmbedUrl: undefined,
+          videoType: undefined,
+          date: prev.date || getRealtimeDateTimeString(),
+          badge: prev.badge || 'Dream'
         }));
       }
     } catch (err) {
-      console.error('Failed to process media:', err);
+      console.error('Failed to process image:', err);
     } finally {
       setIsProcessing(false);
     }
@@ -170,9 +181,27 @@ export const EditMemoryModal: React.FC<EditMemoryModalProps> = ({
       try {
         setIsProcessing(true);
         if (files.length > 1 && onSaveMultiple && !memory) {
-          const newItems = await processMultipleMediaFiles(files);
+          const compressedUrls = await compressMultipleImages(files);
+          const realTimeDate = getRealtimeDateTimeString();
+          const realTimeLocation = await getRealtimeLocation();
+          const newItems: MemoryItem[] = compressedUrls.map((url, idx) => {
+            const file = files[idx];
+            const cleanName = file ? file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ') : `Dream ${idx + 1}`;
+            const title = cleanName.length > 2 ? cleanName.charAt(0).toUpperCase() + cleanName.slice(1) : `Dream Moment ${idx + 1}`;
+            return {
+              id: `mem-${Date.now()}-${idx}`,
+              title,
+              description: 'Every moment spent with you is a memory I treasure forever.',
+              date: realTimeDate,
+              location: realTimeLocation,
+              image: url,
+              mediaType: 'image',
+              rotationDeg: (idx % 2 === 0 ? -1 : 1) * ((idx % 3) + 1.5),
+              badge: 'Dream'
+            };
+          });
           onSaveMultiple(newItems);
-          setUploadCountNotice(`Successfully added ${files.length} new dream photos & videos with live time & location!`);
+          setUploadCountNotice(`Successfully added ${files.length} new dream photos with live time & location!`);
           setSaveSuccess(true);
           setTimeout(() => {
             setSaveSuccess(false);
@@ -180,49 +209,26 @@ export const EditMemoryModal: React.FC<EditMemoryModalProps> = ({
             onClose();
           }, 1200);
         } else {
-          const item = await processMediaFile(files[0]);
+          const compressedUrl = await compressAndResizeImage(files[0]);
+          const file = files[0];
+          const cleanName = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ');
+          const title = cleanName.length > 2 ? cleanName.charAt(0).toUpperCase() + cleanName.slice(1) : 'A Special Moment';
           setFormData(prev => ({
             ...prev,
-            title: (!memory || prev.title === 'A Special Moment') ? item.title : prev.title,
-            image: item.image,
-            mediaType: item.mediaType,
-            videoUrl: item.videoUrl,
-            videoType: item.videoType,
-            date: item.date || prev.date || getRealtimeDateTimeString(),
-            location: item.location || prev.location,
-            badge: item.mediaType === 'video' ? '🎥 Video' : (prev.badge || 'Dream')
+            title: (!memory || prev.title === 'A Special Moment') ? title : prev.title,
+            image: compressedUrl,
+            mediaType: 'image',
+            videoUrl: undefined,
+            videoEmbedUrl: undefined,
+            videoType: undefined,
+            date: prev.date || getRealtimeDateTimeString(),
+            badge: prev.badge || 'Dream'
           }));
         }
       } catch (err) {
-        console.error('Failed to process dropped media:', err);
+        console.error('Failed to process dropped image:', err);
       } finally {
         setIsProcessing(false);
-      }
-    }
-  };
-
-  const handleApplyVideoUrl = () => {
-    if (videoUrlInput.trim()) {
-      const parsed = parseVideoUrl(videoUrlInput.trim());
-      if (parsed.isVideo) {
-        setFormData(prev => ({
-          ...prev,
-          mediaType: 'video',
-          videoUrl: parsed.videoUrl || videoUrlInput.trim(),
-          videoEmbedUrl: parsed.embedUrl,
-          videoType: parsed.videoType,
-          image: parsed.thumbnailUrl || prev.image,
-          badge: '🎥 Video'
-        }));
-      } else {
-        // Direct video link fallback
-        setFormData(prev => ({
-          ...prev,
-          mediaType: 'video',
-          videoUrl: videoUrlInput.trim(),
-          videoType: 'direct',
-          badge: '🎥 Video'
-        }));
       }
     }
   };
@@ -234,7 +240,8 @@ export const EditMemoryModal: React.FC<EditMemoryModalProps> = ({
         mediaType: 'image',
         image: urlInput.trim(),
         videoUrl: undefined,
-        videoEmbedUrl: undefined
+        videoEmbedUrl: undefined,
+        videoType: undefined
       }));
     }
   };
@@ -245,19 +252,8 @@ export const EditMemoryModal: React.FC<EditMemoryModalProps> = ({
       mediaType: 'image',
       image: url,
       videoUrl: undefined,
-      videoEmbedUrl: undefined
-    }));
-  };
-
-  const handleSelectVideoPreset = (preset: { videoUrl: string; thumbnail: string; name: string }) => {
-    setFormData(prev => ({
-      ...prev,
-      mediaType: 'video',
-      videoUrl: preset.videoUrl,
-      videoType: 'direct',
-      image: preset.thumbnail,
-      title: prev.title === 'A Special Moment' ? preset.name : prev.title,
-      badge: '🎥 Video'
+      videoEmbedUrl: undefined,
+      videoType: undefined
     }));
   };
 
@@ -374,7 +370,7 @@ export const EditMemoryModal: React.FC<EditMemoryModalProps> = ({
               </span>
 
               {/* Source Tabs */}
-              <div className="grid grid-cols-4 gap-1 p-1 bg-[#12080D] rounded-xl border border-white/10">
+              <div className="grid grid-cols-3 gap-1 p-1 bg-[#12080D] rounded-xl border border-white/10">
                 <button
                   type="button"
                   onClick={() => setActiveTab('upload')}
@@ -385,20 +381,7 @@ export const EditMemoryModal: React.FC<EditMemoryModalProps> = ({
                   }`}
                 >
                   <Upload className="w-3 h-3" />
-                  <span>Upload</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('video-url')}
-                  className={`py-1.5 px-1 rounded-lg text-[11px] font-medium transition-all flex items-center justify-center gap-1 ${
-                    activeTab === 'video-url'
-                      ? 'bg-gradient-to-r from-[#E8899D] to-[#D8A06C] text-[#12080D] font-semibold shadow-xs'
-                      : 'text-[#F7B8C5] hover:text-white'
-                  }`}
-                >
-                  <Video className="w-3 h-3" />
-                  <span>Video Link</span>
+                  <span>Upload Photo</span>
                 </button>
 
                 <button
@@ -428,7 +411,7 @@ export const EditMemoryModal: React.FC<EditMemoryModalProps> = ({
                 </button>
               </div>
 
-              {/* Tab 1: File Upload (Photos & Videos) */}
+              {/* Tab 1: File Upload (Photos Only) */}
               {activeTab === 'upload' && (
                 <div
                   onDragOver={e => {
@@ -447,7 +430,7 @@ export const EditMemoryModal: React.FC<EditMemoryModalProps> = ({
                   <input
                     ref={fileInputRef}
                     type="file"
-                    accept="image/*,video/*"
+                    accept="image/*"
                     multiple={!memory}
                     className="hidden"
                     onChange={handleFileUpload}
@@ -457,14 +440,14 @@ export const EditMemoryModal: React.FC<EditMemoryModalProps> = ({
                   </div>
                   <p className="text-xs sm:text-sm font-semibold text-[#FFF3EF]">
                     {isProcessing
-                      ? 'Processing video/photo(s)...'
+                      ? 'Processing photo(s)...'
                       : !memory
-                      ? 'Click to select 1 or multiple Videos & Photos (No Limit)'
-                      : 'Click to select or drop Video or Photo'}
+                      ? 'Click to select 1 or multiple Photos (No Limit)'
+                      : 'Click to select or drop Photo'}
                   </p>
                   <p className="text-[10px] text-[#F7B8C5]/70 mt-1 flex items-center justify-center gap-1">
                     <Sparkles className="w-3 h-3 text-[#D8A06C]" />
-                    <span>Upload MP4, MOV, WebM videos &amp; JPG, PNG photos • No Limit</span>
+                    <span>Upload JPG, PNG, WEBP photos • No Limit</span>
                   </p>
                   {uploadCountNotice && (
                     <div className="mt-2 text-xs font-semibold text-[#D8A06C] bg-[#D8A06C]/10 px-3 py-1 rounded-full border border-[#D8A06C]/30 animate-pulse">
@@ -474,122 +457,33 @@ export const EditMemoryModal: React.FC<EditMemoryModalProps> = ({
                 </div>
               )}
 
-              {/* Tab 2: Video URL Input (YouTube, Vimeo, MP4, etc.) */}
-              {activeTab === 'video-url' && (
-                <div className="space-y-2.5 bg-[#12080D]/60 p-3 rounded-2xl border border-white/10">
-                  <div className="flex gap-2">
-                    <input
-                      type="url"
-                      placeholder="Paste YouTube, Vimeo, or direct .mp4 video link"
-                      value={videoUrlInput}
-                      onChange={e => setVideoUrlInput(e.target.value)}
-                      className="flex-1 bg-[#1C0B13] border border-[#E8899D]/30 rounded-xl px-3 py-2 text-xs text-[#FFF3EF] focus:outline-none focus:border-[#E8899D]"
-                    />
-                    <button
-                      type="button"
-                      onClick={handleApplyVideoUrl}
-                      className="px-3 py-2 rounded-xl bg-gradient-to-r from-[#E8899D] to-[#D8A06C] text-[#12080D] font-bold text-xs hover:opacity-90 transition-opacity cursor-pointer"
-                    >
-                      Apply Video
-                    </button>
-                  </div>
-                  <div className="text-[10px] text-[#F7B8C5]/70 space-y-1">
-                    <p className="flex items-center gap-1">
-                      <Sparkles className="w-3 h-3 text-[#D8A06C]" />
-                      <span>Supports YouTube, YouTube Shorts, Vimeo, or MP4/WebM video links</span>
-                    </p>
-                    {formData.mediaType === 'video' && formData.videoUrl && (
-                      <p className="text-emerald-400 flex items-center gap-1 font-medium">
-                        <Check className="w-3 h-3" />
-                        <span>Video successfully attached!</span>
-                      </p>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Tab 3: Presets (Photos & Videos) */}
+              {/* Tab 2: Presets (Photos Only) */}
               {activeTab === 'presets' && (
                 <div className="space-y-2 bg-[#12080D]/60 p-2 rounded-2xl border border-white/10">
-                  <div className="flex gap-2 pb-1 border-b border-white/10">
-                    <button
-                      type="button"
-                      onClick={() => setPresetSubTab('photos')}
-                      className={`text-xs px-2.5 py-1 rounded-lg transition-all ${
-                        presetSubTab === 'photos'
-                          ? 'bg-[#E8899D] text-[#12080D] font-bold'
-                          : 'text-[#F7B8C5] hover:text-white'
-                      }`}
-                    >
-                      Romantic Photos
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setPresetSubTab('videos')}
-                      className={`text-xs px-2.5 py-1 rounded-lg transition-all ${
-                        presetSubTab === 'videos'
-                          ? 'bg-[#D8A06C] text-[#12080D] font-bold'
-                          : 'text-[#F7B8C5] hover:text-white'
-                      }`}
-                    >
-                      Romantic Videos 🎥
-                    </button>
+                  <div className="grid grid-cols-3 gap-2 max-h-[160px] overflow-y-auto p-1 custom-scrollbar">
+                    {ROMANTIC_PRESET_PHOTOS.map((preset, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => handleSelectPhotoPreset(preset.url)}
+                        className={`relative aspect-[4/3] rounded-lg overflow-hidden border-2 transition-all group ${
+                          formData.image === preset.url
+                            ? 'border-[#E8899D] ring-2 ring-[#E8899D]/50 scale-95'
+                            : 'border-transparent hover:border-white/40 opacity-80 hover:opacity-100'
+                        }`}
+                      >
+                        <img
+                          src={preset.url}
+                          alt={preset.name}
+                          className="w-full h-full object-cover"
+                          referrerPolicy="no-referrer"
+                        />
+                        <span className="absolute bottom-0 inset-x-0 bg-black/70 text-[9px] text-white py-0.5 text-center truncate px-1">
+                          {preset.name}
+                        </span>
+                      </button>
+                    ))}
                   </div>
-
-                  {presetSubTab === 'photos' ? (
-                    <div className="grid grid-cols-3 gap-2 max-h-[130px] overflow-y-auto p-1 custom-scrollbar">
-                      {ROMANTIC_PRESET_PHOTOS.map((preset, idx) => (
-                        <button
-                          key={idx}
-                          type="button"
-                          onClick={() => handleSelectPhotoPreset(preset.url)}
-                          className={`relative aspect-[4/3] rounded-lg overflow-hidden border-2 transition-all group ${
-                            formData.mediaType !== 'video' && formData.image === preset.url
-                              ? 'border-[#E8899D] ring-2 ring-[#E8899D]/50 scale-95'
-                              : 'border-transparent hover:border-white/40 opacity-80 hover:opacity-100'
-                          }`}
-                        >
-                          <img
-                            src={preset.url}
-                            alt={preset.name}
-                            className="w-full h-full object-cover"
-                            referrerPolicy="no-referrer"
-                          />
-                          <span className="absolute bottom-0 inset-x-0 bg-black/70 text-[9px] text-white py-0.5 text-center truncate px-1">
-                            {preset.name}
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-2 gap-2 max-h-[130px] overflow-y-auto p-1 custom-scrollbar">
-                      {ROMANTIC_PRESET_VIDEOS.map((preset, idx) => (
-                        <button
-                          key={idx}
-                          type="button"
-                          onClick={() => handleSelectVideoPreset(preset)}
-                          className={`relative aspect-[16/9] rounded-lg overflow-hidden border-2 transition-all group ${
-                            formData.mediaType === 'video' && formData.videoUrl === preset.videoUrl
-                              ? 'border-[#D8A06C] ring-2 ring-[#D8A06C]/50 scale-95'
-                              : 'border-transparent hover:border-white/40 opacity-80 hover:opacity-100'
-                          }`}
-                        >
-                          <img
-                            src={preset.thumbnail}
-                            alt={preset.name}
-                            className="w-full h-full object-cover"
-                            referrerPolicy="no-referrer"
-                          />
-                          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                            <Play className="w-4 h-4 fill-white text-white" />
-                          </div>
-                          <span className="absolute bottom-0 inset-x-0 bg-black/70 text-[9px] text-white py-0.5 text-center truncate px-1">
-                            {preset.name}
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
                 </div>
               )}
 
@@ -734,10 +628,8 @@ export const EditMemoryModal: React.FC<EditMemoryModalProps> = ({
               <button
                 type="button"
                 onClick={() => {
-                  if (confirm('Are you sure you want to remove this dream?')) {
-                    onDelete(memory.id);
-                    onClose();
-                  }
+                  onDelete(memory.id);
+                  onClose();
                 }}
                 className="flex items-center gap-1.5 text-xs text-rose-400 hover:text-rose-300 p-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 transition-colors cursor-pointer"
               >

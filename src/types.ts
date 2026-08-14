@@ -8,6 +8,9 @@ export interface ProposalConfig {
   musicTitle: string;
   musicArtist: string;
   whatsappNumber?: string;
+  bgMusicUrl?: string;
+  bgMusicName?: string;
+  selectedTrackId?: string;
 }
 
 export interface TimelineEvent {
@@ -51,3 +54,22 @@ export interface MusicTrack {
   type: 'synth' | 'audio';
   theme: string;
 }
+
+export interface ChatMessage {
+  id: string;
+  senderName: string;
+  senderRole?: 'boyfriend' | 'girlfriend' | 'partner' | 'other';
+  senderId?: string;
+  text: string;
+  createdAt: number;
+  dateTimeStr: string;
+  location?: string;
+  reaction?: string;
+  sticker?: string;
+  mediaUrl?: string;
+  mediaType?: 'image' | 'video' | 'audio';
+  mediaName?: string;
+  mediaThumbnail?: string;
+  read?: boolean;
+}
+

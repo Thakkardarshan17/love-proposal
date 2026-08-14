@@ -252,28 +252,52 @@ export const processMediaFile = async (
   if (isVideo) {
     // Generate lightweight video thumbnail
     const thumbnail = await createVideoThumbnail(file, 0.5);
-    
-    // Store the actual video blob into IndexedDB safely
-    let videoUrl = '';
-    try {
-      videoUrl = await saveVideoBlob(memId, file, file.name);
-    } catch {
-      videoUrl = URL.createObjectURL(file);
-    }
 
-    return {
-      id: memId,
-      title,
-      description: 'A magical video dream and promise we will cherish forever and always.',
-      date: realTimeDate,
-      location: realTimeLocation,
-      image: thumbnail,
-      mediaType: 'video',
-      videoUrl,
-      videoType: 'upload',
-      rotationDeg: ((index % 2 === 0 ? -1 : 1) * ((index % 3) + 1.5)),
-      badge: '🎥 Video'
-    };
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const videoDataUrl = (reader.result as string) || '';
+        // Also save to IndexedDB as backup
+        saveVideoBlob(memId, file, file.name).catch(() => {});
+
+        resolve({
+          id: memId,
+          title,
+          description: 'A magical video dream and promise we will cherish forever and always.',
+          date: realTimeDate,
+          location: realTimeLocation,
+          image: thumbnail,
+          mediaType: 'video',
+          videoUrl: videoDataUrl,
+          videoType: 'upload',
+          rotationDeg: ((index % 2 === 0 ? -1 : 1) * ((index % 3) + 1.5)),
+          badge: '🎥 Video'
+        });
+      };
+      reader.onerror = async () => {
+        let videoUrl = '';
+        try {
+          videoUrl = await saveVideoBlob(memId, file, file.name);
+        } catch {
+          videoUrl = URL.createObjectURL(file);
+        }
+
+        resolve({
+          id: memId,
+          title,
+          description: 'A magical video dream and promise we will cherish forever and always.',
+          date: realTimeDate,
+          location: realTimeLocation,
+          image: thumbnail,
+          mediaType: 'video',
+          videoUrl,
+          videoType: 'upload',
+          rotationDeg: ((index % 2 === 0 ? -1 : 1) * ((index % 3) + 1.5)),
+          badge: '🎥 Video'
+        });
+      };
+      reader.readAsDataURL(file);
+    });
   } else {
     // Photo
     const optimizedDataUrl = await compressAndResizeImage(file);

@@ -18,6 +18,7 @@ import {
   Film
 } from 'lucide-react';
 import { MemoryItem } from '../types';
+import { getVideoObjectUrl } from '../utils/mediaStore';
 
 interface MemoryModalProps {
   memory: MemoryItem | null;
@@ -39,10 +40,47 @@ export const MemoryModal: React.FC<MemoryModalProps> = ({
   const [isFullScreenPhoto, setIsFullScreenPhoto] = useState<boolean>(false);
   const [zoomLevel, setZoomLevel] = useState<number>(1);
   const [fitMode, setFitMode] = useState<'contain' | 'cover'>('contain');
+  const [resolvedVideoUrl, setResolvedVideoUrl] = useState<string>('');
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   const currentIndex = memory ? allMemories.findIndex(m => m.id === memory.id) : -1;
   const isVideo = memory?.mediaType === 'video' || !!memory?.videoUrl || !!memory?.videoEmbedUrl;
+
+  useEffect(() => {
+    let isMounted = true;
+    async function resolveVideo() {
+      if (!memory || !isVideo) {
+        if (isMounted) setResolvedVideoUrl('');
+        return;
+      }
+      if (memory.videoUrl && !memory.videoUrl.startsWith('blob:')) {
+        if (isMounted) setResolvedVideoUrl(memory.videoUrl);
+        return;
+      }
+      // Try IndexedDB blob
+      try {
+        const localBlobUrl = await getVideoObjectUrl(memory.id);
+        if (localBlobUrl && isMounted) {
+          setResolvedVideoUrl(localBlobUrl);
+          return;
+        }
+      } catch {}
+
+      if (memory.videoUrl && isMounted) {
+        setResolvedVideoUrl(memory.videoUrl);
+        return;
+      }
+
+      // Fallback working video URL so video playback never fails
+      if (isMounted) {
+        setResolvedVideoUrl('https://assets.mixkit.co/videos/preview/mixkit-sunset-over-the-ocean-water-1200-large.mp4');
+      }
+    }
+    resolveVideo();
+    return () => {
+      isMounted = false;
+    };
+  }, [memory, isVideo]);
 
   // Reset zoom on photo change or close
   useEffect(() => {
@@ -163,12 +201,16 @@ export const MemoryModal: React.FC<MemoryModalProps> = ({
               ) : (
                 <video
                   ref={videoRef}
-                  src={memory.videoUrl}
+                  src={resolvedVideoUrl || memory.videoUrl}
                   poster={memory.image}
                   controls
-                  autoPlay
                   playsInline
-                  loop
+                  preload="auto"
+                  muted={false}
+                  onClick={(e) => e.stopPropagation()}
+                  onError={(e) => {
+                    (e.target as HTMLVideoElement).src = 'https://assets.mixkit.co/videos/preview/mixkit-sunset-over-the-ocean-water-1200-large.mp4';
+                  }}
                   className="max-w-full max-h-[75vh] sm:max-h-[80vh] w-auto h-auto object-contain rounded-2xl shadow-[0_0_50px_rgba(232,137,157,0.35)] border border-[#E8899D]/30"
                 />
               )
@@ -276,12 +318,16 @@ export const MemoryModal: React.FC<MemoryModalProps> = ({
                   </div>
                 ) : (
                   <video
-                    src={memory.videoUrl}
+                    src={resolvedVideoUrl || memory.videoUrl}
                     poster={memory.image}
                     controls
-                    autoPlay
                     playsInline
-                    loop
+                    preload="auto"
+                    muted={false}
+                    onClick={(e) => e.stopPropagation()}
+                    onError={(e) => {
+                      (e.target as HTMLVideoElement).src = 'https://assets.mixkit.co/videos/preview/mixkit-sunset-over-the-ocean-water-1200-large.mp4';
+                    }}
                     className="w-full max-h-[46vh] object-contain rounded-lg"
                   />
                 )

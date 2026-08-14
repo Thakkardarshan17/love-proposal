@@ -106,19 +106,19 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
   };
 
   const handleDeleteStoryEvent = (id: string) => {
-    if (confirm('Delete this chapter from your love story?') && onUpdateStoryEvents) {
+    if (onUpdateStoryEvents) {
       onUpdateStoryEvents(storyEvents.filter(e => e.id !== id));
     }
   };
 
   const handleResetMemories = () => {
-    if (confirm('Reset all photos to original romantic presets?') && onUpdateMemories) {
+    if (onUpdateMemories) {
       onUpdateMemories(initialMemories);
     }
   };
 
   const handleDeleteMemory = (id: string) => {
-    if (confirm('Delete this dream photo?') && onUpdateMemories) {
+    if (onUpdateMemories) {
       onUpdateMemories(memories.filter(m => m.id !== id));
     }
   };
@@ -752,10 +752,10 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
               </div>
               <div>
                 <h4 className="text-xs font-bold text-[#FFF3EF]">
-                  Upload Your Own Background Song
+                  Upload Your Own Background Song (Saved Forever)
                 </h4>
                 <p className="text-[11px] text-[#F7B8C5]/70 max-w-sm mt-0.5">
-                  Select your favorite romantic MP3, WAV, or M4A audio file from your device. It plays seamlessly throughout all scenes.
+                  Select your favorite romantic MP3, WAV, or M4A audio file. It is permanently saved in browser storage and stays ready across page reloads!
                 </p>
               </div>
               <button
@@ -770,7 +770,7 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
             {/* Custom URL Option */}
             <form onSubmit={handleAudioUrlSubmit} className="space-y-1.5">
               <label className="block text-[11px] font-semibold text-[#F7B8C5] uppercase tracking-wider">
-                Or Paste Online Audio Link (.mp3)
+                Or Paste Online Audio Link (.mp3) (Synced to Partner)
               </label>
               <div className="flex gap-2">
                 <input
@@ -784,7 +784,7 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
                   type="submit"
                   className="px-4 py-2 rounded-xl bg-white/10 hover:bg-[#E8899D] hover:text-[#12080D] text-xs font-semibold text-[#FFF3EF] transition-all cursor-pointer shrink-0"
                 >
-                  Set URL
+                  Save &amp; Play URL
                 </button>
               </div>
             </form>
@@ -792,26 +792,62 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
             {/* Built-in Tracks Library */}
             <div className="space-y-2 pt-2 border-t border-white/10">
               <p className="text-xs font-semibold text-[#F7B8C5] uppercase tracking-wider">
-                Romantic Track Library
+                Soundtrack Library &amp; Saved Songs
               </p>
-              <div className="space-y-1.5 max-h-44 overflow-y-auto pr-1">
+              <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
                 {tracks.map((t, idx) => (
                   <div
                     key={t.id}
-                    onClick={() => audioEngine.selectTrack(idx)}
-                    className={`p-2.5 rounded-xl border flex items-center justify-between gap-2 cursor-pointer transition-all ${
+                    className={`p-2.5 rounded-xl border flex items-center justify-between gap-2 transition-all ${
                       currentTrack?.id === t.id
                         ? 'bg-[#E8899D]/20 border-[#E8899D] text-[#FFF3EF]'
                         : 'bg-white/5 border-transparent hover:bg-white/10 text-white/80'
                     }`}
                   >
-                    <div className="min-w-0">
-                      <p className="text-xs font-semibold truncate">{t.name}</p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        audioEngine.selectTrack(idx);
+                        setFormData(prev => ({
+                          ...prev,
+                          musicTitle: t.name,
+                          musicArtist: t.artist,
+                          selectedTrackId: t.id
+                        }));
+                      }}
+                      className="min-w-0 flex-1 text-left cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2">
+                        <p className="text-xs font-semibold truncate">{t.name}</p>
+                        {t.type === 'custom' && (
+                          <span className="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[9px] font-semibold">
+                            Saved File
+                          </span>
+                        )}
+                      </div>
                       <p className="text-[10px] text-[#F7B8C5]/70 truncate">{t.artist}</p>
+                    </button>
+
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {currentTrack?.id === t.id && (
+                        <Heart className="w-3.5 h-3.5 text-[#E8899D] fill-[#E8899D]" />
+                      )}
+                      {t.type === 'custom' && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (confirm(`Remove "${t.name}" from saved music?`)) {
+                              audioEngine.deleteCustomTrack(t.id);
+                            }
+                          }}
+                          className="p-1 rounded-lg text-white/40 hover:text-rose-400 hover:bg-rose-500/20 transition-colors"
+                          title="Delete saved song"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
                     </div>
-                    {currentTrack?.id === t.id && (
-                      <Heart className="w-3.5 h-3.5 text-[#E8899D] fill-[#E8899D] shrink-0" />
-                    )}
                   </div>
                 ))}
               </div>
