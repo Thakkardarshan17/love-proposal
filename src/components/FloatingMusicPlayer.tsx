@@ -151,9 +151,9 @@ export const FloatingMusicPlayer: React.FC<FloatingMusicPlayerProps> = ({
         id={isNavbar ? 'navbar-music-toggle-btn' : 'floating-music-toggle-btn'}
         type="button"
         onClick={() => setIsExpanded(!isExpanded)}
-        className={`group relative flex items-center justify-center transition-all duration-300 shadow-md cursor-pointer select-none ${
+        className={`group relative flex items-center justify-center transition-all duration-300 shadow-md cursor-pointer select-none shrink-0 ${
           isNavbar
-            ? `h-8 sm:h-9 px-2.5 sm:px-3 rounded-full border text-xs gap-1.5 ${
+            ? `h-8 w-8 sm:w-auto sm:h-9 sm:px-2.5 rounded-full border text-xs gap-1.5 ${
                 isPlaying
                   ? 'border-[#E8899D] bg-[#2A101B] text-[#FFF3EF] shadow-[0_0_12px_rgba(232,137,157,0.4)]'
                   : 'border-[#E8899D]/40 bg-[#2A101B]/80 hover:bg-[#2A101B] text-[#F7B8C5] hover:text-[#FFF3EF]'
@@ -169,7 +169,7 @@ export const FloatingMusicPlayer: React.FC<FloatingMusicPlayerProps> = ({
       >
         <div className="relative flex items-center justify-center">
           <Disc3
-            className={`w-4 h-4 sm:w-4.5 sm:h-4.5 text-[#F7B8C5] transition-transform duration-700 ${
+            className={`w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#F7B8C5] transition-transform duration-700 ${
               isPlaying ? 'animate-[spin_4s_linear_infinite] text-[#E8899D]' : ''
             }`}
           />
@@ -178,13 +178,13 @@ export const FloatingMusicPlayer: React.FC<FloatingMusicPlayerProps> = ({
           )}
         </div>
 
-        <span className="hidden sm:inline text-xs font-semibold tracking-wide">
+        <span className="hidden sm:inline text-[11px] sm:text-xs font-semibold tracking-wide">
           {isPlaying ? 'Music' : 'Music Off'}
         </span>
 
         {/* Pulsing indicator dot */}
         {isPlaying && (
-          <span className="relative flex h-1.5 w-1.5 ml-0.5">
+          <span className="relative flex h-1.5 w-1.5">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#E8899D] opacity-75"></span>
             <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#F7B8C5]"></span>
           </span>

@@ -22,6 +22,7 @@ import {
 import { ProposalConfig, MemoryItem, TimelineEvent } from '../types';
 import { initialProposalConfig, initialMemories, initialTimelineEvents } from '../config/proposalData';
 import { audioEngine, AudioTrackInfo } from '../utils/audioSynthesizer';
+import { CloudSyncIndicator } from './CloudSyncIndicator';
 
 interface CustomizationModalProps {
   isOpen: boolean;
@@ -34,6 +35,8 @@ interface CustomizationModalProps {
   memories?: MemoryItem[];
   onUpdateMemories?: (memories: MemoryItem[]) => void;
   onOpenMemoryEditor?: (memory?: MemoryItem) => void;
+  syncStatus?: 'synced' | 'syncing' | 'offline';
+  lastUpdatedBy?: string;
 }
 
 export const CustomizationModal: React.FC<CustomizationModalProps> = ({
@@ -46,7 +49,9 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
   onOpenStoryEditor,
   memories = [],
   onUpdateMemories,
-  onOpenMemoryEditor
+  onOpenMemoryEditor,
+  syncStatus = 'synced',
+  lastUpdatedBy
 }) => {
   const [activeTab, setActiveTab] = useState<'names' | 'timeline' | 'photos' | 'music'>('names');
   const [formData, setFormData] = useState<ProposalConfig>(config);
@@ -163,11 +168,14 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
           <div className="flex items-start gap-2.5 min-w-0">
             <Heart className="w-5 h-5 text-[#E8899D] fill-[#E8899D] shrink-0 mt-0.5" />
             <div className="min-w-0">
-              <h3 className="text-lg sm:text-xl font-serif font-bold text-[#FFF3EF] leading-snug">
-                Personalize Your Love Story &amp; Proposal
-              </h3>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="text-lg sm:text-xl font-serif font-bold text-[#FFF3EF] leading-snug">
+                  Personalize Your Love Story &amp; Proposal
+                </h3>
+                <CloudSyncIndicator compact status={syncStatus} lastUpdatedBy={lastUpdatedBy} />
+              </div>
               <p className="text-xs text-[#F7B8C5] mt-0.5">
-                Customize names, chapters, dreams &amp; photos, and music
+                Customize names, chapters, dreams &amp; photos, and music (live synced across devices)
               </p>
             </div>
           </div>

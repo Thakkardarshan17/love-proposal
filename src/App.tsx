@@ -13,6 +13,13 @@ import { EditMemoryModal } from './components/EditMemoryModal';
 import { EditStoryModal } from './components/EditStoryModal';
 import { WhatsAppAnswerModal } from './components/WhatsAppAnswerModal';
 import { RomanticLoginGate } from './components/RomanticLoginGate';
+import { CloudSyncIndicator } from './components/CloudSyncIndicator';
+import {
+  initAuth,
+  subscribeToSharedProposal,
+  saveSharedProposalData,
+  SharedProposalData
+} from './lib/firebase';
 
 // Scenes 01 - 16
 import { Scene01Loading } from './components/scenes/Scene01Loading';
@@ -40,7 +47,7 @@ import {
   initialReasons
 } from './config/proposalData';
 import { ProposalConfig, MemoryItem, TimelineEvent } from './types';
-import { SlidersHorizontal, ChevronLeft, ChevronRight, MessageCircle, Lock } from 'lucide-react';
+import { SlidersHorizontal, ChevronLeft, ChevronRight, MessageCircle, Lock, Sparkles } from 'lucide-react';
 
 const SCENE_NAMES: Record<number, string> = {
   1: 'Loading',
@@ -70,7 +77,13 @@ export default function App() {
     }
   });
 
-  const [hasSentYesAnswer, setHasSentYesAnswer] = useState<boolean>(false);
+  const [hasSentYesAnswer, setHasSentYesAnswer] = useState<boolean>(() => {
+    try {
+      return sessionStorage.getItem('proposal_user_sent_yes') === 'true';
+    } catch {
+      return false;
+    }
+  });
 
   const [currentScene, setCurrentScene] = useState<number>(1);
   const [config, setConfig] = useState<ProposalConfig>(() => {
@@ -116,18 +129,88 @@ export default function App() {
   const [isCustomizerOpen, setIsCustomizerOpen] = useState<boolean>(false);
   const [isWhatsAppModalOpen, setIsWhatsAppModalOpen] = useState<boolean>(false);
 
-  // Global Primary Dream Photo (dynamically updates everywhere when Dreams/Memories change)
-  const primaryPhoto = memories[0]?.photoUrl;
+  // Real-time Cloud Sync state
+  const [syncStatus, setSyncStatus] = useState<'synced' | 'syncing' | 'offline'>('offline');
+  const [lastUpdatedBy, setLastUpdatedBy] = useState<string>('');
+  const [syncToast, setSyncToast] = useState<string | null>(null);
 
-  // Save config to localStorage whenever changed
+  // Global Primary Dream Photo (dynamically updates everywhere when Dreams/Memories change)
+  const primaryPhoto = memories[0]?.image || (memories[0] as any)?.photoUrl;
+
+  // Real-time Cloud Firestore subscription across all devices
+  useEffect(() => {
+    let unsubscribe: (() => void) | undefined;
+    
+    initAuth()
+      .then(() => {
+        unsubscribe = subscribeToSharedProposal(
+          (cloudData: SharedProposalData) => {
+            setSyncStatus('synced');
+            if (cloudData.lastUpdatedBy) {
+              setLastUpdatedBy(cloudData.lastUpdatedBy);
+            }
+
+            if (cloudData.config) {
+              setConfig(cloudData.config);
+              try {
+                localStorage.setItem('romantic_proposal_config', JSON.stringify(cloudData.config));
+              } catch {}
+            }
+
+            if (cloudData.storyEvents && Array.isArray(cloudData.storyEvents) && cloudData.storyEvents.length > 0) {
+              setStoryEvents(cloudData.storyEvents);
+              try {
+                localStorage.setItem('romantic_proposal_story_events', JSON.stringify(cloudData.storyEvents));
+              } catch {}
+            }
+
+            if (cloudData.memories && Array.isArray(cloudData.memories) && cloudData.memories.length > 0) {
+              setMemories(cloudData.memories);
+              try {
+                localStorage.setItem('romantic_proposal_memories', JSON.stringify(cloudData.memories));
+              } catch {}
+            }
+
+            if (cloudData.hasAnsweredYes !== undefined) {
+              setHasSentYesAnswer(cloudData.hasAnsweredYes);
+              if (cloudData.hasAnsweredYes) {
+                try {
+                  sessionStorage.setItem('proposal_user_sent_yes', 'true');
+                } catch {}
+              }
+            }
+          },
+          (err) => {
+            console.warn('Real-time cloud sync notice:', err);
+            setSyncStatus('offline');
+          }
+        );
+      })
+      .catch((err) => {
+        console.warn('Auth initialization error:', err);
+      });
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, []);
+
+  // Save config to localStorage & Cloud Firestore whenever changed
   const handleSaveConfig = (newConfig: ProposalConfig) => {
     setConfig(newConfig);
     try {
       localStorage.setItem('romantic_proposal_config', JSON.stringify(newConfig));
     } catch {}
+    setSyncStatus('syncing');
+    saveSharedProposalData({ config: newConfig }, newConfig.yourName || 'Partner')
+      .then(() => {
+        setSyncStatus('synced');
+        showSyncToast('Saved to Cloud! Instantly visible on partner’s device ✨');
+      })
+      .catch(() => setSyncStatus('synced'));
   };
 
-  // Save love story events to localStorage whenever changed
+  // Save love story events to localStorage & Cloud Firestore whenever changed
   const handleUpdateStoryEvents = (newStoryEvents: TimelineEvent[]) => {
     setStoryEvents(newStoryEvents);
     try {
@@ -135,6 +218,13 @@ export default function App() {
     } catch (err) {
       console.warn('Could not persist story chapters:', err);
     }
+    setSyncStatus('syncing');
+    saveSharedProposalData({ storyEvents: newStoryEvents }, config.yourName || 'Partner')
+      .then(() => {
+        setSyncStatus('synced');
+        showSyncToast('Story Chapters Synced to Cloud! ✨');
+      })
+      .catch(() => setSyncStatus('synced'));
   };
 
   const handleSaveSingleStoryEvent = (updatedEvent: TimelineEvent) => {
@@ -153,7 +243,7 @@ export default function App() {
     handleUpdateStoryEvents(updated);
   };
 
-  // Save memories to localStorage whenever changed
+  // Save memories to localStorage & Cloud Firestore whenever changed
   const handleUpdateMemories = (newMemories: MemoryItem[]) => {
     setMemories(newMemories);
     try {
@@ -161,6 +251,13 @@ export default function App() {
     } catch (err) {
       console.warn('Could not persist all photos to local storage quota:', err);
     }
+    setSyncStatus('syncing');
+    saveSharedProposalData({ memories: newMemories }, config.yourName || 'Partner')
+      .then(() => {
+        setSyncStatus('synced');
+        showSyncToast('Photos & Dreams Synced to Cloud! ✨');
+      })
+      .catch(() => setSyncStatus('synced'));
   };
 
   const handleSaveSingleMemory = (updatedMemory: MemoryItem) => {
@@ -185,6 +282,13 @@ export default function App() {
     if (selectedMemory && selectedMemory.id === id) {
       setSelectedMemory(null);
     }
+  };
+
+  const showSyncToast = (msg: string) => {
+    setSyncToast(msg);
+    setTimeout(() => {
+      setSyncToast(null);
+    }, 3500);
   };
 
   // Keyboard navigation between scenes (Left/Right arrows when modal is closed)
@@ -288,7 +392,7 @@ export default function App() {
                 <button
                   id="nav-prev-scene-btn"
                   onClick={() => setCurrentScene(prev => Math.max(2, prev - 1))}
-                  className="h-8 sm:h-9 flex items-center justify-center gap-1 text-xs font-semibold tracking-wider text-[#F7B8C5] bg-[#2A101B]/90 hover:bg-[#2A101B] border border-[#E8899D]/30 px-2 sm:px-3 rounded-full transition-all hover:scale-105 active:scale-95 shadow-md cursor-pointer shrink-0"
+                  className="h-8 w-8 sm:w-auto sm:h-9 flex items-center justify-center gap-1 text-xs font-semibold tracking-wider text-[#F7B8C5] bg-[#2A101B]/90 hover:bg-[#2A101B] border border-[#E8899D]/30 sm:px-2.5 rounded-full transition-all hover:scale-105 active:scale-95 shadow-md cursor-pointer shrink-0"
                   aria-label="Previous scene"
                   title="Previous Scene"
                 >
@@ -296,21 +400,27 @@ export default function App() {
                   <span className="hidden md:inline text-xs">Prev</span>
                 </button>
               ) : (
-                <div className="w-8 sm:w-9" />
+                <div className="w-8" />
               )}
             </div>
 
-            {/* Current Step & Couple Names Tracker (Auto-scaled & properly centered) */}
-            <div className="flex-1 min-w-0 px-1 sm:px-2 flex flex-col items-center justify-center text-center overflow-hidden">
+            {/* Current Step & Couple Names Tracker (Centered, Clean & Non-overlapping) */}
+            <div className="flex-1 min-w-0 px-2 flex flex-col items-center justify-center text-center">
               <div 
-                className="text-[11px] sm:text-xs md:text-sm tracking-wide uppercase font-mono text-[#D8A06C] font-bold text-center leading-tight truncate max-w-full drop-shadow-sm"
+                className="text-[11px] sm:text-xs md:text-sm tracking-wider uppercase font-mono font-bold text-center leading-tight truncate max-w-[170px] sm:max-w-xs md:max-w-md drop-shadow-sm flex items-center justify-center gap-1 text-[#D8A06C]"
                 title={`${config.yourName} & ${config.partnerName}`}
               >
-                <span>{config.yourName}</span>
-                <span className="text-[#E8899D] font-serif mx-1">&amp;</span>
-                <span>{config.partnerName}</span>
+                <span className="truncate">{config.yourName}</span>
+                <span className="text-[#E8899D] font-serif shrink-0">&amp;</span>
+                <span className="truncate">{config.partnerName}</span>
+                {syncStatus === 'synced' && (
+                  <span
+                    className="w-1.5 h-1.5 rounded-full bg-[#25D366] animate-pulse shrink-0 ml-0.5"
+                    title="Live Synced across devices"
+                  />
+                )}
               </div>
-              <div className="text-[10px] sm:text-xs font-serif font-bold text-[#FFF3EF] flex items-center justify-center gap-1 text-center leading-tight truncate max-w-full">
+              <div className="text-[10px] sm:text-[11px] font-serif font-bold text-[#FFF3EF] flex items-center justify-center gap-1 text-center leading-tight truncate max-w-[170px] sm:max-w-xs md:max-w-md mt-0.5">
                 <span className="truncate">{SCENE_NAMES[currentScene] || `Scene ${currentScene}`}</span>
                 <span className="text-[9px] sm:text-[10px] text-[#F7B8C5]/80 font-mono shrink-0">
                   ({currentScene}/16)
@@ -324,7 +434,7 @@ export default function App() {
                 <button
                   id="nav-whatsapp-btn"
                   onClick={() => setIsWhatsAppModalOpen(true)}
-                  className="h-8 sm:h-9 px-2 sm:px-2.5 flex items-center gap-1 text-[11px] font-bold text-white bg-[#25D366] hover:bg-[#20bd5a] rounded-full transition-all hover:scale-105 active:scale-95 shadow-[0_0_12px_rgba(37,211,102,0.5)] cursor-pointer shrink-0"
+                  className="h-8 w-8 sm:w-auto sm:h-9 sm:px-2.5 flex items-center justify-center gap-1 text-[11px] font-bold text-white bg-[#25D366] hover:bg-[#20bd5a] rounded-full transition-all hover:scale-105 active:scale-95 shadow-[0_0_12px_rgba(37,211,102,0.5)] cursor-pointer shrink-0"
                   title="Send Answer on WhatsApp"
                   aria-label="Send Answer on WhatsApp"
                 >
@@ -343,11 +453,11 @@ export default function App() {
                     }
                     setCurrentScene(prev => Math.min(16, prev + 1));
                   }}
-                  className="h-8 sm:h-9 flex items-center justify-center gap-0.5 sm:gap-1 text-xs font-bold tracking-wider text-[#12080D] bg-gradient-to-r from-[#E8899D] to-[#D8A06C] px-2.5 sm:px-3.5 rounded-full transition-all hover:scale-105 active:scale-95 shadow-md cursor-pointer shrink-0"
+                  className="h-8 px-2.5 sm:h-9 sm:px-3 flex items-center justify-center gap-0.5 sm:gap-1 text-xs font-bold tracking-wider text-[#12080D] bg-gradient-to-r from-[#E8899D] to-[#D8A06C] rounded-full transition-all hover:scale-105 active:scale-95 shadow-md cursor-pointer shrink-0"
                   aria-label="Next scene"
                   title={currentScene === 9 && !hasSentYesAnswer ? "Send YES answer to unlock" : "Next Scene"}
                 >
-                  <span>Next</span>
+                  <span className="text-[11px] sm:text-xs">Next</span>
                   <ChevronRight className="w-3.5 h-3.5 text-[#12080D]" />
                 </button>
               )}
@@ -359,7 +469,7 @@ export default function App() {
               <button
                 id="open-customizer-btn"
                 onClick={() => setIsCustomizerOpen(true)}
-                className="h-8 sm:h-9 w-8 sm:w-9 flex items-center justify-center rounded-full bg-[#2A101B]/90 hover:bg-[#2A101B] border border-[#E8899D]/40 text-[#F7B8C5] hover:text-[#FFF3EF] transition-all hover:rotate-45 shadow-md cursor-pointer shrink-0"
+                className="h-8 w-8 sm:h-9 sm:w-9 flex items-center justify-center rounded-full bg-[#2A101B]/90 hover:bg-[#2A101B] border border-[#E8899D]/40 text-[#F7B8C5] hover:text-[#FFF3EF] transition-all hover:rotate-45 shadow-md cursor-pointer shrink-0"
                 title="Personalize Love Story, Photos & Names"
                 aria-label="Open settings and customize love story"
               >
@@ -370,7 +480,7 @@ export default function App() {
               <button
                 id="lock-app-btn"
                 onClick={handleLogout}
-                className="h-8 sm:h-9 w-8 sm:w-9 flex items-center justify-center rounded-full bg-[#2A101B]/90 hover:bg-[#2A101B] border border-[#E8899D]/40 text-[#F7B8C5] hover:text-[#FFF3EF] transition-all hover:scale-105 shadow-md cursor-pointer shrink-0"
+                className="h-8 w-8 sm:h-9 sm:w-9 flex items-center justify-center rounded-full bg-[#2A101B]/90 hover:bg-[#2A101B] border border-[#E8899D]/40 text-[#F7B8C5] hover:text-[#FFF3EF] transition-all hover:scale-105 shadow-md cursor-pointer shrink-0"
                 title="Lock Proposal Experience"
                 aria-label="Lock Proposal Experience"
               >
@@ -562,6 +672,8 @@ export default function App() {
           setIsCustomizerOpen(false);
           setEditingMemory(mem !== undefined ? mem : null);
         }}
+        syncStatus={syncStatus}
+        lastUpdatedBy={lastUpdatedBy}
       />
 
       {/* 7. Edit Story Chapter Modal */}
@@ -589,6 +701,21 @@ export default function App() {
         config={config}
         onAnswerSent={handleMarkAnsweredYes}
       />
+
+      {/* 10. Real-time Cloud Sync Live Alert Notification */}
+      <AnimatePresence>
+        {syncToast && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-full bg-[#1C0B13]/95 border border-[#25D366]/50 shadow-[0_10px_30px_rgba(0,0,0,0.8)] backdrop-blur-md flex items-center gap-2 text-xs font-semibold text-[#FFF3EF] pointer-events-none"
+          >
+            <span className="w-2 h-2 rounded-full bg-[#25D366] animate-ping" />
+            <span>{syncToast}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </main>
   );
 }
