@@ -85,6 +85,24 @@ export const subscribeToSharedProposal = (
   );
 };
 
+// Helper to sanitize data before saving to Firestore to prevent document size limit errors
+const sanitizeForCloud = (data: Partial<SharedProposalData>): Partial<SharedProposalData> => {
+  const clean = { ...data };
+
+  if (clean.memories && Array.isArray(clean.memories)) {
+    clean.memories = clean.memories.map(m => {
+      const copy = { ...m };
+      // Strip local blob URLs and huge base64 video data URLs from Firestore payload
+      if (copy.videoUrl && (copy.videoUrl.startsWith('blob:') || copy.videoUrl.startsWith('data:video/'))) {
+        delete copy.videoUrl;
+      }
+      return copy;
+    });
+  }
+
+  return clean;
+};
+
 // Save updates directly to Cloud Firestore (instantly visible on Boyfriend/Girlfriend device)
 export const saveSharedProposalData = async (
   partialData: Partial<SharedProposalData>,
@@ -92,8 +110,9 @@ export const saveSharedProposalData = async (
 ) => {
   try {
     const proposalRef = doc(db, 'proposals', PROPOSAL_DOC_ID);
+    const sanitized = sanitizeForCloud(partialData);
     const payload = {
-      ...partialData,
+      ...sanitized,
       lastUpdatedBy: updaterName || 'Partner',
       updatedAt: Date.now()
     };

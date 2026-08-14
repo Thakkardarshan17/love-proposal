@@ -20,6 +20,7 @@ import {
   saveSharedProposalData,
   SharedProposalData
 } from './lib/firebase';
+import { getVideoObjectUrl, deleteVideoBlob } from './utils/mediaStore';
 
 // Scenes 01 - 16
 import { Scene01Loading } from './components/scenes/Scene01Loading';
@@ -85,7 +86,21 @@ export default function App() {
     }
   });
 
-  const [currentScene, setCurrentScene] = useState<number>(1);
+  const [currentScene, setCurrentScene] = useState<number>(() => {
+    try {
+      const saved = sessionStorage.getItem('romantic_proposal_current_scene');
+      return saved ? Math.max(1, Math.min(16, parseInt(saved, 10))) : 1;
+    } catch {
+      return 1;
+    }
+  });
+
+  // Keep scene in sessionStorage so page reload/actions never throw user out to Scene 1
+  useEffect(() => {
+    try {
+      sessionStorage.setItem('romantic_proposal_current_scene', String(currentScene));
+    } catch {}
+  }, [currentScene]);
   const [config, setConfig] = useState<ProposalConfig>(() => {
     try {
       const saved = localStorage.getItem('romantic_proposal_config');
@@ -137,6 +152,29 @@ export default function App() {
   // Global Primary Dream Photo (dynamically updates everywhere when Dreams/Memories change)
   const primaryPhoto = memories[0]?.image || (memories[0] as any)?.photoUrl;
 
+  // Hydrate local video ObjectURLs from IndexedDB on initial load
+  useEffect(() => {
+    const hydrateLocalVideos = async () => {
+      let changed = false;
+      const updated = await Promise.all(
+        memories.map(async (m) => {
+          if (m.mediaType === 'video' && !m.videoEmbedUrl && (!m.videoUrl || m.videoUrl.startsWith('blob:'))) {
+            const liveUrl = await getVideoObjectUrl(m.id);
+            if (liveUrl && liveUrl !== m.videoUrl) {
+              changed = true;
+              return { ...m, videoUrl: liveUrl };
+            }
+          }
+          return m;
+        })
+      );
+      if (changed) {
+        setMemories(updated);
+      }
+    };
+    hydrateLocalVideos();
+  }, []);
+
   // Real-time Cloud Firestore subscription across all devices
   useEffect(() => {
     let unsubscribe: (() => void) | undefined;
@@ -144,7 +182,7 @@ export default function App() {
     initAuth()
       .then(() => {
         unsubscribe = subscribeToSharedProposal(
-          (cloudData: SharedProposalData) => {
+          async (cloudData: SharedProposalData) => {
             setSyncStatus('synced');
             if (cloudData.lastUpdatedBy) {
               setLastUpdatedBy(cloudData.lastUpdatedBy);
@@ -165,9 +203,29 @@ export default function App() {
             }
 
             if (cloudData.memories && Array.isArray(cloudData.memories) && cloudData.memories.length > 0) {
-              setMemories(cloudData.memories);
+              // Merge cloud memories with local IndexedDB video URLs if needed
+              const mergedMemories = await Promise.all(
+                cloudData.memories.map(async (cm) => {
+                  if (cm.mediaType === 'video' && !cm.videoEmbedUrl && !cm.videoUrl) {
+                    const localUrl = await getVideoObjectUrl(cm.id);
+                    if (localUrl) {
+                      return { ...cm, videoUrl: localUrl };
+                    }
+                  }
+                  return cm;
+                })
+              );
+
+              setMemories(mergedMemories);
               try {
-                localStorage.setItem('romantic_proposal_memories', JSON.stringify(cloudData.memories));
+                const safeForStorage = mergedMemories.map(m => {
+                  const copy = { ...m };
+                  if (copy.videoUrl && (copy.videoUrl.startsWith('blob:') || copy.videoUrl.startsWith('data:video/'))) {
+                    delete copy.videoUrl;
+                  }
+                  return copy;
+                });
+                localStorage.setItem('romantic_proposal_memories', JSON.stringify(safeForStorage));
               } catch {}
             }
 
@@ -247,7 +305,15 @@ export default function App() {
   const handleUpdateMemories = (newMemories: MemoryItem[]) => {
     setMemories(newMemories);
     try {
-      localStorage.setItem('romantic_proposal_memories', JSON.stringify(newMemories));
+      // Strip any raw multi-megabyte data:video/ strings from localStorage to prevent QuotaExceededError
+      const safeForStorage = newMemories.map(m => {
+        const copy = { ...m };
+        if (copy.videoUrl && (copy.videoUrl.startsWith('blob:') || copy.videoUrl.startsWith('data:video/'))) {
+          delete copy.videoUrl;
+        }
+        return copy;
+      });
+      localStorage.setItem('romantic_proposal_memories', JSON.stringify(safeForStorage));
     } catch (err) {
       console.warn('Could not persist all photos to local storage quota:', err);
     }
@@ -255,7 +321,7 @@ export default function App() {
     saveSharedProposalData({ memories: newMemories }, config.yourName || 'Partner')
       .then(() => {
         setSyncStatus('synced');
-        showSyncToast('Photos & Dreams Synced to Cloud! ✨');
+        showSyncToast('Dreams & Videos Synced! ✨');
       })
       .catch(() => setSyncStatus('synced'));
   };
@@ -282,6 +348,7 @@ export default function App() {
   };
 
   const handleDeleteMemory = (id: string) => {
+    deleteVideoBlob(id).catch(() => {});
     const updated = memories.filter(m => m.id !== id);
     handleUpdateMemories(updated);
     if (selectedMemory && selectedMemory.id === id) {

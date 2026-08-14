@@ -1,4 +1,5 @@
 import { MemoryItem } from '../types';
+import { saveVideoBlob } from './mediaStore';
 
 /**
  * Utility functions for handling photo and video media uploads, resizing,
@@ -238,31 +239,22 @@ export const processMediaFile = async (
     : `Dream Moment ${index + 1}`;
 
   const isVideo = isVideoFile(file);
+  const memId = `mem-${Date.now()}-${index}-${Math.random().toString(36).substring(2, 6)}`;
 
   if (isVideo) {
-    // Generate video thumbnail and read as object or data url
+    // Generate lightweight video thumbnail
     const thumbnail = await createVideoThumbnail(file, 0.5);
     
-    // For local videos, create a stable blob / data url
+    // Store the actual video blob into IndexedDB safely
     let videoUrl = '';
-    if (file.size <= 25 * 1024 * 1024) {
-      // Under 25MB: read as data url for persistent portability
-      try {
-        videoUrl = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result as string);
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
-        });
-      } catch {
-        videoUrl = URL.createObjectURL(file);
-      }
-    } else {
+    try {
+      videoUrl = await saveVideoBlob(memId, file, file.name);
+    } catch {
       videoUrl = URL.createObjectURL(file);
     }
 
     return {
-      id: `mem-${Date.now()}-${index}-${Math.random().toString(36).substring(2, 6)}`,
+      id: memId,
       title,
       description: 'A magical video dream and promise we will cherish forever and always.',
       date: 'Our Video Memory',
@@ -278,7 +270,7 @@ export const processMediaFile = async (
     // Photo
     const optimizedDataUrl = await compressAndResizeImage(file);
     return {
-      id: `mem-${Date.now()}-${index}-${Math.random().toString(36).substring(2, 6)}`,
+      id: memId,
       title,
       description: 'A magical dream and beautiful moment forever etched in our hearts.',
       date: 'Our Sweet Journey',
