@@ -8,11 +8,13 @@ import { audioEngine } from '../../utils/audioSynthesizer';
 interface Scene15SealOfLoveProps {
   config: ProposalConfig;
   onNext: () => void;
+  primaryPhoto?: string;
 }
 
 export const Scene15SealOfLove: React.FC<Scene15SealOfLoveProps> = ({
   config,
-  onNext
+  onNext,
+  primaryPhoto
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [isSealed, setIsSealed] = useState<boolean>(false);
@@ -99,6 +101,17 @@ export const Scene15SealOfLove: React.FC<Scene15SealOfLoveProps> = ({
       <div className="relative my-auto py-3 flex flex-col items-center max-w-sm sm:max-w-md w-full space-y-5">
         {/* Culmination Shayari Card */}
         <div className="seal-shayari-card relative w-full p-6 sm:p-7 rounded-3xl bg-gradient-to-b from-[#2E1021]/95 to-[#1A0813]/98 border-2 border-[#E8899D]/40 shadow-[0_0_45px_rgba(232,137,157,0.35)] text-center backdrop-blur-md">
+          {primaryPhoto && (
+            <div className="mx-auto mb-3 w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-[#D8A06C] shadow-[0_0_25px_rgba(216,160,108,0.5)]">
+              <img
+                src={primaryPhoto}
+                alt="Our Eternal Love"
+                className="w-full h-full object-cover"
+                referrerPolicy="no-referrer"
+              />
+            </div>
+          )}
+
           {/* Top Star Ornaments */}
           <div className="flex justify-center gap-2 mb-3 text-[#D8A06C]">
             <Star className="w-3.5 h-3.5 fill-current" />

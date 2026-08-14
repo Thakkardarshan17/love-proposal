@@ -6,9 +6,10 @@ import { ReasonItem } from '../../types';
 interface Scene06ReasonsProps {
   reasons: ReasonItem[];
   onNext: () => void;
+  primaryPhoto?: string;
 }
 
-export const Scene06Reasons: React.FC<Scene06ReasonsProps> = ({ reasons, onNext }) => {
+export const Scene06Reasons: React.FC<Scene06ReasonsProps> = ({ reasons, onNext, primaryPhoto }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -55,7 +56,22 @@ export const Scene06Reasons: React.FC<Scene06ReasonsProps> = ({ reasons, onNext 
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] sm:w-[500px] h-[350px] sm:h-[500px] rounded-full bg-[#E8899D]/15 blur-[120px] pointer-events-none" />
 
       {/* Header */}
-      <div className="reasons-header text-center pt-2 mb-6 max-w-md">
+      <div className="reasons-header text-center pt-2 mb-6 max-w-md flex flex-col items-center">
+        {primaryPhoto && (
+          <div className="mb-2 relative">
+            <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-[#D8A06C] shadow-[0_0_20px_rgba(216,160,108,0.4)]">
+              <img
+                src={primaryPhoto}
+                alt="Dream Moment"
+                className="w-full h-full object-cover"
+                referrerPolicy="no-referrer"
+              />
+            </div>
+            <div className="absolute -bottom-1 -right-1 bg-[#E8899D] rounded-full p-0.5 border border-[#12080D]">
+              <Heart className="w-3 h-3 text-[#12080D] fill-[#12080D]" />
+            </div>
+          </div>
+        )}
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#2A101B] border border-[#E8899D]/30 text-xs text-[#F7B8C5] mb-2 font-medium">
           <Heart className="w-3 h-3 text-[#E8899D] fill-[#E8899D]" />
           <span>From My Heart</span>

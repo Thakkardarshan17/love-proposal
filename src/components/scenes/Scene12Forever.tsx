@@ -8,13 +8,15 @@ interface Scene12ForeverProps {
   onReplay: () => void;
   onOpenCustomizer: () => void;
   onOpenWhatsAppModal?: () => void;
+  primaryPhoto?: string;
 }
 
 export const Scene12Forever: React.FC<Scene12ForeverProps> = ({
   config,
   onReplay,
   onOpenCustomizer,
-  onOpenWhatsAppModal
+  onOpenWhatsAppModal,
+  primaryPhoto
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const heartGlowRef = useRef<HTMLDivElement | null>(null);
@@ -110,8 +112,24 @@ export const Scene12Forever: React.FC<Scene12ForeverProps> = ({
           </div>
         </div>
 
-        {/* Couple Names */}
-        <div className="text-center mt-2">
+        {/* Couple Names & Dream Snapshot */}
+        <div className="text-center mt-2 flex flex-col items-center">
+          {primaryPhoto && (
+            <div className="mb-2 relative">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-[#D8A06C] shadow-[0_0_25px_rgba(216,160,108,0.5)]">
+                <img
+                  src={primaryPhoto}
+                  alt="Our Forever Love"
+                  className="w-full h-full object-cover"
+                  referrerPolicy="no-referrer"
+                />
+              </div>
+              <div className="absolute -bottom-1 -right-1 bg-[#E8899D] rounded-full p-1 border border-[#12080D]">
+                <Heart className="w-3 h-3 text-[#12080D] fill-[#12080D]" />
+              </div>
+            </div>
+          )}
+
           <p className="text-sm sm:text-base font-serif text-[#FFF3EF] flex items-center justify-center gap-2">
             <span>{config.partnerName}</span>
             <Heart className="w-4 h-4 text-[#E8899D] fill-[#E8899D]" />

@@ -18,20 +18,22 @@ import {
   Moon
 } from 'lucide-react';
 import gsap from 'gsap';
-import { TimelineEvent } from '../../types';
+import { TimelineEvent, MemoryItem } from '../../types';
 
 interface Scene04OurStoryProps {
   events: TimelineEvent[];
   onNext: () => void;
   onEditEvent?: (event: TimelineEvent) => void;
   onAddNewEvent?: () => void;
+  memories?: MemoryItem[];
 }
 
 export const Scene04OurStory: React.FC<Scene04OurStoryProps> = ({
   events,
   onNext,
   onEditEvent,
-  onAddNewEvent
+  onAddNewEvent,
+  memories = []
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const lineRef = useRef<HTMLDivElement | null>(null);
@@ -193,6 +195,28 @@ export const Scene04OurStory: React.FC<Scene04OurStoryProps> = ({
                 <p className="text-xs sm:text-sm text-[#FFF3EF]/85 leading-relaxed">
                   {event.description}
                 </p>
+
+                {/* Dream photo thumbnail attached to this chapter */}
+                {memories[idx % memories.length] && (
+                  <div className="mt-3 pt-2.5 border-t border-white/10 flex items-center gap-2.5">
+                    <div className="w-10 h-10 rounded-lg overflow-hidden border border-[#D8A06C]/60 shrink-0 shadow-sm">
+                      <img
+                        src={memories[idx % memories.length].image}
+                        alt={memories[idx % memories.length].title}
+                        className="w-full h-full object-cover"
+                        referrerPolicy="no-referrer"
+                      />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[10px] text-[#D8A06C] font-semibold truncate">
+                        {memories[idx % memories.length].title}
+                      </p>
+                      <p className="text-[9px] text-[#F7B8C5]/70 truncate font-mono">
+                        {memories[idx % memories.length].date}
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           ))}

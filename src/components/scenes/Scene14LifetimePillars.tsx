@@ -7,6 +7,7 @@ import { audioEngine } from '../../utils/audioSynthesizer';
 interface Scene14LifetimePillarsProps {
   config: ProposalConfig;
   onNext: () => void;
+  primaryPhoto?: string;
 }
 
 interface Pillar {
@@ -19,7 +20,8 @@ interface Pillar {
 
 export const Scene14LifetimePillars: React.FC<Scene14LifetimePillarsProps> = ({
   config,
-  onNext
+  onNext,
+  primaryPhoto
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [activePillar, setActivePillar] = useState<number>(0);
@@ -104,6 +106,21 @@ export const Scene14LifetimePillars: React.FC<Scene14LifetimePillarsProps> = ({
 
       {/* Header */}
       <div className="pillars-header pt-2 flex flex-col items-center space-y-1.5 shrink-0">
+        {primaryPhoto && (
+          <div className="mb-1 relative">
+            <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-[#D8A06C] shadow-[0_0_20px_rgba(216,160,108,0.5)]">
+              <img
+                src={primaryPhoto}
+                alt="Our Lifetime Foundation"
+                className="w-full h-full object-cover"
+                referrerPolicy="no-referrer"
+              />
+            </div>
+            <div className="absolute -bottom-1 -right-1 bg-[#E8899D] rounded-full p-1 border border-[#12080D]">
+              <Heart className="w-3 h-3 text-[#12080D] fill-[#12080D]" />
+            </div>
+          </div>
+        )}
         <div className="flex items-center gap-2 text-[11px] sm:text-xs uppercase tracking-[0.25em] text-[#D8A06C] font-semibold">
           <Sparkles className="w-3.5 h-3.5 text-[#D8A06C]" />
           <span>5 Pillars of Forever</span>

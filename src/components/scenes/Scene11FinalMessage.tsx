@@ -6,11 +6,13 @@ import { ProposalConfig } from '../../types';
 interface Scene11FinalMessageProps {
   config: ProposalConfig;
   onNext: () => void;
+  primaryPhoto?: string;
 }
 
 export const Scene11FinalMessage: React.FC<Scene11FinalMessageProps> = ({
   config,
-  onNext
+  onNext,
+  primaryPhoto
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -72,19 +74,37 @@ export const Scene11FinalMessage: React.FC<Scene11FinalMessageProps> = ({
           </p>
         </div>
 
-        {/* Signature */}
-        <div className="final-signature-block p-5 rounded-2xl glass-panel border border-[#E8899D]/30 w-full shadow-lg">
-          <p className="text-xs text-[#F7B8C5] italic mb-1">
-            {config.signatureText}
-          </p>
-          <p className="text-2xl sm:text-3xl font-script text-[#FFF3EF] tracking-wider font-bold">
-            {config.yourName}
-          </p>
-          <div className="flex items-center justify-center gap-1.5 mt-2 text-[10px] text-[#D8A06C] uppercase tracking-widest">
-            <Sparkles className="w-3 h-3" />
-            <span>Written In The Stars</span>
-            <Sparkles className="w-3 h-3" />
+        {/* Signature & Memory Seal */}
+        <div className="final-signature-block p-5 rounded-2xl glass-panel border border-[#E8899D]/30 w-full shadow-lg flex items-center justify-between gap-4">
+          <div className="text-left flex-1">
+            <p className="text-xs text-[#F7B8C5] italic mb-1">
+              {config.signatureText}
+            </p>
+            <p className="text-2xl sm:text-3xl font-script text-[#FFF3EF] tracking-wider font-bold">
+              {config.yourName}
+            </p>
+            <div className="flex items-center gap-1.5 mt-2 text-[10px] text-[#D8A06C] uppercase tracking-widest">
+              <Sparkles className="w-3 h-3" />
+              <span>Written In The Stars</span>
+              <Sparkles className="w-3 h-3" />
+            </div>
           </div>
+
+          {primaryPhoto && (
+            <div className="relative shrink-0">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden border-2 border-[#D8A06C] shadow-[0_0_20px_rgba(216,160,108,0.5)] rotate-[3deg]">
+                <img
+                  src={primaryPhoto}
+                  alt="Couple Dream Seal"
+                  className="w-full h-full object-cover"
+                  referrerPolicy="no-referrer"
+                />
+              </div>
+              <div className="absolute -bottom-1 -right-1 bg-[#E8899D] rounded-full p-1 border border-[#12080D]">
+                <Heart className="w-3 h-3 text-[#12080D] fill-[#12080D]" />
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

@@ -8,11 +8,13 @@ interface Scene08ProposalProps {
   config: ProposalConfig;
   onYesSelected: () => void;
   onOpenWhatsAppModal?: () => void;
+  primaryPhoto?: string;
 }
 
 export const Scene08Proposal: React.FC<Scene08ProposalProps> = ({
   config,
-  onYesSelected
+  onYesSelected,
+  primaryPhoto
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const ringContainerRef = useRef<HTMLDivElement | null>(null);
@@ -99,7 +101,23 @@ export const Scene08Proposal: React.FC<Scene08ProposalProps> = ({
       </div>
 
       {/* Realistic Glowing Diamond Ring Visual & Proposal Question */}
-      <div className="relative my-auto flex flex-col items-center max-w-sm sm:max-w-md w-full space-y-4 sm:space-y-6">
+      <div className="relative my-auto flex flex-col items-center max-w-sm sm:max-w-md w-full space-y-4 sm:space-y-5">
+        {primaryPhoto && (
+          <div className="relative group mb-1">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-[#D8A06C] shadow-[0_0_25px_rgba(216,160,108,0.5)]">
+              <img
+                src={primaryPhoto}
+                alt="Our Dream Couple"
+                className="w-full h-full object-cover"
+                referrerPolicy="no-referrer"
+              />
+            </div>
+            <div className="absolute -bottom-1 -right-1 bg-[#E8899D] rounded-full p-1 border border-[#12080D] shadow">
+              <Heart className="w-3 h-3 text-[#12080D] fill-[#12080D]" />
+            </div>
+          </div>
+        )}
+
         {/* Diamond Ring Graphic */}
         <div ref={ringContainerRef} className="relative group my-1 sm:my-2">
           {/* Ring Light Aura */}

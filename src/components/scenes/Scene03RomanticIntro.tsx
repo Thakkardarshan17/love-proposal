@@ -5,11 +5,13 @@ import gsap from 'gsap';
 interface Scene03RomanticIntroProps {
   onNext: () => void;
   partnerName?: string;
+  primaryPhoto?: string;
 }
 
 export const Scene03RomanticIntro: React.FC<Scene03RomanticIntroProps> = ({
   onNext,
-  partnerName = 'YOU'
+  partnerName = 'YOU',
+  primaryPhoto
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -83,6 +85,25 @@ export const Scene03RomanticIntro: React.FC<Scene03RomanticIntroProps> = ({
         </p>
 
         <div className="intro-phrase-4 relative flex flex-col items-center">
+          {primaryPhoto && (
+            <div className="mb-4 relative group">
+              <div className="absolute -inset-3 rounded-2xl bg-gradient-to-tr from-[#E8899D]/40 to-[#D8A06C]/40 blur-lg animate-pulse" />
+              <div className="relative w-28 h-28 sm:w-36 sm:h-36 rounded-2xl overflow-hidden border-2 border-[#FFF3EF]/80 shadow-[0_0_30px_rgba(232,137,157,0.6)] rotate-[-3deg] group-hover:rotate-0 transition-transform">
+                <img
+                  src={primaryPhoto}
+                  alt={partnerName}
+                  className="w-full h-full object-cover"
+                  referrerPolicy="no-referrer"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#12080D]/60 via-transparent to-transparent flex items-end justify-center pb-1">
+                  <span className="text-[10px] uppercase font-mono tracking-widest text-[#FFF3EF] font-bold">
+                    Our Dream ✨
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="flex items-center justify-center gap-2">
             <span className="text-4xl sm:text-6xl font-serif font-black text-gradient-rose tracking-wider drop-shadow-[0_0_35px_rgba(232,137,157,0.7)]">
               {partnerName.toUpperCase()}

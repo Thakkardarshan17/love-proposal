@@ -7,11 +7,13 @@ import { audioEngine } from '../../utils/audioSynthesizer';
 interface Scene11LoveShayari1Props {
   config: ProposalConfig;
   onNext: () => void;
+  primaryPhoto?: string;
 }
 
 export const Scene11LoveShayari1: React.FC<Scene11LoveShayari1Props> = ({
   config,
-  onNext
+  onNext,
+  primaryPhoto
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [activeVerse, setActiveVerse] = useState<number | null>(null);
@@ -86,9 +88,21 @@ export const Scene11LoveShayari1: React.FC<Scene11LoveShayari1Props> = ({
           </div>
           
           <div className="flex items-center justify-between border-b border-[#E8899D]/20 pb-3 mb-4">
-            <div className="flex items-center gap-2 text-xs font-semibold text-[#D8A06C] uppercase tracking-wider">
-              <Quote className="w-4 h-4 rotate-180 text-[#E8899D]" />
-              <span>For {config.partnerName}</span>
+            <div className="flex items-center gap-2.5">
+              {primaryPhoto && (
+                <div className="w-10 h-10 rounded-full overflow-hidden border border-[#D8A06C] shrink-0 shadow-sm">
+                  <img
+                    src={primaryPhoto}
+                    alt="Couple Dream"
+                    className="w-full h-full object-cover"
+                    referrerPolicy="no-referrer"
+                  />
+                </div>
+              )}
+              <div className="text-xs font-semibold text-[#D8A06C] uppercase tracking-wider flex items-center gap-1.5">
+                <Quote className="w-3.5 h-3.5 rotate-180 text-[#E8899D]" />
+                <span>For {config.partnerName}</span>
+              </div>
             </div>
             <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-[#E8899D]/15 text-[#F7B8C5] border border-[#E8899D]/30">
               Tap lines to feel ✨

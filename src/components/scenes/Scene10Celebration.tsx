@@ -10,6 +10,7 @@ interface Scene10CelebrationProps {
   onOpenWhatsAppModal?: () => void;
   hasAnsweredYes: boolean;
   onMarkAnsweredYes: () => void;
+  primaryPhoto?: string;
 }
 
 export const Scene10Celebration: React.FC<Scene10CelebrationProps> = ({
@@ -17,7 +18,8 @@ export const Scene10Celebration: React.FC<Scene10CelebrationProps> = ({
   onNext,
   onOpenWhatsAppModal,
   hasAnsweredYes,
-  onMarkAnsweredYes
+  onMarkAnsweredYes,
+  primaryPhoto
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const heartRef = useRef<HTMLDivElement | null>(null);
@@ -133,7 +135,22 @@ export const Scene10Celebration: React.FC<Scene10CelebrationProps> = ({
           </div>
         </div>
 
-        <div className="celebration-title space-y-2">
+        <div className="celebration-title space-y-2 flex flex-col items-center">
+          {primaryPhoto && (
+            <div className="mb-2 relative">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden border-2 border-[#D8A06C] shadow-[0_0_30px_rgba(216,160,108,0.6)] rotate-[-2deg]">
+                <img
+                  src={primaryPhoto}
+                  alt="Celebration couple moment"
+                  className="w-full h-full object-cover"
+                  referrerPolicy="no-referrer"
+                />
+              </div>
+              <div className="absolute -bottom-1 -right-1 bg-[#25D366] text-[#12080D] rounded-full p-1 border border-white font-bold">
+                <Heart className="w-3.5 h-3.5 fill-current" />
+              </div>
+            </div>
+          )}
           <span className="inline-block px-4 py-1 rounded-full bg-[#2A101B] border border-[#E8899D]/50 text-xs font-semibold uppercase tracking-widest text-[#F7B8C5] shadow-md">
             Official Love Milestone
           </span>

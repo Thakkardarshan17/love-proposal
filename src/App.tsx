@@ -116,6 +116,9 @@ export default function App() {
   const [isCustomizerOpen, setIsCustomizerOpen] = useState<boolean>(false);
   const [isWhatsAppModalOpen, setIsWhatsAppModalOpen] = useState<boolean>(false);
 
+  // Global Primary Dream Photo (dynamically updates everywhere when Dreams/Memories change)
+  const primaryPhoto = memories[0]?.photoUrl;
+
   // Save config to localStorage whenever changed
   const handleSaveConfig = (newConfig: ProposalConfig) => {
     setConfig(newConfig);
@@ -248,6 +251,7 @@ export default function App() {
         <RomanticLoginGate
           partnerName={config.partnerName}
           yourName={config.yourName}
+          primaryPhoto={primaryPhoto}
           onLoginSuccess={handleLoginSuccess}
         />
       </main>
@@ -403,6 +407,7 @@ export default function App() {
             {currentScene === 3 && (
               <Scene03RomanticIntro
                 partnerName={config.partnerName}
+                primaryPhoto={primaryPhoto}
                 onNext={() => setCurrentScene(4)}
               />
             )}
@@ -410,6 +415,7 @@ export default function App() {
             {currentScene === 4 && (
               <Scene04OurStory
                 events={storyEvents}
+                memories={memories}
                 onNext={() => setCurrentScene(5)}
                 onEditEvent={event => setEditingStoryEvent(event)}
                 onAddNewEvent={() => setEditingStoryEvent(null)}
@@ -429,6 +435,7 @@ export default function App() {
             {currentScene === 6 && (
               <Scene06Reasons
                 reasons={initialReasons}
+                primaryPhoto={primaryPhoto}
                 onNext={() => setCurrentScene(7)}
               />
             )}
@@ -436,6 +443,7 @@ export default function App() {
             {currentScene === 7 && (
               <Scene07EmotionalMessage
                 partnerName={config.partnerName}
+                primaryPhoto={primaryPhoto}
                 onNext={() => setCurrentScene(8)}
               />
             )}
@@ -443,6 +451,7 @@ export default function App() {
             {currentScene === 8 && (
               <Scene08Proposal
                 config={config}
+                primaryPhoto={primaryPhoto}
                 onYesSelected={() => {
                   setHasSentYesAnswer(false);
                   setCurrentScene(9);
@@ -453,6 +462,7 @@ export default function App() {
             {currentScene === 9 && (
               <Scene10Celebration
                 config={config}
+                primaryPhoto={primaryPhoto}
                 hasAnsweredYes={hasSentYesAnswer}
                 onMarkAnsweredYes={handleMarkAnsweredYes}
                 onNext={() => setCurrentScene(10)}
@@ -463,6 +473,7 @@ export default function App() {
             {currentScene === 10 && (
               <Scene11FinalMessage
                 config={config}
+                primaryPhoto={primaryPhoto}
                 onNext={() => setCurrentScene(11)}
               />
             )}
@@ -470,6 +481,7 @@ export default function App() {
             {currentScene === 11 && (
               <Scene11LoveShayari1
                 config={config}
+                primaryPhoto={primaryPhoto}
                 onNext={() => setCurrentScene(12)}
               />
             )}
@@ -477,6 +489,7 @@ export default function App() {
             {currentScene === 12 && (
               <Scene12SacredPromises
                 config={config}
+                primaryPhoto={primaryPhoto}
                 onNext={() => setCurrentScene(13)}
               />
             )}
@@ -484,6 +497,7 @@ export default function App() {
             {currentScene === 13 && (
               <Scene13LoveShayari2
                 config={config}
+                primaryPhoto={primaryPhoto}
                 onNext={() => setCurrentScene(14)}
               />
             )}
@@ -491,6 +505,7 @@ export default function App() {
             {currentScene === 14 && (
               <Scene14LifetimePillars
                 config={config}
+                primaryPhoto={primaryPhoto}
                 onNext={() => setCurrentScene(15)}
               />
             )}
@@ -498,6 +513,7 @@ export default function App() {
             {currentScene === 15 && (
               <Scene15SealOfLove
                 config={config}
+                primaryPhoto={primaryPhoto}
                 onNext={() => setCurrentScene(16)}
               />
             )}
@@ -505,6 +521,7 @@ export default function App() {
             {currentScene === 16 && (
               <Scene12Forever
                 config={config}
+                primaryPhoto={primaryPhoto}
                 onReplay={() => setCurrentScene(2)}
                 onOpenCustomizer={() => setIsCustomizerOpen(true)}
                 onOpenWhatsAppModal={() => setIsWhatsAppModalOpen(true)}

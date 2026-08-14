@@ -11,12 +11,14 @@ interface RomanticLoginGateProps {
   onLoginSuccess: () => void;
   partnerName?: string;
   yourName?: string;
+  primaryPhoto?: string;
 }
 
 export const RomanticLoginGate: React.FC<RomanticLoginGateProps> = ({
   onLoginSuccess,
   partnerName = 'Labdhi',
-  yourName = 'Deep'
+  yourName = 'Deep',
+  primaryPhoto
 }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -64,17 +66,35 @@ export const RomanticLoginGate: React.FC<RomanticLoginGateProps> = ({
 
       {/* Main Glass Box */}
       <div className="relative w-full max-w-md rounded-3xl bg-[#1C0B13]/85 backdrop-blur-xl border border-[#E8899D]/30 p-6 sm:p-8 shadow-[0_20px_60px_rgba(0,0,0,0.85)] text-[#FFF3EF] flex flex-col items-center animate-in fade-in zoom-in-95 duration-500">
-        {/* Animated Heart Lock Icon */}
+        {/* Animated Heart Lock Icon or Dream Photo Avatar */}
         <div className="relative mb-5">
           <div className="absolute -inset-3 rounded-full bg-[#E8899D]/30 blur-xl animate-pulse" />
-          <div className="relative w-18 h-18 sm:w-20 sm:h-20 rounded-full bg-gradient-to-tr from-[#2A101B] to-[#3A1422] border-2 border-[#D8A06C]/70 flex items-center justify-center shadow-[0_0_30px_rgba(216,160,108,0.4)]">
-            {isSuccess ? (
-              <ShieldCheck className="w-9 h-9 text-[#25D366] animate-bounce" />
-            ) : (
-              <Lock className="w-8 h-8 text-[#E8899D] animate-pulse" />
-            )}
-          </div>
-          <div className="absolute -bottom-1 -right-1 bg-[#D8A06C] rounded-full p-1 border border-[#12080D]">
+          {primaryPhoto ? (
+            <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden border-2 border-[#D8A06C] shadow-[0_0_30px_rgba(216,160,108,0.5)] rotate-[-2deg]">
+              <img
+                src={primaryPhoto}
+                alt="Our Dream Moment"
+                className="w-full h-full object-cover"
+                referrerPolicy="no-referrer"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end justify-center pb-1">
+                {isSuccess ? (
+                  <ShieldCheck className="w-5 h-5 text-[#25D366]" />
+                ) : (
+                  <Heart className="w-4 h-4 text-[#E8899D] fill-[#E8899D]" />
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="relative w-18 h-18 sm:w-20 sm:h-20 rounded-full bg-gradient-to-tr from-[#2A101B] to-[#3A1422] border-2 border-[#D8A06C]/70 flex items-center justify-center shadow-[0_0_30px_rgba(216,160,108,0.4)]">
+              {isSuccess ? (
+                <ShieldCheck className="w-9 h-9 text-[#25D366] animate-bounce" />
+              ) : (
+                <Lock className="w-8 h-8 text-[#E8899D] animate-pulse" />
+              )}
+            </div>
+          )}
+          <div className="absolute -bottom-1 -right-1 bg-[#D8A06C] rounded-full p-1 border border-[#12080D] shadow-md">
             <Heart className="w-3.5 h-3.5 text-[#12080D] fill-[#12080D]" />
           </div>
         </div>

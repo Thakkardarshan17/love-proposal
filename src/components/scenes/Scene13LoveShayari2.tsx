@@ -7,11 +7,13 @@ import { audioEngine } from '../../utils/audioSynthesizer';
 interface Scene13LoveShayari2Props {
   config: ProposalConfig;
   onNext: () => void;
+  primaryPhoto?: string;
 }
 
 export const Scene13LoveShayari2: React.FC<Scene13LoveShayari2Props> = ({
   config,
-  onNext
+  onNext,
+  primaryPhoto
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [selectedQuote, setSelectedQuote] = useState<number | null>(0);
@@ -86,9 +88,21 @@ export const Scene13LoveShayari2: React.FC<Scene13LoveShayari2Props> = ({
       {/* Center Main Nazm Card */}
       <div className="relative my-auto py-4 flex flex-col items-center max-w-sm sm:max-w-md w-full space-y-5">
         <div className="shayari2-parchment relative w-full p-6 sm:p-7 rounded-3xl bg-gradient-to-b from-[#2C101F]/90 to-[#1A0813]/95 border-2 border-[#E8899D]/40 shadow-[0_0_45px_rgba(232,137,157,0.3)] text-center backdrop-blur-md">
-          {/* Top Heart Emblem */}
-          <div className="inline-flex p-3 rounded-full bg-[#E8899D]/20 border border-[#E8899D]/40 mb-4 shadow-inner">
-            <Heart className="w-6 h-6 text-[#FF2A55] fill-[#FF2A55] animate-pulse-heart" />
+          {/* Top Heart Emblem & Dream Photo */}
+          <div className="flex items-center justify-center gap-3 mb-4">
+            {primaryPhoto && (
+              <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-[#D8A06C] shadow-[0_0_15px_rgba(216,160,108,0.5)]">
+                <img
+                  src={primaryPhoto}
+                  alt="Our Dream Love"
+                  className="w-full h-full object-cover"
+                  referrerPolicy="no-referrer"
+                />
+              </div>
+            )}
+            <div className="inline-flex p-3 rounded-full bg-[#E8899D]/20 border border-[#E8899D]/40 shadow-inner">
+              <Heart className="w-6 h-6 text-[#FF2A55] fill-[#FF2A55] animate-pulse-heart" />
+            </div>
           </div>
 
           <div className="space-y-4 text-[#FFF3EF]">

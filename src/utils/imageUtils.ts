@@ -5,9 +5,9 @@
 
 export const compressAndResizeImage = (
   file: File,
-  maxWidth = 1200,
-  maxHeight = 1200,
-  quality = 0.85
+  maxWidth = 900,
+  maxHeight = 900,
+  quality = 0.80
 ): Promise<string> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -46,7 +46,7 @@ export const compressAndResizeImage = (
         ctx.imageSmoothingQuality = 'high';
         ctx.drawImage(img, 0, 0, width, height);
 
-        // Convert to webp or jpeg dataURL
+        // Convert to jpeg dataURL with safe compression size
         try {
           const dataUrl = canvas.toDataURL('image/jpeg', quality);
           resolve(dataUrl);
