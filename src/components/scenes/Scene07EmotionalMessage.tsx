@@ -6,12 +6,14 @@ interface Scene07EmotionalMessageProps {
   onNext: () => void;
   partnerName?: string;
   primaryPhoto?: string;
+  onOpenPhotoPreview?: () => void;
 }
 
 export const Scene07EmotionalMessage: React.FC<Scene07EmotionalMessageProps> = ({
   onNext,
   partnerName = 'Labdhi',
-  primaryPhoto
+  primaryPhoto,
+  onOpenPhotoPreview
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -66,9 +68,13 @@ export const Scene07EmotionalMessage: React.FC<Scene07EmotionalMessageProps> = (
         {/* Emotional Content */}
         <div className="relative my-auto flex flex-col items-center max-w-sm sm:max-w-lg space-y-6">
           {primaryPhoto && (
-            <div className="relative group">
+            <div 
+              className={`relative group ${onOpenPhotoPreview ? 'cursor-pointer' : ''}`}
+              onClick={onOpenPhotoPreview}
+              title={onOpenPhotoPreview ? "Click to view full photo" : undefined}
+            >
               <div className="absolute -inset-2 rounded-2xl bg-gradient-to-tr from-[#E8899D]/30 to-[#D8A06C]/30 blur-md animate-pulse" />
-              <div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-2xl p-2 bg-[#FFF3EF] border border-[#E8899D]/40 shadow-[0_10px_30px_rgba(0,0,0,0.5)] rotate-[2deg] group-hover:rotate-0 transition-transform flex flex-col items-center">
+              <div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-2xl p-2 bg-[#FFF3EF] border border-[#E8899D]/40 shadow-[0_10px_30px_rgba(0,0,0,0.5)] rotate-[2deg] group-hover:rotate-0 group-hover:scale-105 transition-all flex flex-col items-center">
                 <div className="w-full h-24 sm:h-28 rounded-lg overflow-hidden bg-black/10">
                   <img
                     src={primaryPhoto}

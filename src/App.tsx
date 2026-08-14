@@ -517,7 +517,6 @@ export default function App() {
             {currentScene === 3 && (
               <Scene03RomanticIntro
                 partnerName={config.partnerName}
-                primaryPhoto={primaryPhoto}
                 onNext={() => setCurrentScene(4)}
               />
             )}
@@ -554,6 +553,9 @@ export default function App() {
               <Scene07EmotionalMessage
                 partnerName={config.partnerName}
                 primaryPhoto={primaryPhoto}
+                onOpenPhotoPreview={() => {
+                  if (memories && memories.length > 0) setSelectedMemory(memories[0]);
+                }}
                 onNext={() => setCurrentScene(8)}
               />
             )}

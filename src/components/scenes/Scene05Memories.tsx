@@ -61,7 +61,7 @@ export const Scene05Memories: React.FC<Scene05MemoriesProps> = ({
           <Heart className="w-6 h-6 text-[#E8899D] fill-[#E8899D] animate-pulse-heart inline" />
         </h2>
         <p className="text-xs sm:text-sm text-[#F7B8C5]/80 mt-1 font-light">
-          Tap any dream Polaroid photo to open and read its story
+          Tap any dream Polaroid to open full photo view &amp; read its story
         </p>
 
         {/* Quick Change Photos Button */}
