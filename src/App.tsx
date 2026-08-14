@@ -276,6 +276,11 @@ export default function App() {
     }
   };
 
+  const handleAddMultipleMemories = (newItems: MemoryItem[]) => {
+    const updated = [...memories, ...newItems];
+    handleUpdateMemories(updated);
+  };
+
   const handleDeleteMemory = (id: string) => {
     const updated = memories.filter(m => m.id !== id);
     handleUpdateMemories(updated);
@@ -537,6 +542,7 @@ export default function App() {
                 onSelectMemory={mem => setSelectedMemory(mem)}
                 onEditMemory={mem => setEditingMemory(mem)}
                 onAddNewMemory={() => setEditingMemory(null)}
+                onAddMultipleMemories={handleAddMultipleMemories}
                 onNext={() => setCurrentScene(6)}
               />
             )}
@@ -670,6 +676,7 @@ export default function App() {
         }}
         memories={memories}
         onUpdateMemories={handleUpdateMemories}
+        onAddMultipleMemories={handleAddMultipleMemories}
         onOpenMemoryEditor={mem => {
           setIsCustomizerOpen(false);
           setEditingMemory(mem !== undefined ? mem : null);
@@ -693,6 +700,7 @@ export default function App() {
         onClose={() => setEditingMemory(undefined)}
         memory={editingMemory || null}
         onSave={handleSaveSingleMemory}
+        onSaveMultiple={handleAddMultipleMemories}
         onDelete={handleDeleteMemory}
       />
 

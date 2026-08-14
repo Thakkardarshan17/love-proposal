@@ -26,7 +26,11 @@ export interface MemoryItem {
   description: string;
   date: string;
   location?: string;
-  image: string;
+  image: string; // poster / thumbnail or fallback image
+  mediaType?: 'image' | 'video';
+  videoUrl?: string; // direct video URL / blob / data url / uploaded video
+  videoEmbedUrl?: string; // YouTube or Vimeo embed url
+  videoType?: 'direct' | 'youtube' | 'vimeo' | 'upload';
   rotationDeg: number;
   badge?: string;
 }

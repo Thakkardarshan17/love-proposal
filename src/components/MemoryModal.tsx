@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useState } from 'react';
+import React, { useEffect, useCallback, useState, useRef } from 'react';
 import {
   X,
   ChevronLeft,
@@ -12,7 +12,10 @@ import {
   Minimize2,
   ZoomIn,
   ZoomOut,
-  Expand
+  Expand,
+  Video,
+  Play,
+  Film
 } from 'lucide-react';
 import { MemoryItem } from '../types';
 
@@ -36,8 +39,10 @@ export const MemoryModal: React.FC<MemoryModalProps> = ({
   const [isFullScreenPhoto, setIsFullScreenPhoto] = useState<boolean>(false);
   const [zoomLevel, setZoomLevel] = useState<number>(1);
   const [fitMode, setFitMode] = useState<'contain' | 'cover'>('contain');
+  const videoRef = useRef<HTMLVideoElement | null>(null);
 
   const currentIndex = memory ? allMemories.findIndex(m => m.id === memory.id) : -1;
+  const isVideo = memory?.mediaType === 'video' || !!memory?.videoUrl || !!memory?.videoEmbedUrl;
 
   // Reset zoom on photo change or close
   useEffect(() => {
@@ -103,7 +108,7 @@ export const MemoryModal: React.FC<MemoryModalProps> = ({
           {/* Top Floating Controls */}
           <div className="w-full flex items-center justify-between z-30 px-2 pt-2">
             <div className="flex items-center gap-2 bg-[#1C0B13]/90 border border-[#E8899D]/30 px-3 py-1.5 rounded-full backdrop-blur-md text-xs text-[#FFF3EF]">
-              <Sparkles className="w-3.5 h-3.5 text-[#D8A06C]" />
+              {isVideo ? <Video className="w-3.5 h-3.5 text-[#D8A06C]" /> : <Sparkles className="w-3.5 h-3.5 text-[#D8A06C]" />}
               <span className="font-serif font-bold">{memory.title}</span>
               <span className="text-[#F7B8C5]/70 font-mono text-[11px]">
                 ({currentIndex + 1}/{allMemories.length})
@@ -111,19 +116,21 @@ export const MemoryModal: React.FC<MemoryModalProps> = ({
             </div>
 
             <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setZoomLevel(prev => (prev >= 2 ? 1 : prev + 0.5))}
-                className="p-2 rounded-full bg-[#1C0B13]/90 border border-[#E8899D]/30 text-[#FFF3EF] hover:bg-[#E8899D] hover:text-[#12080D] transition-colors"
-                title={zoomLevel > 1 ? 'Reset Zoom' : 'Zoom In'}
-              >
-                {zoomLevel > 1 ? <ZoomOut className="w-4 h-4" /> : <ZoomIn className="w-4 h-4" />}
-              </button>
+              {!isVideo && (
+                <button
+                  type="button"
+                  onClick={() => setZoomLevel(prev => (prev >= 2 ? 1 : prev + 0.5))}
+                  className="p-2 rounded-full bg-[#1C0B13]/90 border border-[#E8899D]/30 text-[#FFF3EF] hover:bg-[#E8899D] hover:text-[#12080D] transition-colors cursor-pointer"
+                  title={zoomLevel > 1 ? 'Reset Zoom' : 'Zoom In'}
+                >
+                  {zoomLevel > 1 ? <ZoomOut className="w-4 h-4" /> : <ZoomIn className="w-4 h-4" />}
+                </button>
+              )}
 
               <button
                 type="button"
                 onClick={() => setIsFullScreenPhoto(false)}
-                className="p-2 rounded-full bg-[#1C0B13]/90 border border-[#E8899D]/30 text-[#FFF3EF] hover:bg-[#E8899D] hover:text-[#12080D] transition-colors"
+                className="p-2 rounded-full bg-[#1C0B13]/90 border border-[#E8899D]/30 text-[#FFF3EF] hover:bg-[#E8899D] hover:text-[#12080D] transition-colors cursor-pointer"
                 title="Exit Fullscreen"
               >
                 <Minimize2 className="w-4 h-4" />
@@ -132,7 +139,7 @@ export const MemoryModal: React.FC<MemoryModalProps> = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="p-2 rounded-full bg-[#E8899D] text-[#12080D] hover:bg-white transition-colors"
+                className="p-2 rounded-full bg-[#E8899D] text-[#12080D] hover:bg-white transition-colors cursor-pointer"
                 title="Close"
               >
                 <X className="w-4 h-4" />
@@ -140,26 +147,51 @@ export const MemoryModal: React.FC<MemoryModalProps> = ({
             </div>
           </div>
 
-          {/* Full Image Container - Completely Uncropped & Crisp */}
+          {/* Full Media Container - Video or Photo */}
           <div className="relative flex-1 w-full max-w-5xl flex items-center justify-center overflow-hidden my-auto py-2">
-            <img
-              src={memory.image}
-              alt={memory.title}
-              style={{
-                transform: `scale(${zoomLevel})`,
-                transition: 'transform 0.25s ease-out'
-              }}
-              className="max-w-full max-h-[75vh] sm:max-h-[80vh] w-auto h-auto object-contain rounded-2xl shadow-[0_0_50px_rgba(232,137,157,0.35)] cursor-zoom-in"
-              onClick={() => setZoomLevel(prev => (prev >= 2 ? 1 : prev + 0.5))}
-              referrerPolicy="no-referrer"
-            />
+            {isVideo ? (
+              memory.videoEmbedUrl ? (
+                <div className="w-full h-[70vh] max-w-4xl rounded-2xl overflow-hidden shadow-[0_0_50px_rgba(232,137,157,0.35)] border border-[#E8899D]/30">
+                  <iframe
+                    src={memory.videoEmbedUrl}
+                    title={memory.title}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="w-full h-full"
+                  />
+                </div>
+              ) : (
+                <video
+                  ref={videoRef}
+                  src={memory.videoUrl}
+                  poster={memory.image}
+                  controls
+                  autoPlay
+                  playsInline
+                  loop
+                  className="max-w-full max-h-[75vh] sm:max-h-[80vh] w-auto h-auto object-contain rounded-2xl shadow-[0_0_50px_rgba(232,137,157,0.35)] border border-[#E8899D]/30"
+                />
+              )
+            ) : (
+              <img
+                src={memory.image}
+                alt={memory.title}
+                style={{
+                  transform: `scale(${zoomLevel})`,
+                  transition: 'transform 0.25s ease-out'
+                }}
+                className="max-w-full max-h-[75vh] sm:max-h-[80vh] w-auto h-auto object-contain rounded-2xl shadow-[0_0_50px_rgba(232,137,157,0.35)] cursor-zoom-in"
+                onClick={() => setZoomLevel(prev => (prev >= 2 ? 1 : prev + 0.5))}
+                referrerPolicy="no-referrer"
+              />
+            )}
 
             {/* Left / Right Nav Arrows inside Fullscreen */}
             <button
               type="button"
               onClick={handlePrev}
-              className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-black/60 hover:bg-[#E8899D] text-white hover:text-[#12080D] transition-all backdrop-blur-md shadow-lg"
-              title="Previous Dream Photo"
+              className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-black/60 hover:bg-[#E8899D] text-white hover:text-[#12080D] transition-all backdrop-blur-md shadow-lg cursor-pointer"
+              title="Previous Dream Moment"
             >
               <ChevronLeft className="w-6 h-6" />
             </button>
@@ -167,8 +199,8 @@ export const MemoryModal: React.FC<MemoryModalProps> = ({
             <button
               type="button"
               onClick={handleNext}
-              className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-black/60 hover:bg-[#E8899D] text-white hover:text-[#12080D] transition-all backdrop-blur-md shadow-lg"
-              title="Next Dream Photo"
+              className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-black/60 hover:bg-[#E8899D] text-white hover:text-[#12080D] transition-all backdrop-blur-md shadow-lg cursor-pointer"
+              title="Next Dream Moment"
             >
               <ChevronRight className="w-6 h-6" />
             </button>
@@ -194,7 +226,7 @@ export const MemoryModal: React.FC<MemoryModalProps> = ({
           </div>
         </div>
       ) : (
-        /* 2. STANDARD DETAILED MODAL WITH FULL PHOTO CAPABILITIES */
+        /* 2. STANDARD DETAILED MODAL WITH FULL PHOTO & VIDEO CAPABILITIES */
         <div
           id="memory-modal-container"
           className="relative max-w-xl w-full bg-[#1C0B13] border border-[#E8899D]/40 rounded-3xl p-4 sm:p-6 shadow-[0_25px_60px_rgba(0,0,0,0.9)] text-[#FFF3EF] overflow-hidden animate-in zoom-in-95 duration-300 max-h-[92vh] flex flex-col"
@@ -209,11 +241,11 @@ export const MemoryModal: React.FC<MemoryModalProps> = ({
               <button
                 type="button"
                 onClick={() => setIsFullScreenPhoto(true)}
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#E8899D]/20 hover:bg-[#E8899D]/30 border border-[#E8899D]/40 text-xs text-[#FFF3EF] transition-all hover:scale-105"
-                title="View Full Uncropped Image"
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#E8899D]/20 hover:bg-[#E8899D]/30 border border-[#E8899D]/40 text-xs text-[#FFF3EF] transition-all hover:scale-105 cursor-pointer"
+                title="View Full Uncropped Media"
               >
                 <Maximize2 className="w-3 h-3 text-[#D8A06C]" />
-                <span>Full Image</span>
+                <span>{isVideo ? 'Full Video' : 'Full Image'}</span>
               </button>
             </div>
 
@@ -221,60 +253,88 @@ export const MemoryModal: React.FC<MemoryModalProps> = ({
               id="close-memory-modal-btn"
               type="button"
               onClick={onClose}
-              className="p-1.5 rounded-full bg-white/10 hover:bg-[#E8899D] text-[#FFF3EF] hover:text-[#12080D] transition-colors"
-              aria-label="Close photo preview"
+              className="p-1.5 rounded-full bg-white/10 hover:bg-[#E8899D] text-[#FFF3EF] hover:text-[#12080D] transition-colors cursor-pointer"
+              aria-label="Close media preview"
             >
               <X className="w-4 h-4" />
             </button>
           </div>
 
-          {/* Photo Display Card - Uncropped & Full Size */}
+          {/* Media Display Card - Photo or Video */}
           <div className="relative bg-white/5 p-2 sm:p-3 rounded-2xl border border-white/10 my-3 group overflow-hidden">
-            <div
-              className="relative w-full min-h-[200px] max-h-[46vh] flex items-center justify-center overflow-hidden rounded-xl bg-[#12080D] cursor-pointer"
-              onClick={() => setIsFullScreenPhoto(true)}
-            >
-              <img
-                src={memory.image}
-                alt={memory.title}
-                className={`w-full max-h-[46vh] ${
-                  fitMode === 'contain' ? 'object-contain' : 'object-cover'
-                } transition-transform duration-300 group-hover:scale-102`}
-                referrerPolicy="no-referrer"
-              />
+            <div className="relative w-full min-h-[200px] max-h-[46vh] flex items-center justify-center overflow-hidden rounded-xl bg-[#12080D]">
+              {isVideo ? (
+                memory.videoEmbedUrl ? (
+                  <div className="w-full aspect-video min-h-[220px]">
+                    <iframe
+                      src={memory.videoEmbedUrl}
+                      title={memory.title}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      className="w-full h-full rounded-lg"
+                    />
+                  </div>
+                ) : (
+                  <video
+                    src={memory.videoUrl}
+                    poster={memory.image}
+                    controls
+                    autoPlay
+                    playsInline
+                    loop
+                    className="w-full max-h-[46vh] object-contain rounded-lg"
+                  />
+                )
+              ) : (
+                <div
+                  className="w-full flex items-center justify-center cursor-pointer"
+                  onClick={() => setIsFullScreenPhoto(true)}
+                >
+                  <img
+                    src={memory.image}
+                    alt={memory.title}
+                    className={`w-full max-h-[46vh] ${
+                      fitMode === 'contain' ? 'object-contain' : 'object-cover'
+                    } transition-transform duration-300 group-hover:scale-102`}
+                    referrerPolicy="no-referrer"
+                  />
+
+                  {/* Hover tap hint for photos */}
+                  <div className="absolute inset-0 bg-black/35 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 pointer-events-none">
+                    <div className="px-3 py-1.5 rounded-full bg-black/75 text-white backdrop-blur-xs flex items-center gap-1.5 text-xs font-semibold">
+                      <Expand className="w-3.5 h-3.5 text-[#D8A06C]" />
+                      <span>Click to view Fullscreen</span>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Badges & Overlays */}
               {memory.badge && (
-                <span className="absolute top-2.5 left-2.5 bg-[#E8899D] text-[#12080D] text-[11px] font-bold px-2.5 py-0.5 rounded-full shadow-md flex items-center gap-1">
-                  <Sparkles className="w-3 h-3" />
+                <span className="absolute top-2.5 left-2.5 bg-[#E8899D] text-[#12080D] text-[11px] font-bold px-2.5 py-0.5 rounded-full shadow-md flex items-center gap-1 z-10 pointer-events-none">
+                  {isVideo ? <Video className="w-3 h-3" /> : <Sparkles className="w-3 h-3" />}
                   {memory.badge}
                 </span>
               )}
 
-              {/* Hover tap hint */}
-              <div className="absolute inset-0 bg-black/35 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 pointer-events-none">
-                <div className="px-3 py-1.5 rounded-full bg-black/75 text-white backdrop-blur-xs flex items-center gap-1.5 text-xs font-semibold">
-                  <Expand className="w-3.5 h-3.5 text-[#D8A06C]" />
-                  <span>Click to view Fullscreen</span>
+              {/* Fit / Cover toggle (for images) */}
+              {!isVideo && (
+                <div className="absolute bottom-2 left-2 flex items-center gap-1.5 z-10">
+                  <button
+                    type="button"
+                    onClick={e => {
+                      e.stopPropagation();
+                      setFitMode(prev => (prev === 'contain' ? 'cover' : 'contain'));
+                    }}
+                    className="px-2 py-1 rounded-md bg-black/70 hover:bg-[#2A101B] border border-white/20 text-[10px] font-mono text-[#FFF3EF] transition-all cursor-pointer"
+                    title="Toggle Fit to Screen / Fill Frame"
+                  >
+                    {fitMode === 'contain' ? 'Fit (Full Photo)' : 'Fill'}
+                  </button>
                 </div>
-              </div>
+              )}
 
-              {/* Fit / Cover toggle */}
-              <div className="absolute bottom-2 left-2 flex items-center gap-1.5 z-10">
-                <button
-                  type="button"
-                  onClick={e => {
-                    e.stopPropagation();
-                    setFitMode(prev => (prev === 'contain' ? 'cover' : 'contain'));
-                  }}
-                  className="px-2 py-1 rounded-md bg-black/70 hover:bg-[#2A101B] border border-white/20 text-[10px] font-mono text-[#FFF3EF] transition-all"
-                  title="Toggle Fit to Screen / Fill Frame"
-                >
-                  {fitMode === 'contain' ? 'Fit (Full Photo)' : 'Fill'}
-                </button>
-              </div>
-
-              {/* Quick Change photo */}
+              {/* Quick Change media */}
               {onEditMemory && (
                 <button
                   id="edit-current-memory-photo-btn"
@@ -283,17 +343,17 @@ export const MemoryModal: React.FC<MemoryModalProps> = ({
                     e.stopPropagation();
                     onEditMemory(memory);
                   }}
-                  className="absolute bottom-2 right-2 px-2.5 py-1 rounded-full bg-black/75 hover:bg-[#E8899D] text-white hover:text-[#12080D] text-[11px] font-semibold backdrop-blur-xs flex items-center gap-1 transition-all shadow-lg hover:scale-105 z-10"
+                  className="absolute bottom-2 right-2 px-2.5 py-1 rounded-full bg-black/75 hover:bg-[#E8899D] text-white hover:text-[#12080D] text-[11px] font-semibold backdrop-blur-xs flex items-center gap-1 transition-all shadow-lg hover:scale-105 z-10 cursor-pointer"
                 >
-                  <Camera className="w-3 h-3" />
-                  <span>Change Photo</span>
+                  {isVideo ? <Video className="w-3 h-3" /> : <Camera className="w-3 h-3" />}
+                  <span>{isVideo ? 'Edit Video' : 'Change Photo'}</span>
                 </button>
               )}
             </div>
           </div>
 
           {/* Memory Content Details */}
-          <div className="px-1 overflow-y-auto max-h-[22vh] pr-1">
+          <div className="px-1 overflow-y-auto max-h-[22vh] pr-1 custom-scrollbar">
             <div className="flex items-center justify-between gap-2 mb-1.5">
               <h3 className="text-lg sm:text-xl font-serif font-bold text-[#FFF3EF] flex items-center gap-2">
                 <span>{memory.title}</span>
@@ -316,6 +376,12 @@ export const MemoryModal: React.FC<MemoryModalProps> = ({
                   {memory.location}
                 </span>
               )}
+              {isVideo && (
+                <span className="flex items-center gap-1 text-[#D8A06C] font-semibold">
+                  <Film className="w-3.5 h-3.5" />
+                  <span>Video Moment</span>
+                </span>
+              )}
             </div>
           </div>
 
@@ -325,7 +391,7 @@ export const MemoryModal: React.FC<MemoryModalProps> = ({
               id="prev-memory-btn"
               type="button"
               onClick={handlePrev}
-              className="flex items-center gap-1 text-xs font-medium text-[#F7B8C5] hover:text-[#FFF3EF] px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
+              className="flex items-center gap-1 text-xs font-medium text-[#F7B8C5] hover:text-[#FFF3EF] px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 transition-colors cursor-pointer"
             >
               <ChevronLeft className="w-4 h-4" />
               <span>Previous</span>
@@ -334,7 +400,7 @@ export const MemoryModal: React.FC<MemoryModalProps> = ({
             <button
               type="button"
               onClick={() => setIsFullScreenPhoto(true)}
-              className="flex items-center gap-1 text-xs font-semibold text-[#D8A06C] hover:text-white px-2.5 py-1.5 rounded-lg border border-[#D8A06C]/40 hover:bg-[#D8A06C]/20 transition-all"
+              className="flex items-center gap-1 text-xs font-semibold text-[#D8A06C] hover:text-white px-2.5 py-1.5 rounded-lg border border-[#D8A06C]/40 hover:bg-[#D8A06C]/20 transition-all cursor-pointer"
             >
               <Maximize2 className="w-3.5 h-3.5" />
               <span>Full Screen</span>
@@ -344,7 +410,7 @@ export const MemoryModal: React.FC<MemoryModalProps> = ({
               id="next-memory-btn"
               type="button"
               onClick={handleNext}
-              className="flex items-center gap-1 text-xs font-medium text-[#F7B8C5] hover:text-[#FFF3EF] px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
+              className="flex items-center gap-1 text-xs font-medium text-[#F7B8C5] hover:text-[#FFF3EF] px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 transition-colors cursor-pointer"
             >
               <span>Next</span>
               <ChevronRight className="w-4 h-4" />
@@ -355,4 +421,5 @@ export const MemoryModal: React.FC<MemoryModalProps> = ({
     </div>
   );
 };
+
 

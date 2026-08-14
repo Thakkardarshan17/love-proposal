@@ -17,12 +17,14 @@ import {
   MessageCircleHeart,
   CheckCircle2,
   Play,
-  Pause
+  Pause,
+  Layers
 } from 'lucide-react';
 import { ProposalConfig, MemoryItem, TimelineEvent } from '../types';
 import { initialProposalConfig, initialMemories, initialTimelineEvents } from '../config/proposalData';
 import { audioEngine, AudioTrackInfo } from '../utils/audioSynthesizer';
 import { CloudSyncIndicator } from './CloudSyncIndicator';
+import { compressMultipleImages } from '../utils/imageUtils';
 
 interface CustomizationModalProps {
   isOpen: boolean;
@@ -35,6 +37,7 @@ interface CustomizationModalProps {
   memories?: MemoryItem[];
   onUpdateMemories?: (memories: MemoryItem[]) => void;
   onOpenMemoryEditor?: (memory?: MemoryItem) => void;
+  onAddMultipleMemories?: (newItems: MemoryItem[]) => void;
   syncStatus?: 'synced' | 'syncing' | 'offline';
   lastUpdatedBy?: string;
 }
@@ -50,12 +53,15 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
   memories = [],
   onUpdateMemories,
   onOpenMemoryEditor,
+  onAddMultipleMemories,
   syncStatus = 'synced',
   lastUpdatedBy
 }) => {
   const [activeTab, setActiveTab] = useState<'names' | 'timeline' | 'photos' | 'music'>('names');
   const [formData, setFormData] = useState<ProposalConfig>(config);
   const [isSaved, setIsSaved] = useState(false);
+  const [isUploadingBatch, setIsUploadingBatch] = useState(false);
+  const modalFileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Audio State in modal
   const [isPlaying, setIsPlaying] = useState(audioEngine.getIsPlaying());
@@ -498,27 +504,132 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
         {/* Tab 3: Dreams & Photos */}
         {activeTab === 'photos' && (
           <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4">
-            <div className="flex items-center justify-between pb-2 border-b border-white/10">
+            {/* Hidden batch upload file input */}
+            <input
+              ref={modalFileInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={async e => {
+                const files = e.target.files;
+                if (!files || files.length === 0) return;
+                try {
+                  setIsUploadingBatch(true);
+                  const dataUrls = await compressMultipleImages(files);
+                  const newItems: MemoryItem[] = dataUrls.map((url, idx) => {
+                    const originalFile = files[idx];
+                    const cleanName = originalFile ? originalFile.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ') : `Dream ${idx + 1}`;
+                    return {
+                      id: `mem-${Date.now()}-${idx}-${Math.random().toString(36).substring(2, 6)}`,
+                      title: cleanName.length > 2 ? cleanName.charAt(0).toUpperCase() + cleanName.slice(1) : `Our Dream ${idx + 1}`,
+                      description: 'A treasured dream and beautiful moment forever etched in our hearts.',
+                      date: 'Our Sweet Journey',
+                      location: 'With You Forever',
+                      image: url,
+                      rotationDeg: ((idx % 2 === 0 ? -1 : 1) * ((idx % 3) + 1.5)),
+                      badge: 'Dream'
+                    };
+                  });
+
+                  if (onAddMultipleMemories) {
+                    onAddMultipleMemories(newItems);
+                  } else if (onUpdateMemories) {
+                    onUpdateMemories([...memories, ...newItems]);
+                  }
+                } catch (err) {
+                  console.error('Batch upload error:', err);
+                } finally {
+                  setIsUploadingBatch(false);
+                  if (modalFileInputRef.current) modalFileInputRef.current.value = '';
+                }
+              }}
+            />
+
+            <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-white/10">
               <div>
-                <p className="text-xs text-[#F7B8C5] font-medium">
-                  Add, replace, or customize your dream couple photos shown in the Polaroid gallery.
+                <p className="text-xs text-[#F7B8C5] font-medium flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-[#D8A06C]" />
+                  <span>{memories.length} Dream Photos (No Limit)</span>
+                </p>
+                <p className="text-[11px] text-[#FFF3EF]/60 mt-0.5">
+                  Add unlimited photos of your romantic memories and future dreams together.
                 </p>
               </div>
 
-              {onOpenMemoryEditor && (
+              <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => onOpenMemoryEditor()}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#E8899D] to-[#D8A06C] text-[#12080D] font-bold text-xs shadow-md hover:scale-105 transition-all shrink-0 cursor-pointer"
+                  onClick={() => modalFileInputRef.current?.click()}
+                  disabled={isUploadingBatch}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-[#FFF3EF] font-semibold text-xs border border-white/20 transition-all cursor-pointer"
+                  title="Upload multiple photos at once"
                 >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Add New Dream</span>
+                  <Upload className="w-3.5 h-3.5 text-[#D8A06C]" />
+                  <span>{isUploadingBatch ? 'Processing...' : '+ Batch Upload'}</span>
                 </button>
-              )}
+
+                {onOpenMemoryEditor && (
+                  <button
+                    type="button"
+                    onClick={() => onOpenMemoryEditor()}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#E8899D] to-[#D8A06C] text-[#12080D] font-bold text-xs shadow-md hover:scale-105 transition-all shrink-0 cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Add New Dream</span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Drag & Drop Quick Area */}
+            <div
+              onClick={() => modalFileInputRef.current?.click()}
+              onDragOver={e => e.preventDefault()}
+              onDrop={async e => {
+                e.preventDefault();
+                if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                  const files = e.dataTransfer.files;
+                  try {
+                    setIsUploadingBatch(true);
+                    const dataUrls = await compressMultipleImages(files);
+                    const newItems: MemoryItem[] = dataUrls.map((url, idx) => {
+                      const originalFile = files[idx];
+                      const cleanName = originalFile ? originalFile.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ') : `Dream ${idx + 1}`;
+                      return {
+                        id: `mem-${Date.now()}-${idx}-${Math.random().toString(36).substring(2, 6)}`,
+                        title: cleanName.length > 2 ? cleanName.charAt(0).toUpperCase() + cleanName.slice(1) : `Our Dream ${idx + 1}`,
+                        description: 'A treasured dream and beautiful moment forever etched in our hearts.',
+                        date: 'Our Sweet Journey',
+                        location: 'With You Forever',
+                        image: url,
+                        rotationDeg: ((idx % 2 === 0 ? -1 : 1) * ((idx % 3) + 1.5)),
+                        badge: 'Dream'
+                      };
+                    });
+
+                    if (onAddMultipleMemories) {
+                      onAddMultipleMemories(newItems);
+                    } else if (onUpdateMemories) {
+                      onUpdateMemories([...memories, ...newItems]);
+                    }
+                  } catch (err) {
+                    console.error('Drop upload error:', err);
+                  } finally {
+                    setIsUploadingBatch(false);
+                  }
+                }
+              }}
+              className="p-3 border border-dashed border-[#E8899D]/40 hover:border-[#E8899D] rounded-2xl bg-[#12080D]/50 hover:bg-[#2A101B]/40 transition-colors flex items-center justify-center gap-2 text-center cursor-pointer"
+            >
+              <Upload className="w-4 h-4 text-[#E8899D]" />
+              <span className="text-xs text-[#FFF3EF]/80">
+                Drag &amp; drop photos here or click to batch upload from device
+              </span>
             </div>
 
             {/* List of current memories */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[380px] overflow-y-auto pr-1 custom-scrollbar">
               {memories.map((mem, idx) => (
                 <div
                   key={mem.id || idx}
