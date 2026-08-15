@@ -129,8 +129,11 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
     if (files && files[0]) {
       const file = files[0];
       try {
-        await audioEngine.setCustomAudioFile(file);
+        const trackId = await audioEngine.setCustomAudioFile(file);
         setAudioSuccess(`Loaded: ${file.name}`);
+        const newConfig = { ...formData, selectedTrackId: trackId };
+        setFormData(newConfig);
+        onSaveConfig(newConfig);
         setTimeout(() => setAudioSuccess(null), 3000);
       } catch (err) {
         console.error('Audio upload failed:', err);
@@ -141,9 +144,15 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
   const handleAudioUrlSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (customAudioUrl.trim()) {
-      audioEngine.setCustomAudioUrl(customAudioUrl.trim(), 'Custom Background Music');
+      const url = customAudioUrl.trim();
+      audioEngine.setCustomAudioUrl(url, 'Custom Background Music');
       setCustomAudioUrl('');
       setAudioSuccess('Custom audio stream connected!');
+      
+      const newConfig = { ...formData, bgMusicUrl: url, bgMusicName: 'Custom Background Music', selectedTrackId: 'custom-url-track' };
+      setFormData(newConfig);
+      onSaveConfig(newConfig);
+
       setTimeout(() => setAudioSuccess(null), 3000);
     }
   };
@@ -821,12 +830,14 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
                       type="button"
                       onClick={() => {
                         audioEngine.selectTrack(idx);
-                        setFormData(prev => ({
-                          ...prev,
+                        const newConfig = {
+                          ...formData,
                           musicTitle: t.name,
                           musicArtist: t.artist,
                           selectedTrackId: t.id
-                        }));
+                        };
+                        setFormData(newConfig);
+                        onSaveConfig(newConfig);
                       }}
                       className="min-w-0 flex-1 text-left cursor-pointer"
                     >
@@ -851,7 +862,11 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
                           onClick={(e) => {
                             e.stopPropagation();
                             if (confirm(`Remove "${t.name}" from saved music?`)) {
-                              audioEngine.deleteCustomTrack(t.id);
+                              audioEngine.deleteCustomTrack(t.id).then(() => {
+                                      const newConfig = { ...formData, selectedTrackId: audioEngine.getCurrentTrack().id };
+                                      setFormData(newConfig);
+                                      onSaveConfig(newConfig);
+                                  });
                             }
                           }}
                           className="p-1 rounded-lg text-white/40 hover:text-rose-400 hover:bg-rose-500/20 transition-colors"

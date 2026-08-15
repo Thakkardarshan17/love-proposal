@@ -321,7 +321,7 @@ class RomanticAudioEngine {
       localStorage.setItem('romantic_selected_track_id', trackId);
     } catch {}
 
-    if (autoPlay) {
+    if (autoPlay || this.isPlaying) {
       this.stop();
       this.play();
     } else {
