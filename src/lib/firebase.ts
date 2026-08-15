@@ -43,7 +43,7 @@ export const initAuth = async () => {
       await signInAnonymously(auth);
     }
   } catch (error) {
-    console.warn('Firebase anonymous auth notice:', error);
+    // Graceful offline notice
   }
 };
 
@@ -99,12 +99,17 @@ export const subscribeToSharedProposal = (
         onData(cloudData);
       } else {
         // First time initialization in Cloud Firestore
-        setDoc(proposalRef, defaultSharedData, { merge: true }).catch(console.error);
+        setDoc(proposalRef, defaultSharedData, { merge: true }).catch(() => {});
         onData(defaultSharedData);
       }
     },
     (err) => {
-      console.error('Firestore real-time sync error:', err);
+      // Graceful handling for offline / unavailable states
+      if (err?.code === 'unavailable' || err?.message?.includes('unavailable')) {
+        console.warn('Firestore operating in offline mode.');
+      } else {
+        console.warn('Firestore real-time sync notice:', err?.message || err);
+      }
       if (onError) onError(err);
     }
   );

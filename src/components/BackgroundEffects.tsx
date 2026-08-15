@@ -85,10 +85,13 @@ export const BackgroundEffects: React.FC<BackgroundEffectsProps> = ({
 
     const petalColors = ['#E8899D', '#F7B8C5', '#D8A06C', '#C44D6A', '#FFA8BA'];
 
-    // Increase heart counts for rich, visible background heart animation
-    const heartCount = intensity === 'celebration' ? 45 : intensity === 'romantic' ? 28 : 16;
-    const petalCount = intensity === 'celebration' ? 30 : intensity === 'romantic' ? 18 : 10;
-    const starCount = currentTheme === 'starry' || currentTheme === 'dark' ? 60 : 35;
+    const isSafari = typeof navigator !== 'undefined' && (/^((?!chrome|android).)*safari/i.test(navigator.userAgent) || /iPhone|iPad|iPod/i.test(navigator.userAgent));
+    const factor = isSafari ? 0.5 : 1;
+
+    // Adjust particle counts for smooth 60fps performance on Safari / iOS
+    const heartCount = Math.round((intensity === 'celebration' ? 40 : intensity === 'romantic' ? 24 : 14) * factor);
+    const petalCount = Math.round((intensity === 'celebration' ? 25 : intensity === 'romantic' ? 16 : 8) * factor);
+    const starCount = Math.round((currentTheme === 'starry' || currentTheme === 'dark' ? 50 : 30) * factor);
 
     // Create Floating Hearts
     const hearts: FloatingHeart[] = Array.from({ length: heartCount }, () => {
@@ -167,8 +170,10 @@ export const BackgroundEffects: React.FC<BackgroundEffectsProps> = ({
 
       ctx.fillStyle = color;
       ctx.globalAlpha = Math.max(0.05, Math.min(1, alpha));
-      ctx.shadowColor = color;
-      ctx.shadowBlur = glow;
+      if (!isSafari) {
+        ctx.shadowColor = color;
+        ctx.shadowBlur = glow;
+      }
       ctx.fill();
       ctx.restore();
     };
@@ -185,8 +190,10 @@ export const BackgroundEffects: React.FC<BackgroundEffectsProps> = ({
       ctx.ellipse(0, 0, p.size * 0.8, p.size * 0.45, 0, 0, Math.PI * 2);
       ctx.fillStyle = p.color;
       ctx.globalAlpha = p.opacity;
-      ctx.shadowColor = p.color;
-      ctx.shadowBlur = 4;
+      if (!isSafari) {
+        ctx.shadowColor = p.color;
+        ctx.shadowBlur = 4;
+      }
       ctx.fill();
       ctx.restore();
     };

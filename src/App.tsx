@@ -41,6 +41,7 @@ import { Scene12SacredPromises } from './components/scenes/Scene12SacredPromises
 import { Scene13LoveShayari2 } from './components/scenes/Scene13LoveShayari2';
 import { Scene14LifetimePillars } from './components/scenes/Scene14LifetimePillars';
 import { Scene15SealOfLove } from './components/scenes/Scene15SealOfLove';
+import { Scene16LoveQuiz } from './components/scenes/Scene16LoveQuiz';
 import { Scene12Forever } from './components/scenes/Scene12Forever';
 
 // Configurations and Data
@@ -69,7 +70,8 @@ const SCENE_NAMES: Record<number, string> = {
   13: 'Love Shayari II',
   14: 'Lifetime Pillars',
   15: 'Eternal Promise',
-  16: 'Forever & Always'
+  16: 'Love Quiz',
+  17: 'Forever & Always'
 };
 
 export default function App() {
@@ -108,7 +110,7 @@ export default function App() {
   const [currentScene, setCurrentScene] = useState<number>(() => {
     try {
       const saved = sessionStorage.getItem('romantic_proposal_current_scene');
-      return saved ? Math.max(1, Math.min(16, parseInt(saved, 10))) : 1;
+      return saved ? Math.max(1, Math.min(17, parseInt(saved, 10))) : 1;
     } catch {
       return 1;
     }
@@ -583,7 +585,7 @@ export default function App() {
               <div className="text-[10px] sm:text-[11px] font-serif font-bold text-[#FFF3EF] flex items-center justify-center gap-1 text-center leading-tight truncate max-w-[170px] sm:max-w-xs md:max-w-md mt-0.5">
                 <span className="truncate">{SCENE_NAMES[currentScene] || `Scene ${currentScene}`}</span>
                 <span className="text-[9px] sm:text-[10px] text-[#F7B8C5]/80 font-mono shrink-0">
-                  ({currentScene}/16)
+                  ({currentScene}/17)
                 </span>
               </div>
             </div>
@@ -603,7 +605,7 @@ export default function App() {
                 </button>
               )}
 
-              {currentScene < 16 && currentScene > 1 && (
+              {currentScene < 17 && currentScene > 1 && (
                 <button
                   id="nav-next-scene-btn"
                   onClick={() => {
@@ -611,7 +613,7 @@ export default function App() {
                       setIsWhatsAppModalOpen(true);
                       return;
                     }
-                    setCurrentScene(prev => Math.min(16, prev + 1));
+                    setCurrentScene(prev => Math.min(17, prev + 1));
                   }}
                   className="h-8 px-2.5 sm:h-9 sm:px-3 flex items-center justify-center gap-0.5 sm:gap-1 text-xs font-bold tracking-wider text-[#12080D] bg-gradient-to-r from-[#E8899D] to-[#D8A06C] rounded-full transition-all hover:scale-105 active:scale-95 shadow-md cursor-pointer shrink-0"
                   aria-label="Next scene"
@@ -792,6 +794,13 @@ export default function App() {
             )}
 
             {currentScene === 16 && (
+              <Scene16LoveQuiz
+                config={config}
+                onNext={() => setCurrentScene(17)}
+              />
+            )}
+
+            {currentScene === 17 && (
               <Scene12Forever
                 config={config}
                 primaryPhoto={primaryPhoto}
