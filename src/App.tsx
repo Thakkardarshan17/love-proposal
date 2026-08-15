@@ -547,9 +547,9 @@ export default function App() {
           aria-label="Proposal navigation bar"
           className="fixed top-0 left-0 right-0 z-40 px-2 sm:px-4 md:px-6 py-2 flex items-center justify-between pointer-events-auto bg-[#12080D]/95 backdrop-blur-md border-b border-[#E8899D]/20 shadow-lg"
         >
-          <div className="w-full max-w-6xl mx-auto flex items-center justify-between gap-1 sm:gap-2">
+          <div className="w-full max-w-6xl mx-auto flex items-center justify-between gap-1 sm:gap-2 relative">
             {/* Previous Scene Button */}
-            <div className="flex items-center shrink-0">
+            <div className="flex items-center shrink-0 z-10">
               {currentScene > 2 ? (
                 <button
                   id="nav-prev-scene-btn"
@@ -567,7 +567,7 @@ export default function App() {
             </div>
 
             {/* Current Step & Couple Names Tracker (Centered, Clean & Non-overlapping) */}
-            <div className="flex-1 min-w-0 px-2 flex flex-col items-center justify-center text-center">
+            <div className="flex-1 md:flex-none md:absolute md:left-1/2 md:-translate-x-1/2 min-w-0 px-2 flex flex-col items-center justify-center text-center z-0 pointer-events-none">
               <div 
                 className="text-[11px] sm:text-xs md:text-sm tracking-wider uppercase font-mono font-bold text-center leading-tight truncate max-w-[170px] sm:max-w-xs md:max-w-md drop-shadow-sm flex items-center justify-center gap-1 text-[#D8A06C]"
                 title={`${config.yourName} & ${config.partnerName}`}
@@ -591,7 +591,7 @@ export default function App() {
             </div>
 
             {/* Right Actions: Next scene + Music + Customizer + Lock */}
-            <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+            <div className="flex items-center gap-1 sm:gap-1.5 shrink-0 z-10">
               {currentScene >= 9 && (
                 <button
                   id="nav-whatsapp-btn"

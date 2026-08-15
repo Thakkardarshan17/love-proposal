@@ -68,12 +68,12 @@ export function Scene16LoveQuiz({ config, onNext }: Scene16LoveQuizProps) {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 py-12 md:py-24 flex flex-col items-center justify-center min-h-[80svh]">
+    <div className="relative flex flex-col items-center justify-center min-h-svh w-full px-4 sm:px-6 pt-24 sm:pt-28 pb-8 sm:pb-12 bg-gradient-to-b from-[#1C0B13] via-[#2A101B] to-[#12080D] overflow-hidden z-20">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
-        className="w-full max-w-lg"
+        className="w-full max-w-lg z-10"
       >
         <AnimatePresence mode="wait">
           {!showSummary ? (
