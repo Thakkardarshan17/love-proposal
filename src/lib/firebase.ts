@@ -14,7 +14,7 @@ import {
 } from 'firebase/firestore';
 import { getAuth, signInAnonymously } from 'firebase/auth';
 import firebaseConfigData from '../../firebase-applet-config.json';
-import { ProposalConfig, TimelineEvent, MemoryItem, ReasonItem, ChatMessage } from '../types';
+import { ProposalConfig, TimelineEvent, MemoryItem, ReasonItem, ChatMessage, VideoCallState } from '../types';
 import { initialProposalConfig, initialTimelineEvents, initialMemories, initialReasons } from '../config/proposalData';
 
 export const firebaseConfig = {
@@ -55,6 +55,7 @@ export interface SharedProposalData {
   memories: MemoryItem[];
   reasons?: ReasonItem[];
   chatMessages?: ChatMessage[];
+  videoCallState?: VideoCallState | null;
   hasAnsweredYes: boolean;
   yesTimestamp?: number | null;
   lastUpdatedBy?: string;
@@ -422,4 +423,3 @@ export const clearChatMessages = async (userName?: string): Promise<boolean> => 
     return false;
   }
 };
-

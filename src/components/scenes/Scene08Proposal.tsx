@@ -88,23 +88,23 @@ export const Scene08Proposal: React.FC<Scene08ProposalProps> = ({
     <section
       ref={containerRef}
       id="scene-08-proposal"
-      className="relative flex flex-col items-center justify-between min-h-svh w-full px-4 sm:px-6 pt-24 sm:pt-28 pb-8 sm:pb-10 bg-gradient-to-b from-[#12080D] via-[#1C0B13] to-[#2A101B] text-center overflow-hidden z-20"
+      className="relative flex flex-col items-center justify-between min-h-svh w-full px-4 sm:px-6 pt-24 sm:pt-28 pb-8 sm:pb-10 bg-gradient-to-b from-[var(--c-bg-darkest)] via-[var(--c-bg-darker)] to-[var(--c-bg-dark)] text-center overflow-hidden z-20"
     >
       {/* Intense Romantic Proposal Glow */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[380px] sm:w-[650px] h-[380px] sm:h-[650px] rounded-full bg-gradient-to-tr from-[#E8899D]/30 via-[#D8A06C]/20 to-[#F7B8C5]/25 blur-[140px] pointer-events-none" />
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[380px] sm:w-[650px] h-[380px] sm:h-[650px] rounded-full bg-gradient-to-tr from-[var(--c-accent-main)]/30 via-[var(--c-accent-gold)]/20 to-[var(--c-accent-light)]/25 blur-[140px] pointer-events-none" />
 
       {/* Top Header */}
-      <div className="flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-[#D8A06C] font-semibold mb-2">
-        <Sparkles className="w-4 h-4 text-[#D8A06C] animate-spin" />
+      <div className="flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-[var(--c-accent-gold)] font-semibold mb-2">
+        <Sparkles className="w-4 h-4 text-[var(--c-accent-gold)] animate-spin" />
         <span>The Forever Question</span>
-        <Sparkles className="w-4 h-4 text-[#D8A06C] animate-spin" />
+        <Sparkles className="w-4 h-4 text-[var(--c-accent-gold)] animate-spin" />
       </div>
 
       {/* Realistic Glowing Diamond Ring Visual & Proposal Question */}
       <div className="relative my-auto flex flex-col items-center max-w-sm sm:max-w-md w-full space-y-4 sm:space-y-5">
         {primaryPhoto && (
           <div className="relative group mb-1">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-[#D8A06C] shadow-[0_0_25px_rgba(216,160,108,0.5)]">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-[var(--c-accent-gold)] shadow-[0_0_25px_rgba(216,160,108,0.5)]">
               <img
                 src={primaryPhoto}
                 alt="Our Dream Couple"
@@ -112,8 +112,8 @@ export const Scene08Proposal: React.FC<Scene08ProposalProps> = ({
                 referrerPolicy="no-referrer"
               />
             </div>
-            <div className="absolute -bottom-1 -right-1 bg-[#E8899D] rounded-full p-1 border border-[#12080D] shadow">
-              <Heart className="w-3 h-3 text-[#12080D] fill-[#12080D]" />
+            <div className="absolute -bottom-1 -right-1 bg-[var(--c-accent-main)] rounded-full p-1 border border-[var(--c-bg-darkest)] shadow">
+              <Heart className="w-3 h-3 text-[var(--c-bg-darkest)] fill-[var(--c-bg-darkest)]" />
             </div>
           </div>
         )}
@@ -121,24 +121,24 @@ export const Scene08Proposal: React.FC<Scene08ProposalProps> = ({
         {/* Diamond Ring Graphic */}
         <div ref={ringContainerRef} className="relative group my-1 sm:my-2">
           {/* Ring Light Aura */}
-          <div className="absolute -inset-6 rounded-full bg-gradient-to-tr from-[#E8899D]/40 via-[#FFF3EF]/30 to-[#D8A06C]/40 blur-2xl animate-pulse pointer-events-none" />
+          <div className="absolute -inset-6 rounded-full bg-gradient-to-tr from-[var(--c-accent-main)]/40 via-[var(--c-text-main)]/30 to-[var(--c-accent-gold)]/40 blur-2xl animate-pulse pointer-events-none" />
 
-          <div className="relative w-32 h-32 sm:w-44 sm:h-44 rounded-full bg-gradient-to-tr from-[#2A101B] via-[#1C0B13] to-[#3A1422] border-2 border-[#D8A06C]/80 flex items-center justify-center glow-ring shadow-[0_0_60px_rgba(216,160,108,0.7)]">
+          <div className="relative w-32 h-32 sm:w-44 sm:h-44 rounded-full bg-gradient-to-tr from-[var(--c-bg-dark)] via-[var(--c-bg-darker)] to-[var(--c-bg-light)] border-2 border-[var(--c-accent-gold)]/80 flex items-center justify-center glow-ring shadow-[0_0_60px_rgba(216,160,108,0.7)]">
             {/* Diamond Setting */}
             <div className="relative flex flex-col items-center">
               <div className="relative">
-                <Gem className="w-14 h-14 sm:w-20 sm:h-20 text-[#FFF3EF] drop-shadow-[0_0_25px_rgba(255,243,239,0.95)] animate-bounce" />
-                <Sparkles className="absolute -top-2 -right-2 w-5 h-5 sm:w-6 sm:h-6 text-[#D8A06C] animate-spin" />
-                <Sparkles className="absolute -bottom-1 -left-2 w-4 h-4 sm:w-5 sm:h-5 text-[#E8899D]" />
+                <Gem className="w-14 h-14 sm:w-20 sm:h-20 text-[var(--c-text-main)] drop-shadow-[0_0_25px_rgba(255,243,239,0.95)] animate-bounce" />
+                <Sparkles className="absolute -top-2 -right-2 w-5 h-5 sm:w-6 sm:h-6 text-[var(--c-accent-gold)] animate-spin" />
+                <Sparkles className="absolute -bottom-1 -left-2 w-4 h-4 sm:w-5 sm:h-5 text-[var(--c-accent-main)]" />
               </div>
-              <div className="w-14 sm:w-16 h-3 rounded-full bg-[#D8A06C] blur-xs -mt-1 opacity-80" />
+              <div className="w-14 sm:w-16 h-3 rounded-full bg-[var(--c-accent-gold)] blur-xs -mt-1 opacity-80" />
             </div>
           </div>
         </div>
 
         {/* Emotional Subtitle */}
         <div className="proposal-text-block space-y-1.5 px-2">
-          <p className="text-sm sm:text-base text-[#F7B8C5]/90 font-cormorant italic text-base sm:text-xl">
+          <p className="text-sm sm:text-base text-[var(--c-accent-light)]/90 font-cormorant italic text-base sm:text-xl">
             {config.subQuestion}
           </p>
         </div>
@@ -148,15 +148,15 @@ export const Scene08Proposal: React.FC<Scene08ProposalProps> = ({
           <h2 className="text-3xl sm:text-5xl font-serif font-black text-gradient-rose tracking-wide drop-shadow-[0_0_35px_rgba(232,137,157,0.8)]">
             {config.question}
           </h2>
-          <p className="text-xs uppercase tracking-widest text-[#D8A06C] font-semibold">
+          <p className="text-xs uppercase tracking-widest text-[var(--c-accent-gold)] font-semibold">
             To {config.partnerName}
           </p>
         </div>
 
         {/* Respect Message if NO chosen */}
         {showRespectMessage && (
-          <div className="p-4 rounded-2xl glass-panel border border-[#E8899D]/40 text-xs text-[#FFF3EF] max-w-xs animate-in fade-in">
-            <p className="mb-2 font-serif text-sm text-[#F7B8C5]">
+          <div className="p-4 rounded-2xl glass-panel border border-[var(--c-accent-main)]/40 text-xs text-[var(--c-text-main)] max-w-xs animate-in fade-in">
+            <p className="mb-2 font-serif text-sm text-[var(--c-accent-light)]">
               I respect your answer with all my heart. ❤️
             </p>
             <p className="text-white/70">
@@ -168,7 +168,7 @@ export const Scene08Proposal: React.FC<Scene08ProposalProps> = ({
                 setNoAttempts(0);
                 setNoPosition({ x: 0, y: 0 });
               }}
-              className="mt-3 px-3 py-1 rounded-full bg-white/10 text-[11px] text-[#F7B8C5] hover:bg-white/20"
+              className="mt-3 px-3 py-1 rounded-full bg-white/10 text-[11px] text-[var(--c-accent-light)] hover:bg-white/20"
             >
               Let me answer again ❤️
             </button>
@@ -182,11 +182,11 @@ export const Scene08Proposal: React.FC<Scene08ProposalProps> = ({
             <button
               id="proposal-yes-btn"
               onClick={handleYes}
-              className="group relative w-full py-4 px-8 rounded-full bg-gradient-to-r from-[#E8899D] via-[#F7B8C5] to-[#D8A06C] text-[#12080D] font-bold text-base sm:text-lg tracking-wider uppercase shadow-[0_0_35px_rgba(232,137,157,0.8)] hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center gap-2.5 shine-effect"
+              className="group relative w-full py-4 px-8 rounded-full bg-gradient-to-r from-[var(--c-accent-main)] via-[var(--c-accent-light)] to-[var(--c-accent-gold)] text-[var(--c-bg-darkest)] font-bold text-base sm:text-lg tracking-wider uppercase shadow-[0_0_35px_rgba(232,137,157,0.8)] hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center gap-2.5 shine-effect"
             >
-              <Heart className="w-5 h-5 text-[#12080D] fill-[#12080D] animate-pulse" />
+              <Heart className="w-5 h-5 text-[var(--c-bg-darkest)] fill-[var(--c-bg-darkest)] animate-pulse" />
               <span>YES, I WILL ❤️</span>
-              <Heart className="w-5 h-5 text-[#12080D] fill-[#12080D] animate-pulse" />
+              <Heart className="w-5 h-5 text-[var(--c-bg-darkest)] fill-[var(--c-bg-darkest)] animate-pulse" />
             </button>
 
             {/* Playful non-trapping NO Button */}
@@ -198,7 +198,7 @@ export const Scene08Proposal: React.FC<Scene08ProposalProps> = ({
                 style={{
                   transform: `translate(${noPosition.x}px, ${noPosition.y}px)`
                 }}
-                className="w-full py-2.5 px-6 rounded-full bg-transparent border border-[#E8899D]/40 text-[#F7B8C5]/80 hover:text-white hover:border-[#E8899D] text-xs sm:text-sm font-medium tracking-wide transition-transform duration-200"
+                className="w-full py-2.5 px-6 rounded-full bg-transparent border border-[var(--c-accent-main)]/40 text-[var(--c-accent-light)]/80 hover:text-white hover:border-[var(--c-accent-main)] text-xs sm:text-sm font-medium tracking-wide transition-transform duration-200"
               >
                 {getNoButtonText()}
               </button>
@@ -208,7 +208,7 @@ export const Scene08Proposal: React.FC<Scene08ProposalProps> = ({
       </div>
 
       {/* Footer hint */}
-      <div className="text-[11px] text-[#F7B8C5]/60 font-light pb-2">
+      <div className="text-[11px] text-[var(--c-accent-light)]/60 font-light pb-2">
         A moment written in the stars
       </div>
     </section>

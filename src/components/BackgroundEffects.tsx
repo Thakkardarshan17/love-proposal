@@ -74,16 +74,16 @@ export const BackgroundEffects: React.FC<BackgroundEffectsProps> = ({
 
     // Heart Color Palette
     const heartColors = [
-      '#E8899D', // Romantic Blush Rose
-      '#F7B8C5', // Soft Fairy Pink
+      'var(--c-accent-main)', // Romantic Blush Rose
+      'var(--c-accent-light)', // Soft Fairy Pink
       '#FF7096', // Warm Love Pink
-      '#D8A06C', // Champagne Gold
+      'var(--c-accent-gold)', // Champagne Gold
       '#FF97B7', // Glow Rose
       '#E63956', // Ruby Heart
       '#FFD1DC'  // Pastel Light
     ];
 
-    const petalColors = ['#E8899D', '#F7B8C5', '#D8A06C', '#C44D6A', '#FFA8BA'];
+    const petalColors = ['var(--c-accent-main)', 'var(--c-accent-light)', 'var(--c-accent-gold)', '#C44D6A', '#FFA8BA'];
 
     const isSafari = typeof navigator !== 'undefined' && (/^((?!chrome|android).)*safari/i.test(navigator.userAgent) || /iPhone|iPad|iPod/i.test(navigator.userAgent));
     const factor = isSafari ? 0.5 : 1;
@@ -215,9 +215,9 @@ export const BackgroundEffects: React.FC<BackgroundEffectsProps> = ({
         ctx.save();
         ctx.beginPath();
         ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
-        ctx.fillStyle = '#FFF3EF';
+        ctx.fillStyle = 'var(--c-text-main)';
         ctx.globalAlpha = star.alpha * 0.65;
-        ctx.shadowColor = '#F7B8C5';
+        ctx.shadowColor = 'var(--c-accent-light)';
         ctx.shadowBlur = 5;
         ctx.fill();
         ctx.restore();

@@ -55,30 +55,30 @@ export const Scene03RomanticIntro: React.FC<Scene03RomanticIntroProps> = ({
     <section
       ref={containerRef}
       id="scene-03-romantic-intro"
-      className="relative flex flex-col items-center justify-between min-h-svh w-full px-4 sm:px-6 pt-24 sm:pt-28 pb-8 sm:pb-12 bg-gradient-to-b from-[#2A101B] via-[#3A1422] to-[#1C0B13] text-center overflow-hidden z-20"
+      className="relative flex flex-col items-center justify-between min-h-svh w-full px-4 sm:px-6 pt-24 sm:pt-28 pb-8 sm:pb-12 bg-gradient-to-b from-[var(--c-bg-dark)] via-[var(--c-bg-light)] to-[var(--c-bg-darker)] text-center overflow-hidden z-20"
     >
       {/* Soft warm pink glow backing */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] sm:w-[550px] h-[340px] sm:h-[550px] rounded-full bg-gradient-to-tr from-[#E8899D]/25 to-[#F7B8C5]/20 blur-[110px] pointer-events-none" />
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] sm:w-[550px] h-[340px] sm:h-[550px] rounded-full bg-gradient-to-tr from-[var(--c-accent-main)]/25 to-[var(--c-accent-light)]/20 blur-[110px] pointer-events-none" />
 
       {/* Top chapter tag */}
-      <div className="pt-4 flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-[#F7B8C5]/70 font-medium">
-        <Sparkles className="w-3.5 h-3.5 text-[#D8A06C]" />
+      <div className="pt-4 flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-[var(--c-accent-light)]/70 font-medium">
+        <Sparkles className="w-3.5 h-3.5 text-[var(--c-accent-gold)]" />
         <span>A Serendipitous Destiny</span>
-        <Sparkles className="w-3.5 h-3.5 text-[#D8A06C]" />
+        <Sparkles className="w-3.5 h-3.5 text-[var(--c-accent-gold)]" />
       </div>
 
       {/* Cinematic Text Reveal Center */}
       <div className="relative my-auto flex flex-col items-center max-w-sm sm:max-w-lg space-y-6">
-        <p className="intro-phrase-1 text-xl sm:text-2xl font-light text-[#FFF3EF]/90 font-serif leading-relaxed">
+        <p className="intro-phrase-1 text-xl sm:text-2xl font-light text-[var(--c-text-main)]/90 font-serif leading-relaxed">
           There are millions of people <br />
-          <span className="text-[#F7B8C5] italic">in this vast world...</span>
+          <span className="text-[var(--c-accent-light)] italic">in this vast world...</span>
         </p>
 
-        <p className="intro-phrase-2 text-lg sm:text-xl font-cormorant italic text-[#D8A06C] tracking-wide">
+        <p className="intro-phrase-2 text-lg sm:text-xl font-cormorant italic text-[var(--c-accent-gold)] tracking-wide">
           But somehow, through all of time and space...
         </p>
 
-        <p className="intro-phrase-3 text-2xl sm:text-3xl font-serif text-[#FFF3EF] font-light">
+        <p className="intro-phrase-3 text-2xl sm:text-3xl font-serif text-[var(--c-text-main)] font-light">
           I found
         </p>
 
@@ -87,9 +87,9 @@ export const Scene03RomanticIntro: React.FC<Scene03RomanticIntroProps> = ({
             <span className="text-4xl sm:text-6xl md:text-7xl font-serif font-black text-gradient-rose tracking-wider drop-shadow-[0_0_35px_rgba(232,137,157,0.7)]">
               {partnerName.toUpperCase()}
             </span>
-            <Heart className="w-8 h-8 sm:w-12 sm:h-12 md:w-14 md:h-14 text-[#E8899D] fill-[#E8899D] animate-pulse-heart inline-block ml-1" />
+            <Heart className="w-8 h-8 sm:w-12 sm:h-12 md:w-14 md:h-14 text-[var(--c-accent-main)] fill-[var(--c-accent-main)] animate-pulse-heart inline-block ml-1" />
           </div>
-          <span className="text-sm sm:text-base md:text-lg text-[#F7B8C5] font-script text-2xl sm:text-3xl mt-3 tracking-wide">
+          <span className="text-sm sm:text-base md:text-lg text-[var(--c-accent-light)] font-script text-2xl sm:text-3xl mt-3 tracking-wide">
             My one in eight billion
           </span>
         </div>
@@ -100,13 +100,13 @@ export const Scene03RomanticIntro: React.FC<Scene03RomanticIntroProps> = ({
         <button
           id="intro-next-scene-btn"
           onClick={onNext}
-          className="group relative flex items-center justify-center w-14 h-14 rounded-full glass-panel border border-[#E8899D]/40 text-[#FFF3EF] shadow-[0_0_25px_rgba(232,137,157,0.3)] hover:scale-110 active:scale-95 transition-all duration-300"
+          className="group relative flex items-center justify-center w-14 h-14 rounded-full glass-panel border border-[var(--c-accent-main)]/40 text-[var(--c-text-main)] shadow-[0_0_25px_rgba(232,137,157,0.3)] hover:scale-110 active:scale-95 transition-all duration-300"
           aria-label="Continue to our love story"
         >
-          <div className="absolute inset-0 rounded-full bg-[#E8899D]/10 group-hover:bg-[#E8899D]/25 transition-colors" />
-          <ChevronDown className="w-6 h-6 text-[#F7B8C5] group-hover:translate-y-0.5 transition-transform" />
+          <div className="absolute inset-0 rounded-full bg-[var(--c-accent-main)]/10 group-hover:bg-[var(--c-accent-main)]/25 transition-colors" />
+          <ChevronDown className="w-6 h-6 text-[var(--c-accent-light)] group-hover:translate-y-0.5 transition-transform" />
         </button>
-        <span className="text-[11px] uppercase tracking-widest text-[#F7B8C5]/70 mt-2 font-medium">
+        <span className="text-[11px] uppercase tracking-widest text-[var(--c-accent-light)]/70 mt-2 font-medium">
           Our Love Story
         </span>
       </div>

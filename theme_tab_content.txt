@@ -1,0 +1,63 @@
+        {/* Theme Settings Tab */}
+        {activeTab === 'theme' && (
+          <div className="p-4 sm:p-6 space-y-6 animate-in fade-in slide-in-from-right-4 duration-300 h-full overflow-y-auto no-scrollbar">
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold tracking-wider uppercase text-[var(--c-accent-gold)] flex items-center gap-2">
+                <Palette className="w-4 h-4" />
+                Theme Settings
+              </h3>
+              <p className="text-xs text-[var(--c-text-main)]/70">
+                Choose a theme to instantly change the vibe of your entire romantic application.
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {[
+                  { id: '', name: 'Original Burgundy', colors: ['#12080D', '#E8899D', '#D8A06C'] },
+                  { id: 'midnight', name: 'Midnight Blue', colors: ['#070B19', '#6B8AFF', '#D8A06C'] },
+                  { id: 'sunset', name: 'Soft Sunset', colors: ['#1A0D08', '#FF8A66', '#FFD166'] },
+                  { id: 'gold', name: 'Royal Gold', colors: ['#14120D', '#D8A06C', '#FFD700'] }
+                ].map((themeOpt) => (
+                  <button
+                    key={themeOpt.id || 'default'}
+                    type="button"
+                    onClick={() => {
+                      setFormData(prev => ({ ...prev, theme: themeOpt.id }));
+                      onUpdateConfig({ ...formData, theme: themeOpt.id });
+                      const root = document.getElementById('romantic-app-root');
+                      if (root) {
+                        root.className = `relative min-h-svh w-full bg-[var(--c-bg-darkest)] text-[var(--c-text-main)] font-sans antialiased overflow-x-hidden select-none selection:bg-[var(--c-accent-main)] selection:text-[var(--c-bg-darkest)] ${themeOpt.id ? 'theme-' + themeOpt.id : ''}`;
+                      }
+                    }}
+                    className={`flex flex-col gap-2 p-4 rounded-2xl border transition-all cursor-pointer text-left ${
+                      (formData.theme || '') === themeOpt.id
+                        ? 'bg-[var(--c-accent-main)]/10 border-[var(--c-accent-main)] shadow-[0_0_20px_rgba(var(--c-accent-main-rgb),0.2)]'
+                        : 'bg-black/20 border-white/10 hover:border-white/30 hover:bg-black/40'
+                    }`}
+                  >
+                    <span className={`text-sm font-bold ${
+                      (formData.theme || '') === themeOpt.id ? 'text-[var(--c-accent-main)]' : 'text-[var(--c-text-main)]'
+                    }`}>
+                      {themeOpt.name}
+                    </span>
+                    <div className="flex gap-2">
+                      {themeOpt.colors.map((c, i) => (
+                        <div key={i} className="w-6 h-6 rounded-full border border-white/20 shadow-inner" style={{ backgroundColor: c }} />
+                      ))}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+            
+            {/* Done Footer */}
+            <div className="flex items-center justify-end pt-3 border-t border-white/10 mt-6">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-5 py-2 text-xs font-semibold rounded-xl bg-gradient-to-r from-[var(--c-accent-main)] to-[var(--c-accent-gold)] text-[var(--c-bg-darkest)] cursor-pointer"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        )}

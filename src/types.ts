@@ -11,6 +11,7 @@ export interface ProposalConfig {
   bgMusicUrl?: string;
   bgMusicName?: string;
   selectedTrackId?: string;
+  theme?: string;
 }
 
 export interface TimelineEvent {
@@ -53,6 +54,15 @@ export interface MusicTrack {
   artist: string;
   type: 'synth' | 'audio';
   theme: string;
+}
+
+export interface VideoCallState {
+  caller: string;
+  receiver: string;
+  status: 'ringing' | 'accepted' | 'declined' | 'ended';
+  roomName: string;
+  timestamp: number;
+  callType?: 'audio' | 'video';
 }
 
 export interface ChatMessage {

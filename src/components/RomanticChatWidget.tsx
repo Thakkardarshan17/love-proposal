@@ -31,18 +31,21 @@ import {
   CheckCheck,
   Calendar,
   LogOut,
-  Camera
+  Camera,
+  Phone
 } from 'lucide-react';
-import { ChatMessage } from '../types';
+import { ChatMessage, VideoCallState } from '../types';
 import {
   sendRealtimeChatMessage,
   reactToChatMessage,
   clearChatMessages,
   deleteChatMessage,
   subscribeToRealtimeChat,
-  markChatMessagesAsRead
+  markChatMessagesAsRead,
+  saveSharedProposalData
 } from '../lib/firebase';
 import { compressImageForChat, processVideoForChat } from '../utils/chatMediaUtils';
+import { JitsiMeeting } from '@jitsi/react-sdk';
 
 interface RomanticChatWidgetProps {
   currentUserName: string;
@@ -52,6 +55,7 @@ interface RomanticChatWidgetProps {
   chatMessages?: ChatMessage[];
   lastUpdatedBy?: string;
   isCloudSynced?: boolean;
+  videoCallState?: VideoCallState | null;
 }
 
 const LOVE_QUICK_PHRASES = [
@@ -74,7 +78,8 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
   yourName = 'Deep',
   chatMessages: initialPropMessages = [],
   lastUpdatedBy,
-  isCloudSynced = true
+  isCloudSynced = true,
+  videoCallState
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -85,6 +90,12 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
   const [isDetectingLocation, setIsDetectingLocation] = useState(false);
   const [detectedLocation, setDetectedLocation] = useState<string>('');
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const soundEnabledRef = useRef(soundEnabled);
+  
+  useEffect(() => {
+    soundEnabledRef.current = soundEnabled;
+  }, [soundEnabled]);
+
   const [activeReactionMsgId, setActiveReactionMsgId] = useState<string | null>(null);
   const [showQuickPhrases, setShowQuickPhrases] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -133,6 +144,46 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
     } catch {}
   }, []);
 
+  // Call State Handlers
+  const handleStartCall = async (type: 'audio' | 'video') => {
+    if (!currentUserName) return;
+    const partner = currentUserName.toLowerCase() === yourName.toLowerCase() ? partnerName : yourName;
+    const roomName = `RomanticRoom_${Math.random().toString(36).substring(2, 9)}`;
+    
+    await saveSharedProposalData({
+      videoCallState: {
+        caller: currentUserName,
+        receiver: partner,
+        status: 'ringing',
+        roomName,
+        timestamp: Date.now(),
+        callType: type
+      }
+    });
+  };
+
+  const handleAnswerVideoCall = async () => {
+    if (videoCallState) {
+      await saveSharedProposalData({
+        videoCallState: {
+          ...videoCallState,
+          status: 'accepted'
+        }
+      });
+    }
+  };
+
+  const handleEndVideoCall = async () => {
+    if (videoCallState) {
+      await saveSharedProposalData({
+        videoCallState: {
+          ...videoCallState,
+          status: 'ended'
+        }
+      });
+    }
+  };
+
   // Web Audio Context initialization helper
   const getAudioContext = () => {
     try {
@@ -152,7 +203,7 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
 
   // Play crisp "Message Sent" feedback audio
   const playSentSound = () => {
-    if (!soundEnabled) return;
+    if (!soundEnabledRef.current) return;
     try {
       const ctx = getAudioContext();
       if (!ctx) return;
@@ -179,7 +230,7 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
 
   // Play romantic melodious chime when receiving partner's incoming message
   const playIncomingNotificationSound = () => {
-    if (!soundEnabled) return;
+    if (!soundEnabledRef.current) return;
     try {
       const ctx = getAudioContext();
       if (!ctx) return;
@@ -259,7 +310,7 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
     return () => {
       if (typeof unsubscribe === 'function') unsubscribe();
     };
-  }, [currentUserName, isOpen, soundEnabled]);
+  }, [currentUserName, isOpen]);
 
   // Sync prop messages as fallback if available
   useEffect(() => {
@@ -545,31 +596,31 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
             setIsOpen(true);
             setIncomingNotification(null);
           }}
-          className="fixed top-4 left-1/2 -translate-x-1/2 z-70 w-[92vw] max-w-md p-3.5 rounded-2xl bg-[#1C0B13]/95 border border-[#E8899D]/70 backdrop-blur-2xl shadow-[0_15px_40px_rgba(0,0,0,0.9)] text-[#FFF3EF] flex items-center justify-between gap-3 cursor-pointer hover:scale-[1.02] transition-all animate-in slide-in-from-top-4 duration-300"
+          className="fixed top-4 left-1/2 -translate-x-1/2 z-70 w-[92vw] max-w-md p-3.5 rounded-2xl bg-[var(--c-bg-darker)]/95 border border-[var(--c-accent-main)]/70 backdrop-blur-2xl shadow-[0_15px_40px_rgba(0,0,0,0.9)] text-[var(--c-text-main)] flex items-center justify-between gap-3 cursor-pointer hover:scale-[1.02] transition-all animate-in slide-in-from-top-4 duration-300"
         >
           <div className="flex items-center gap-3 min-w-0">
-            <div className="relative w-10 h-10 rounded-full bg-gradient-to-tr from-[#E8899D] to-[#D8A06C] p-0.5 shrink-0 shadow-md">
-              <div className="w-full h-full rounded-full bg-[#12080D] flex items-center justify-center text-[#E8899D]">
-                <Heart className="w-5 h-5 fill-[#E8899D] animate-pulse" />
+            <div className="relative w-10 h-10 rounded-full bg-gradient-to-tr from-[var(--c-accent-main)] to-[var(--c-accent-gold)] p-0.5 shrink-0 shadow-md">
+              <div className="w-full h-full rounded-full bg-[var(--c-bg-darkest)] flex items-center justify-center text-[var(--c-accent-main)]">
+                <Heart className="w-5 h-5 fill-[var(--c-accent-main)] animate-pulse" />
               </div>
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
-                <span className="text-xs font-bold font-serif text-[#FFF3EF] truncate">
+                <span className="text-xs font-bold font-serif text-[var(--c-text-main)] truncate">
                   {incomingNotification.senderName}
                 </span>
-                <span className="text-[10px] text-[#D8A06C] font-medium flex items-center gap-0.5">
+                <span className="text-[10px] text-[var(--c-accent-gold)] font-medium flex items-center gap-0.5">
                   <BellRing className="w-2.5 h-2.5 animate-bounce" />
                   <span>New Message</span>
                 </span>
               </div>
-              <p className="text-xs text-[#F7B8C5]/90 truncate mt-0.5">
+              <p className="text-xs text-[var(--c-accent-light)]/90 truncate mt-0.5">
                 {incomingNotification.text}
               </p>
             </div>
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
-            <span className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#E8899D] to-[#D8A06C] text-[#12080D] text-xs font-bold shadow-md">
+            <span className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-[var(--c-accent-main)] to-[var(--c-accent-gold)] text-[var(--c-bg-darkest)] text-xs font-bold shadow-md">
               Open Chat
             </span>
             <button
@@ -578,7 +629,7 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
                 e.stopPropagation();
                 setIncomingNotification(null);
               }}
-              className="p-1 rounded-lg text-[#F7B8C5]/60 hover:text-white"
+              className="p-1 rounded-lg text-[var(--c-accent-light)]/60 hover:text-white"
             >
               <X className="w-4 h-4" />
             </button>
@@ -594,23 +645,23 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
           className="fixed bottom-5 right-5 z-40 flex items-center gap-2 group animate-in fade-in slide-in-from-bottom-5 duration-300"
         >
           {/* Active User Mini Pill */}
-          <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#1C0B13]/90 backdrop-blur-md border border-[#E8899D]/30 text-xs text-[#FFF3EF] shadow-lg">
+          <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[var(--c-bg-darker)]/90 backdrop-blur-md border border-[var(--c-accent-main)]/30 text-xs text-[var(--c-text-main)] shadow-lg">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-[#F7B8C5]/70 text-[11px]">Chatting as:</span>
-            <span className="font-bold text-[#D8A06C] max-w-[100px] truncate">{currentUserName}</span>
+            <span className="text-[var(--c-accent-light)]/70 text-[11px]">Chatting as:</span>
+            <span className="font-bold text-[var(--c-accent-gold)] max-w-[100px] truncate">{currentUserName}</span>
           </div>
 
           {/* Main Button */}
           <button
             type="button"
             onClick={() => setIsOpen(true)}
-            className="relative flex items-center gap-2 px-4 py-3 rounded-full bg-gradient-to-r from-[#E8899D] via-[#F7B8C5] to-[#D8A06C] text-[#12080D] font-bold shadow-[0_0_25px_rgba(232,137,157,0.55)] hover:shadow-[0_0_35px_rgba(232,137,157,0.8)] hover:scale-105 active:scale-95 transition-all cursor-pointer"
+            className="relative flex items-center gap-2 px-4 py-3 rounded-full bg-gradient-to-r from-[var(--c-accent-main)] via-[var(--c-accent-light)] to-[var(--c-accent-gold)] text-[var(--c-bg-darkest)] font-bold shadow-[0_0_25px_rgba(232,137,157,0.55)] hover:shadow-[0_0_35px_rgba(232,137,157,0.8)] hover:scale-105 active:scale-95 transition-all cursor-pointer"
             title="Open Cross-Device Real-Time Chat"
           >
             <div className="relative">
-              <MessageCircleHeart className="w-5 h-5 fill-[#12080D]" />
-              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-red-600 ring-2 ring-[#FFF3EF] animate-ping" />
-              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-red-600 ring-2 ring-[#FFF3EF]" />
+              <MessageCircleHeart className="w-5 h-5 fill-[var(--c-bg-darkest)]" />
+              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-red-600 ring-2 ring-[var(--c-text-main)] animate-ping" />
+              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-red-600 ring-2 ring-[var(--c-text-main)]" />
             </div>
 
             <span className="text-xs uppercase tracking-wider font-extrabold hidden xs:inline">
@@ -619,7 +670,7 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
 
             {/* Unread Counter Badge */}
             {unreadCount > 0 && (
-              <span className="px-1.5 py-0.5 rounded-full bg-[#12080D] text-[#FFF3EF] text-[10px] font-extrabold animate-bounce">
+              <span className="px-1.5 py-0.5 rounded-full bg-[var(--c-bg-darkest)] text-[var(--c-text-main)] text-[10px] font-extrabold animate-bounce">
                 {unreadCount}
               </span>
             )}
@@ -636,21 +687,21 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
             isExpanded
               ? 'inset-2 sm:inset-6 md:inset-10'
               : 'bottom-2 sm:bottom-5 right-2 sm:right-5 w-[calc(100vw-16px)] sm:w-[440px] h-[620px] max-h-[92vh]'
-          } flex flex-col rounded-3xl bg-[#1C0B13]/95 backdrop-blur-2xl border border-[#E8899D]/40 shadow-[0_20px_70px_rgba(0,0,0,0.85)] text-[#FFF3EF] overflow-hidden animate-in fade-in zoom-in-95 duration-200`}
+          } flex flex-col rounded-3xl bg-[var(--c-bg-darker)]/95 backdrop-blur-2xl border border-[var(--c-accent-main)]/40 shadow-[0_20px_70px_rgba(0,0,0,0.85)] text-[var(--c-text-main)] overflow-hidden animate-in fade-in zoom-in-95 duration-200`}
         >
           {/* Header */}
-          <header className="p-3.5 sm:p-4 bg-gradient-to-r from-[#2A101B] via-[#3A1422] to-[#2A101B] border-b border-[#E8899D]/20 flex items-center justify-between gap-2 shrink-0">
+          <header className="p-3.5 sm:p-4 bg-gradient-to-r from-[var(--c-bg-dark)] via-[var(--c-bg-light)] to-[var(--c-bg-dark)] border-b border-[var(--c-accent-main)]/20 flex items-center justify-between gap-2 shrink-0">
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="relative w-9 h-9 rounded-full bg-gradient-to-tr from-[#E8899D] to-[#D8A06C] p-0.5 shrink-0 shadow-md">
-                <div className="w-full h-full rounded-full bg-[#12080D] flex items-center justify-center text-[#E8899D]">
-                  <Heart className="w-4 h-4 fill-[#E8899D]" />
+              <div className="relative w-9 h-9 rounded-full bg-gradient-to-tr from-[var(--c-accent-main)] to-[var(--c-accent-gold)] p-0.5 shrink-0 shadow-md">
+                <div className="w-full h-full rounded-full bg-[var(--c-bg-darkest)] flex items-center justify-center text-[var(--c-accent-main)]">
+                  <Heart className="w-4 h-4 fill-[var(--c-accent-main)]" />
                 </div>
-                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-[#12080D]" />
+                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-[var(--c-bg-darkest)]" />
               </div>
 
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <h2 className="text-sm font-bold font-serif text-[#FFF3EF] truncate">
+                  <h2 className="text-sm font-bold font-serif text-[var(--c-text-main)] truncate">
                     Real-time Love Chat
                   </h2>
                   <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-medium flex items-center gap-0.5">
@@ -658,15 +709,15 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
                     <span>Live</span>
                   </span>
                   {detectedLocation && (
-                    <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-[#D8A06C]/20 border border-[#D8A06C]/30 text-[#D8A06C] font-medium flex items-center gap-0.5 truncate max-w-[140px]" title={detectedLocation}>
+                    <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-[var(--c-accent-gold)]/20 border border-[var(--c-accent-gold)]/30 text-[var(--c-accent-gold)] font-medium flex items-center gap-0.5 truncate max-w-[140px]" title={detectedLocation}>
                       <MapPin className="w-2.5 h-2.5 shrink-0" />
                       <span className="truncate">{detectedLocation}</span>
                     </span>
                   )}
                 </div>
-                <p className="text-[11px] text-[#F7B8C5]/70 truncate flex items-center gap-1">
+                <p className="text-[11px] text-[var(--c-accent-light)]/70 truncate flex items-center gap-1">
                   <span>Chatting with</span>
-                  <span className="font-semibold text-[#D8A06C]">
+                  <span className="font-semibold text-[var(--c-accent-gold)]">
                     {currentUserName.toLowerCase().includes(partnerName.toLowerCase()) ? yourName : partnerName}
                   </span>
                 </p>
@@ -675,22 +726,47 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
 
             {/* Header Actions */}
             <div className="flex items-center gap-1 shrink-0">
+              {/* Audio Call */}
+              <button
+                type="button"
+                onClick={() => handleStartCall('audio')}
+                className="p-1.5 rounded-lg text-blue-400 hover:text-blue-300 hover:bg-blue-500/20 transition-colors cursor-pointer animate-pulse"
+                title="Start Audio Call"
+                aria-label="Start Audio Call"
+              >
+                <Phone className="w-4 h-4" />
+              </button>
+
+              {/* Video Call */}
+              <button
+                type="button"
+                onClick={() => handleStartCall('video')}
+                className="p-1.5 rounded-lg text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/20 transition-colors cursor-pointer animate-pulse"
+                title="Start Video Call"
+                aria-label="Start Video Call"
+              >
+                <Video className="w-4 h-4" />
+              </button>
+
               {/* Sound Toggle */}
               <button
                 type="button"
-                onClick={() => setSoundEnabled(!soundEnabled)}
-                className="p-1.5 rounded-lg text-[#F7B8C5]/70 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                onClick={() => {
+                  setSoundEnabled(!soundEnabled);
+                  getAudioContext();
+                }}
+                className="p-1.5 rounded-lg text-[var(--c-accent-light)]/70 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
                 title={soundEnabled ? 'Mute Chime' : 'Unmute Chime'}
                 aria-label={soundEnabled ? 'Mute Chime' : 'Unmute Chime'}
               >
-                {soundEnabled ? <Volume2 className="w-4 h-4 text-[#D8A06C]" /> : <VolumeX className="w-4 h-4" />}
+                {soundEnabled ? <Volume2 className="w-4 h-4 text-[var(--c-accent-gold)]" /> : <VolumeX className="w-4 h-4" />}
               </button>
 
               {/* Clear History */}
               <button
                 type="button"
                 onClick={handleClearHistory}
-                className="p-1.5 rounded-lg text-[#F7B8C5]/50 hover:text-red-400 hover:bg-white/10 transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg text-[var(--c-accent-light)]/50 hover:text-red-400 hover:bg-white/10 transition-colors cursor-pointer"
                 title="Clear Chat History"
                 aria-label="Clear Chat History"
               >
@@ -701,7 +777,7 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
               <button
                 type="button"
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="p-1.5 rounded-lg text-[#F7B8C5]/70 hover:text-white hover:bg-white/10 transition-colors cursor-pointer hidden sm:block"
+                className="p-1.5 rounded-lg text-[var(--c-accent-light)]/70 hover:text-white hover:bg-white/10 transition-colors cursor-pointer hidden sm:block"
                 title={isExpanded ? 'Restore Size' : 'Expand Fullscreen'}
                 aria-label={isExpanded ? 'Restore Size' : 'Expand Fullscreen'}
               >
@@ -712,7 +788,7 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
-                className="p-1.5 rounded-lg text-[#F7B8C5]/70 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg text-[var(--c-accent-light)]/70 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
                 title="Minimize Chat"
                 aria-label="Minimize Chat"
               >
@@ -724,17 +800,17 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
           {/* Active Identity Bar - Private & Personal Chat */}
           <section
             aria-label="Sender Identity Bar"
-            className="px-3.5 py-2 bg-[#12080D]/85 border-b border-[#E8899D]/15 flex items-center justify-between text-xs gap-2 shrink-0"
+            className="px-3.5 py-2 bg-[var(--c-bg-darkest)]/85 border-b border-[var(--c-accent-main)]/15 flex items-center justify-between text-xs gap-2 shrink-0"
           >
             <div className="flex items-center gap-1.5 min-w-0">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-              <span className="text-[#F7B8C5]/70 text-[11px]">Logged in as:</span>
-              <span className="font-bold text-[#FFF3EF] truncate">
+              <span className="text-[var(--c-accent-light)]/70 text-[11px]">Logged in as:</span>
+              <span className="font-bold text-[var(--c-text-main)] truncate">
                 {currentUserName} {currentUserName.toLowerCase().includes(partnerName.toLowerCase()) ? '👸' : '🤴'}
               </span>
             </div>
 
-            <div className="flex items-center gap-1 text-[10px] text-[#D8A06C] bg-white/5 px-2.5 py-1 rounded-full border border-[#D8A06C]/30 font-medium">
+            <div className="flex items-center gap-1 text-[10px] text-[var(--c-accent-gold)] bg-white/5 px-2.5 py-1 rounded-full border border-[var(--c-accent-gold)]/30 font-medium">
               <Lock className="w-3 h-3" />
               <span>Personal &amp; Private</span>
             </div>
@@ -744,11 +820,11 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
           <main
             tabIndex={0}
             aria-label="Love Chat Messages Feed"
-            className="flex-1 overflow-y-auto overflow-x-hidden p-3.5 sm:p-4 space-y-3.5 focus:outline-none scrollbar-thin scrollbar-thumb-[#E8899D]/20"
+            className="flex-1 overflow-y-auto overflow-x-hidden p-3.5 sm:p-4 space-y-3.5 focus:outline-none scrollbar-thin scrollbar-thumb-[var(--c-accent-main)]/20"
           >
             {messages.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-center p-6 text-[#F7B8C5]/60 space-y-2">
-                <Heart className="w-10 h-10 text-[#E8899D]/40 animate-pulse fill-[#E8899D]/20" />
+              <div className="h-full flex flex-col items-center justify-center text-center p-6 text-[var(--c-accent-light)]/60 space-y-2">
+                <Heart className="w-10 h-10 text-[var(--c-accent-main)]/40 animate-pulse fill-[var(--c-accent-main)]/20" />
                 <p className="text-xs">No messages yet. Send a love note, photo, or video to start chatting!</p>
               </div>
             ) : (
@@ -765,7 +841,7 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
                     <div className="flex items-center gap-1.5 mb-1 px-1 text-[11px]">
                       <span
                         className={`font-bold flex items-center gap-1 ${
-                          isMe ? 'text-[#D8A06C]' : isGirlfriend ? 'text-[#E8899D]' : 'text-[#D8A06C]'
+                          isMe ? 'text-[var(--c-accent-gold)]' : isGirlfriend ? 'text-[var(--c-accent-main)]' : 'text-[var(--c-accent-gold)]'
                         }`}
                       >
                         {isMe ? (
@@ -784,7 +860,7 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
                           </>
                         )}
                       </span>
-                      <span className="text-[9px] text-[#F7B8C5]/60 flex items-center gap-0.5">
+                      <span className="text-[9px] text-[var(--c-accent-light)]/60 flex items-center gap-0.5">
                         <Clock className="w-2.5 h-2.5" />
                         <span>{msg.dateTimeStr}</span>
                       </span>
@@ -794,10 +870,10 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
                     <div
                       className={`relative max-w-[88%] sm:max-w-[80%] rounded-2xl text-xs leading-relaxed shadow-md transition-all ${
                         isMe
-                          ? 'bg-gradient-to-tr from-[#E8899D] via-[#F7B8C5] to-[#D8A06C] text-[#12080D] font-medium rounded-tr-none'
+                          ? 'bg-gradient-to-tr from-[var(--c-accent-main)] via-[var(--c-accent-light)] to-[var(--c-accent-gold)] text-[var(--c-bg-darkest)] font-medium rounded-tr-none'
                           : isGirlfriend
-                          ? 'bg-gradient-to-tr from-[#2A101B] via-[#3A1422] to-[#250F18] border border-[#E8899D]/40 text-[#FFF3EF] rounded-tl-none'
-                          : 'bg-gradient-to-tr from-[#231710] via-[#2F1F17] to-[#1E110A] border border-[#D8A06C]/40 text-[#FFF3EF] rounded-tl-none'
+                          ? 'bg-gradient-to-tr from-[var(--c-bg-dark)] via-[var(--c-bg-light)] to-[#250F18] border border-[var(--c-accent-main)]/40 text-[var(--c-text-main)] rounded-tl-none'
+                          : 'bg-gradient-to-tr from-[#231710] via-[#2F1F17] to-[#1E110A] border border-[var(--c-accent-gold)]/40 text-[var(--c-text-main)] rounded-tl-none'
                       }`}
                     >
                       {/* Attached Media Render (Photo or Video) */}
@@ -880,7 +956,7 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
                       {msg.location && (
                         <div
                           className={`flex items-center justify-between gap-1 px-3.5 pb-2 text-[10px] ${
-                            isMe ? 'text-[#12080D]/75' : 'text-[#D8A06C]'
+                            isMe ? 'text-[var(--c-bg-darkest)]/75' : 'text-[var(--c-accent-gold)]'
                           }`}
                         >
                           <div className="flex items-start gap-1 w-full">
@@ -896,7 +972,7 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
                           <button
                             type="button"
                             onClick={() => handleReaction(msg.id, msg.reaction!)}
-                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#1C0B13] border border-[#E8899D]/80 text-xs shadow-[0_2px_8px_rgba(0,0,0,0.8)] cursor-pointer hover:scale-115 transition-all"
+                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[var(--c-bg-darker)] border border-[var(--c-accent-main)]/80 text-xs shadow-[0_2px_8px_rgba(0,0,0,0.8)] cursor-pointer hover:scale-115 transition-all"
                             title="Click to remove or toggle reaction"
                           >
                             <span className="text-sm leading-none">{msg.reaction}</span>
@@ -909,7 +985,7 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
                     <div className="flex items-center gap-1.5 mt-1.5 px-1 relative">
                       {/* Floating Reactions Popup right above message */}
                       {activeReactionMsgId === msg.id && (
-                        <div className={`absolute z-30 bottom-[calc(100%+6px)] ${isMe ? 'right-0' : 'left-0'} p-1.5 rounded-2xl bg-[#1C0B13]/98 border border-[#E8899D]/70 backdrop-blur-xl shadow-[0_10px_30px_rgba(0,0,0,0.9)] flex items-center gap-1.5 animate-in zoom-in-90 duration-150`}>
+                        <div className={`absolute z-30 bottom-[calc(100%+6px)] ${isMe ? 'right-0' : 'left-0'} p-1.5 rounded-2xl bg-[var(--c-bg-darker)]/98 border border-[var(--c-accent-main)]/70 backdrop-blur-xl shadow-[0_10px_30px_rgba(0,0,0,0.9)] flex items-center gap-1.5 animate-in zoom-in-90 duration-150`}>
                           {LOVE_REACTIONS.map((emoji) => (
                             <button
                               key={emoji}
@@ -930,12 +1006,12 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
                         }
                         className={`text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1 cursor-pointer transition-all ${
                           activeReactionMsgId === msg.id
-                            ? 'bg-[#E8899D] text-[#12080D] font-bold shadow'
-                            : 'text-[#F7B8C5]/80 hover:text-white bg-white/5 hover:bg-white/10'
+                            ? 'bg-[var(--c-accent-main)] text-[var(--c-bg-darkest)] font-bold shadow'
+                            : 'text-[var(--c-accent-light)]/80 hover:text-white bg-white/5 hover:bg-white/10'
                         }`}
                         title="React with love emoji"
                       >
-                        <Smile className="w-3 h-3 text-[#D8A06C]" />
+                        <Smile className="w-3 h-3 text-[var(--c-accent-gold)]" />
                         <span>React</span>
                       </button>
 
@@ -958,9 +1034,9 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
 
           {/* Pending Media Attachment Preview Bar */}
           {attachedMedia && (
-            <div className="px-3.5 py-2 bg-[#2A101B] border-t border-[#E8899D]/20 flex items-center justify-between gap-2 shrink-0 animate-in slide-in-from-bottom-2">
+            <div className="px-3.5 py-2 bg-[var(--c-bg-dark)] border-t border-[var(--c-accent-main)]/20 flex items-center justify-between gap-2 shrink-0 animate-in slide-in-from-bottom-2">
               <div className="flex items-center gap-2 min-w-0">
-                <div className="relative w-12 h-12 rounded-lg bg-black/60 overflow-hidden border border-[#E8899D]/40 shrink-0">
+                <div className="relative w-12 h-12 rounded-lg bg-black/60 overflow-hidden border border-[var(--c-accent-main)]/40 shrink-0">
                   {attachedMedia.type === 'image' ? (
                     <img
                       src={attachedMedia.url}
@@ -968,14 +1044,14 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-[#12080D] text-[#D8A06C]">
+                    <div className="w-full h-full flex items-center justify-center bg-[var(--c-bg-darkest)] text-[var(--c-accent-gold)]">
                       <Video className="w-6 h-6" />
                     </div>
                   )}
                 </div>
                 <div className="min-w-0 text-xs">
-                  <p className="font-bold text-[#FFF3EF] truncate">{attachedMedia.name}</p>
-                  <p className="text-[10px] text-[#D8A06C]">
+                  <p className="font-bold text-[var(--c-text-main)] truncate">{attachedMedia.name}</p>
+                  <p className="text-[10px] text-[var(--c-accent-gold)]">
                     Ready to send with location &amp; timestamp 🚀
                   </p>
                 </div>
@@ -984,7 +1060,7 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
               <button
                 type="button"
                 onClick={() => setAttachedMedia(null)}
-                className="p-1.5 rounded-lg text-[#F7B8C5]/70 hover:text-white hover:bg-white/10 cursor-pointer"
+                className="p-1.5 rounded-lg text-[var(--c-accent-light)]/70 hover:text-white hover:bg-white/10 cursor-pointer"
                 title="Remove Attachment"
               >
                 <X className="w-4 h-4" />
@@ -994,7 +1070,7 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
 
           {/* Processing Media Spinner */}
           {isProcessingMedia && (
-            <div className="px-3.5 py-2 bg-[#2A101B] border-t border-[#E8899D]/20 flex items-center gap-2 text-xs text-[#D8A06C] shrink-0">
+            <div className="px-3.5 py-2 bg-[var(--c-bg-dark)] border-t border-[var(--c-accent-main)]/20 flex items-center gap-2 text-xs text-[var(--c-accent-gold)] shrink-0">
               <Loader2 className="w-4 h-4 animate-spin" />
               <span>Optimizing media attachment for real-time delivery...</span>
             </div>
@@ -1002,13 +1078,13 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
 
           {/* Quick Love Sparks Drawer */}
           {showQuickPhrases && (
-            <div className="px-3 py-2 bg-[#2A101B]/95 border-t border-[#E8899D]/20 max-h-32 overflow-y-auto scrollbar-thin">
-              <div className="flex items-center justify-between mb-1 text-[10px] font-semibold text-[#D8A06C] uppercase tracking-wider">
+            <div className="px-3 py-2 bg-[var(--c-bg-dark)]/95 border-t border-[var(--c-accent-main)]/20 max-h-32 overflow-y-auto scrollbar-thin">
+              <div className="flex items-center justify-between mb-1 text-[10px] font-semibold text-[var(--c-accent-gold)] uppercase tracking-wider">
                 <span>Quick Love Sparks</span>
                 <button
                   type="button"
                   onClick={() => setShowQuickPhrases(false)}
-                  className="text-[#F7B8C5]/60 hover:text-white cursor-pointer"
+                  className="text-[var(--c-accent-light)]/60 hover:text-white cursor-pointer"
                 >
                   Close
                 </button>
@@ -1019,7 +1095,7 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
                     key={idx}
                     type="button"
                     onClick={() => handleSendMessage(undefined, phrase)}
-                    className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-[#E8899D] hover:text-[#12080D] text-[11px] text-[#FFF3EF] transition-all text-left cursor-pointer"
+                    className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-[var(--c-accent-main)] hover:text-[var(--c-bg-darkest)] text-[11px] text-[var(--c-text-main)] transition-all text-left cursor-pointer"
                   >
                     {phrase}
                   </button>
@@ -1029,16 +1105,16 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
           )}
 
           {/* Media & GPS Attachment Toolbar */}
-          <div className="px-3 py-1.5 bg-[#12080D]/90 border-t border-[#E8899D]/15 flex items-center justify-between gap-1 overflow-x-auto shrink-0">
+          <div className="px-3 py-1.5 bg-[var(--c-bg-darkest)]/90 border-t border-[var(--c-accent-main)]/15 flex items-center justify-between gap-1 overflow-x-auto shrink-0">
             <div className="flex items-center gap-1">
               {/* Photo Upload Button */}
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="px-2 py-1 rounded-lg bg-white/10 hover:bg-white/15 text-[11px] text-[#FFF3EF] flex items-center gap-1 font-medium cursor-pointer transition-colors"
+                className="px-2 py-1 rounded-lg bg-white/10 hover:bg-white/15 text-[11px] text-[var(--c-text-main)] flex items-center gap-1 font-medium cursor-pointer transition-colors"
                 title="Send Photo"
               >
-                <ImageIcon className="w-3.5 h-3.5 text-[#E8899D]" />
+                <ImageIcon className="w-3.5 h-3.5 text-[var(--c-accent-main)]" />
                 <span className="hidden xs:inline">Photo</span>
               </button>
               <input
@@ -1053,10 +1129,10 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
               <button
                 type="button"
                 onClick={() => videoInputRef.current?.click()}
-                className="px-2 py-1 rounded-lg bg-white/10 hover:bg-white/15 text-[11px] text-[#FFF3EF] flex items-center gap-1 font-medium cursor-pointer transition-colors"
+                className="px-2 py-1 rounded-lg bg-white/10 hover:bg-white/15 text-[11px] text-[var(--c-text-main)] flex items-center gap-1 font-medium cursor-pointer transition-colors"
                 title="Send Video"
               >
-                <Video className="w-3.5 h-3.5 text-[#D8A06C]" />
+                <Video className="w-3.5 h-3.5 text-[var(--c-accent-gold)]" />
                 <span className="hidden xs:inline">Video</span>
               </button>
               <input
@@ -1071,7 +1147,7 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
               <button
                 type="button"
                 onClick={() => setShowQuickPhrases(!showQuickPhrases)}
-                className="px-2 py-1 rounded-lg bg-white/10 hover:bg-white/15 text-[11px] text-[#D8A06C] flex items-center gap-1 font-medium cursor-pointer"
+                className="px-2 py-1 rounded-lg bg-white/10 hover:bg-white/15 text-[11px] text-[var(--c-accent-gold)] flex items-center gap-1 font-medium cursor-pointer"
               >
                 <Sparkles className="w-3 h-3" />
                 <span className="hidden xs:inline">Sparks</span>
@@ -1083,8 +1159,8 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
                 onClick={() => setIncludeLocation(!includeLocation)}
                 className={`px-2 py-1 rounded-lg text-[11px] flex items-center gap-1 font-medium transition-colors cursor-pointer ${
                   includeLocation
-                    ? 'bg-[#E8899D]/20 text-[#E8899D] border border-[#E8899D]/30'
-                    : 'bg-white/5 text-[#F7B8C5]/50'
+                    ? 'bg-[var(--c-accent-main)]/20 text-[var(--c-accent-main)] border border-[var(--c-accent-main)]/30'
+                    : 'bg-white/5 text-[var(--c-accent-light)]/50'
                 }`}
                 title={detectedLocation ? `Attach ${detectedLocation}` : 'Attach Location'}
               >
@@ -1113,7 +1189,7 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
           {/* Chat Input Form */}
           <form
             onSubmit={handleSendMessage}
-            className="p-3 bg-[#1C0B13] border-t border-[#E8899D]/20 flex items-center gap-2 shrink-0"
+            className="p-3 bg-[var(--c-bg-darker)] border-t border-[var(--c-accent-main)]/20 flex items-center gap-2 shrink-0"
           >
             <input
               type="text"
@@ -1124,19 +1200,19 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
                   ? 'Add a caption for your media...'
                   : `Send message as ${currentUserName}...`
               }
-              className="flex-1 px-3.5 py-2.5 bg-[#12080D] border border-[#E8899D]/30 focus:border-[#D8A06C] focus:ring-2 focus:ring-[#D8A06C]/30 rounded-xl text-xs sm:text-sm text-[#FFF3EF] placeholder-[#F7B8C5]/40 outline-none transition-all"
+              className="flex-1 px-3.5 py-2.5 bg-[var(--c-bg-darkest)] border border-[var(--c-accent-main)]/30 focus:border-[var(--c-accent-gold)] focus:ring-2 focus:ring-[var(--c-accent-gold)]/30 rounded-xl text-xs sm:text-sm text-[var(--c-text-main)] placeholder-[var(--c-accent-light)]/40 outline-none transition-all"
             />
 
             <button
               type="submit"
               disabled={(!inputText.trim() && !attachedMedia) || isSending}
-              className="p-2.5 rounded-xl font-bold bg-gradient-to-r from-[#E8899D] to-[#D8A06C] text-[#12080D] hover:brightness-110 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-[0_0_15px_rgba(232,137,157,0.4)] flex items-center justify-center cursor-pointer shrink-0"
+              className="p-2.5 rounded-xl font-bold bg-gradient-to-r from-[var(--c-accent-main)] to-[var(--c-accent-gold)] text-[var(--c-bg-darkest)] hover:brightness-110 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-[0_0_15px_rgba(232,137,157,0.4)] flex items-center justify-center cursor-pointer shrink-0"
               title="Send Message"
             >
               {isSending ? (
-                <Loader2 className="w-4 h-4 animate-spin text-[#12080D]" />
+                <Loader2 className="w-4 h-4 animate-spin text-[var(--c-bg-darkest)]" />
               ) : (
-                <Send className="w-4 h-4 text-[#12080D]" />
+                <Send className="w-4 h-4 text-[var(--c-bg-darkest)]" />
               )}
             </button>
           </form>
@@ -1153,16 +1229,16 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
           onClick={() => setSelectedLightboxMedia(null)}
         >
           <div
-            className="relative max-w-3xl w-full max-h-[85vh] flex flex-col items-center justify-center bg-[#1C0B13] rounded-3xl border border-[#E8899D]/40 overflow-hidden shadow-2xl"
+            className="relative max-w-3xl w-full max-h-[85vh] flex flex-col items-center justify-center bg-[var(--c-bg-darker)] rounded-3xl border border-[var(--c-accent-main)]/40 overflow-hidden shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Lightbox Header */}
-            <div className="w-full p-4 bg-[#2A101B] border-b border-[#E8899D]/20 flex items-center justify-between text-xs">
+            <div className="w-full p-4 bg-[var(--c-bg-dark)] border-b border-[var(--c-accent-main)]/20 flex items-center justify-between text-xs">
               <div className="flex items-center gap-2">
-                <span className="font-bold text-[#D8A06C]">
+                <span className="font-bold text-[var(--c-accent-gold)]">
                   {selectedLightboxMedia.senderName}
                 </span>
-                <span className="text-[#F7B8C5]/60">• {selectedLightboxMedia.time}</span>
+                <span className="text-[var(--c-accent-light)]/60">• {selectedLightboxMedia.time}</span>
               </div>
               <div className="flex items-center gap-1.5">
                 {selectedLightboxMedia.messageId && (
@@ -1183,7 +1259,7 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
                 <button
                   type="button"
                   onClick={() => setSelectedLightboxMedia(null)}
-                  className="p-1.5 rounded-lg text-[#F7B8C5]/70 hover:text-white hover:bg-white/10 cursor-pointer"
+                  className="p-1.5 rounded-lg text-[var(--c-accent-light)]/70 hover:text-white hover:bg-white/10 cursor-pointer"
                   title="Close viewer"
                 >
                   <X className="w-5 h-5" />
@@ -1217,14 +1293,14 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
 
             {/* Caption & Location Footer */}
             {(selectedLightboxMedia.caption || selectedLightboxMedia.location) && (
-              <div className="w-full p-4 bg-[#1C0B13] border-t border-[#E8899D]/20 text-xs space-y-1">
+              <div className="w-full p-4 bg-[var(--c-bg-darker)] border-t border-[var(--c-accent-main)]/20 text-xs space-y-1">
                 {selectedLightboxMedia.caption && (
-                  <p className="text-[#FFF3EF] text-sm font-medium">
+                  <p className="text-[var(--c-text-main)] text-sm font-medium">
                     {selectedLightboxMedia.caption}
                   </p>
                 )}
                 {selectedLightboxMedia.location && (
-                  <div className="flex items-center gap-1 text-[#D8A06C] text-[11px]">
+                  <div className="flex items-center gap-1 text-[var(--c-accent-gold)] text-[11px]">
                     <MapPin className="w-3.5 h-3.5 shrink-0" />
                     <span>{selectedLightboxMedia.location}</span>
                   </div>
@@ -1245,7 +1321,7 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
           onClick={() => setDeleteMsgConfirmId(null)}
         >
           <div
-            className="w-full max-w-sm p-6 rounded-3xl bg-[#1C0B13] border border-red-500/40 text-[#FFF3EF] text-center space-y-4 shadow-2xl"
+            className="w-full max-w-sm p-6 rounded-3xl bg-[var(--c-bg-darker)] border border-red-500/40 text-[var(--c-text-main)] text-center space-y-4 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="w-12 h-12 rounded-full bg-red-500/20 text-red-400 flex items-center justify-center mx-auto border border-red-500/30">
@@ -1253,8 +1329,8 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
             </div>
 
             <div>
-              <h3 className="text-lg font-serif font-bold text-[#FFF3EF]">Delete Message?</h3>
-              <p className="text-xs text-[#F7B8C5]/70 mt-1">
+              <h3 className="text-lg font-serif font-bold text-[var(--c-text-main)]">Delete Message?</h3>
+              <p className="text-xs text-[var(--c-accent-light)]/70 mt-1">
                 Kya aap ye message delete karna chahte hain? This message will be permanently removed for both Deep &amp; Labdhi across all devices.
               </p>
             </div>
@@ -1273,7 +1349,7 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
               <button
                 type="button"
                 onClick={() => setDeleteMsgConfirmId(null)}
-                className="w-full py-2.5 rounded-xl text-xs font-semibold text-[#F7B8C5]/70 hover:text-white bg-white/5 hover:bg-white/10 transition-colors cursor-pointer"
+                className="w-full py-2.5 rounded-xl text-xs font-semibold text-[var(--c-accent-light)]/70 hover:text-white bg-white/5 hover:bg-white/10 transition-colors cursor-pointer"
               >
                 Cancel
               </button>
@@ -1292,7 +1368,7 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
           onClick={() => setShowClearAllModal(false)}
         >
           <div
-            className="w-full max-w-sm p-6 rounded-3xl bg-[#1C0B13] border border-red-500/40 text-[#FFF3EF] text-center space-y-4 shadow-2xl"
+            className="w-full max-w-sm p-6 rounded-3xl bg-[var(--c-bg-darker)] border border-red-500/40 text-[var(--c-text-main)] text-center space-y-4 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="w-14 h-14 rounded-full bg-red-500/20 text-red-400 flex items-center justify-center mx-auto border border-red-500/30">
@@ -1300,8 +1376,8 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
             </div>
 
             <div>
-              <h3 className="text-lg font-serif font-bold text-[#FFF3EF]">Clear Entire Chat?</h3>
-              <p className="text-xs text-[#F7B8C5]/70 mt-1 leading-relaxed">
+              <h3 className="text-lg font-serif font-bold text-[var(--c-text-main)]">Clear Entire Chat?</h3>
+              <p className="text-xs text-[var(--c-accent-light)]/70 mt-1 leading-relaxed">
                 Kya aap sabhi messages, photos aur videos delete karna chahte hain? This will clear the entire chat conversation for both devices.
               </p>
             </div>
@@ -1320,7 +1396,7 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
               <button
                 type="button"
                 onClick={() => setShowClearAllModal(false)}
-                className="w-full py-2.5 rounded-xl text-xs font-semibold text-[#F7B8C5]/70 hover:text-white bg-white/5 hover:bg-white/10 transition-colors cursor-pointer"
+                className="w-full py-2.5 rounded-xl text-xs font-semibold text-[var(--c-accent-light)]/70 hover:text-white bg-white/5 hover:bg-white/10 transition-colors cursor-pointer"
               >
                 Cancel
               </button>
@@ -1329,10 +1405,111 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
         </div>
       )}
 
-      {/* 7. Action Toast Notification */}
+      {/* 7. Video Call Modal UI */}
+      {videoCallState && videoCallState.status !== 'ended' && (
+        <div className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-xl flex flex-col items-center justify-center p-4">
+          {videoCallState.status === 'ringing' && videoCallState.receiver === currentUserName ? (
+            <div className="flex flex-col items-center justify-center text-center space-y-6">
+              <div className={`w-24 h-24 rounded-full ${videoCallState.callType === 'audio' ? 'bg-blue-500/20 border-blue-500' : 'bg-emerald-500/20 border-emerald-500'} border flex items-center justify-center animate-pulse`}>
+                {videoCallState.callType === 'audio' ? (
+                  <Phone className="w-12 h-12 text-blue-400" />
+                ) : (
+                  <Video className="w-12 h-12 text-emerald-400" />
+                )}
+              </div>
+              <h2 className="text-2xl font-serif text-white">{videoCallState.caller} is {videoCallState.callType === 'audio' ? 'calling' : 'video calling'}...</h2>
+              <div className="flex items-center gap-6 mt-8">
+                <button
+                  type="button"
+                  onClick={() => saveSharedProposalData({ videoCallState: { ...videoCallState, status: 'declined' } })}
+                  className="w-16 h-16 rounded-full bg-red-600 flex items-center justify-center shadow-[0_0_20px_rgba(220,38,38,0.5)] transition-transform active:scale-95"
+                >
+                  <X className="w-8 h-8 text-white" />
+                </button>
+                <button
+                  type="button"
+                  onClick={handleAnswerVideoCall}
+                  className={`w-16 h-16 rounded-full ${videoCallState.callType === 'audio' ? 'bg-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.5)]' : 'bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.5)]'} flex items-center justify-center transition-transform active:scale-95 animate-bounce`}
+                >
+                  {videoCallState.callType === 'audio' ? (
+                    <Phone className="w-8 h-8 text-white" />
+                  ) : (
+                    <Video className="w-8 h-8 text-white" />
+                  )}
+                </button>
+              </div>
+            </div>
+          ) : videoCallState.status === 'ringing' && videoCallState.caller === currentUserName ? (
+            <div className="flex flex-col items-center justify-center text-center space-y-6">
+              <div className={`w-24 h-24 rounded-full ${videoCallState.callType === 'audio' ? 'bg-blue-500/20 border-blue-500' : 'bg-emerald-500/20 border-emerald-500'} border flex items-center justify-center animate-pulse`}>
+                {videoCallState.callType === 'audio' ? (
+                  <Phone className="w-12 h-12 text-blue-400" />
+                ) : (
+                  <Video className="w-12 h-12 text-emerald-400" />
+                )}
+              </div>
+              <h2 className="text-xl font-serif text-white">Calling {videoCallState.receiver}...</h2>
+              <button
+                type="button"
+                onClick={handleEndVideoCall}
+                className="mt-8 w-16 h-16 rounded-full bg-red-600 flex items-center justify-center shadow-[0_0_20px_rgba(220,38,38,0.5)] transition-transform active:scale-95"
+              >
+                <X className="w-8 h-8 text-white" />
+              </button>
+            </div>
+          ) : videoCallState.status === 'accepted' ? (
+            <div className="w-full max-w-4xl h-full max-h-[80vh] flex flex-col bg-[var(--c-bg-darkest)] rounded-3xl overflow-hidden border border-[var(--c-accent-main)]/20 shadow-2xl relative">
+              <div className="flex items-center justify-between p-4 bg-[var(--c-bg-darker)] border-b border-[var(--c-accent-main)]/20">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="text-sm font-bold text-white">Live with {videoCallState.caller === currentUserName ? videoCallState.receiver : videoCallState.caller}</span>
+                </div>
+                <button
+                  onClick={handleEndVideoCall}
+                  className="px-4 py-1.5 rounded-full bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-colors"
+                >
+                  End Call
+                </button>
+              </div>
+              <div className="flex-1 w-full bg-black">
+                <JitsiMeeting
+                  roomName={videoCallState.roomName}
+                  getIFrameRef={(iframeRef) => { iframeRef.style.height = '100%'; }}
+                  configOverwrite={{
+                    startWithAudioMuted: false,
+                    startWithVideoMuted: videoCallState.callType === 'audio',
+                    disableModeratorIndicator: true,
+                    disableInviteFunctions: true,
+                    prejoinPageEnabled: false
+                  }}
+                  userInfo={{
+                    displayName: currentUserName
+                  }}
+                />
+              </div>
+            </div>
+          ) : videoCallState.status === 'declined' && videoCallState.caller === currentUserName ? (
+            <div className="flex flex-col items-center justify-center text-center space-y-4">
+              <div className="w-20 h-20 rounded-full bg-red-500/20 border border-red-500 flex items-center justify-center">
+                <X className="w-10 h-10 text-red-400" />
+              </div>
+              <h2 className="text-xl font-serif text-white">Call Declined</h2>
+              <button
+                type="button"
+                onClick={handleEndVideoCall}
+                className="mt-4 px-6 py-2 rounded-full bg-white/10 text-white text-sm hover:bg-white/20 transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          ) : null}
+        </div>
+      )}
+
+      {/* 8. Action Toast Notification */}
       {actionToast && (
-        <div className="fixed bottom-20 right-4 sm:right-6 z-80 px-4 py-2.5 rounded-full bg-[#1C0B13]/95 border border-[#E8899D]/40 shadow-2xl text-xs font-semibold text-[#FFF3EF] flex items-center gap-2 animate-in slide-in-from-bottom-2 fade-in duration-200">
-          <span className="w-2 h-2 rounded-full bg-[#E8899D] animate-ping" />
+        <div className="fixed bottom-20 right-4 sm:right-6 z-80 px-4 py-2.5 rounded-full bg-[var(--c-bg-darker)]/95 border border-[var(--c-accent-main)]/40 shadow-2xl text-xs font-semibold text-[var(--c-text-main)] flex items-center gap-2 animate-in slide-in-from-bottom-2 fade-in duration-200">
+          <span className="w-2 h-2 rounded-full bg-[var(--c-accent-main)] animate-ping" />
           <span>{actionToast}</span>
         </div>
       )}

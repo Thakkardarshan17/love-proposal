@@ -275,22 +275,22 @@ export const EditMemoryModal: React.FC<EditMemoryModalProps> = ({
     >
       <div
         id="edit-memory-modal-container"
-        className="relative max-w-2xl w-full max-h-[92vh] flex flex-col bg-[#1C0B13] border border-[#E8899D]/40 rounded-3xl shadow-[0_25px_60px_rgba(0,0,0,0.9)] text-[#FFF3EF] overflow-hidden animate-in zoom-in-95 duration-300"
+        className="relative max-w-2xl w-full max-h-[92vh] flex flex-col bg-[var(--c-bg-darker)] border border-[var(--c-accent-main)]/40 rounded-3xl shadow-[0_25px_60px_rgba(0,0,0,0.9)] text-[var(--c-text-main)] overflow-hidden animate-in zoom-in-95 duration-300"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-[#2A101B]/50">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-[var(--c-bg-dark)]/50">
           <div className="flex items-center gap-2">
-            <div className="p-2 rounded-xl bg-[#E8899D]/20 text-[#E8899D]">
+            <div className="p-2 rounded-xl bg-[var(--c-accent-main)]/20 text-[var(--c-accent-main)]">
               {formData.mediaType === 'video' ? <Video className="w-5 h-5" /> : <Camera className="w-5 h-5" />}
             </div>
             <div>
-              <h3 className="text-lg font-serif font-bold text-[#FFF3EF]">
+              <h3 className="text-lg font-serif font-bold text-[var(--c-text-main)]">
                 {memory
                   ? formData.mediaType === 'video' ? 'Edit Dream Video & Story' : 'Edit Dream Photo & Story'
                   : 'Add New Dream Photo / Video'}
               </h3>
-              <p className="text-xs text-[#F7B8C5]">
+              <p className="text-xs text-[var(--c-accent-light)]">
                 Upload videos &amp; photos with no limit, paste YouTube or MP4 links, and add your romantic story
               </p>
             </div>
@@ -299,7 +299,7 @@ export const EditMemoryModal: React.FC<EditMemoryModalProps> = ({
           <button
             id="close-edit-memory-btn"
             onClick={onClose}
-            className="p-2 rounded-full bg-white/5 text-[#FFF3EF] hover:bg-[#E8899D] hover:text-[#12080D] transition-colors cursor-pointer"
+            className="p-2 rounded-full bg-white/5 text-[var(--c-text-main)] hover:bg-[var(--c-accent-main)] hover:text-[var(--c-bg-darkest)] transition-colors cursor-pointer"
             aria-label="Close media editor"
           >
             <X className="w-5 h-5" />
@@ -312,12 +312,12 @@ export const EditMemoryModal: React.FC<EditMemoryModalProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
             {/* Left Preview: Polaroid Card Preview */}
             <div className="md:col-span-5 flex flex-col items-center">
-              <span className="text-[11px] font-semibold text-[#F7B8C5] uppercase tracking-wider mb-2 self-start flex items-center gap-1">
-                <Sparkles className="w-3 h-3 text-[#D8A06C]" />
+              <span className="text-[11px] font-semibold text-[var(--c-accent-light)] uppercase tracking-wider mb-2 self-start flex items-center gap-1">
+                <Sparkles className="w-3 h-3 text-[var(--c-accent-gold)]" />
                 Live Polaroid Preview
               </span>
-              <div className="w-full max-w-[220px] bg-white p-3 rounded-xl shadow-xl text-[#12080D] rotate-[-1deg] border border-black/10 transition-transform">
-                <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg bg-[#2A101B] mb-2">
+              <div className="w-full max-w-[220px] bg-white p-3 rounded-xl shadow-xl text-[var(--c-bg-darkest)] rotate-[-1deg] border border-black/10 transition-transform">
+                <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg bg-[var(--c-bg-dark)] mb-2">
                   {formData.mediaType === 'video' && formData.videoUrl && !formData.videoEmbedUrl ? (
                     <video
                       src={formData.videoUrl}
@@ -346,16 +346,16 @@ export const EditMemoryModal: React.FC<EditMemoryModalProps> = ({
                   )}
 
                   {formData.badge && (
-                    <span className="absolute top-1.5 left-1.5 bg-[#E8899D] text-[#12080D] text-[9px] font-bold px-2 py-0.5 rounded-full shadow-xs">
+                    <span className="absolute top-1.5 left-1.5 bg-[var(--c-accent-main)] text-[var(--c-bg-darkest)] text-[9px] font-bold px-2 py-0.5 rounded-full shadow-xs">
                       {formData.badge}
                     </span>
                   )}
                 </div>
                 <div className="text-center px-1">
-                  <p className="text-xs font-script font-bold text-[#12080D] truncate">
+                  <p className="text-xs font-script font-bold text-[var(--c-bg-darkest)] truncate">
                     {formData.title || 'Untitled Memory'}
                   </p>
-                  <p className="text-[9px] text-[#12080D]/70 font-sans">
+                  <p className="text-[9px] text-[var(--c-bg-darkest)]/70 font-sans">
                     {formData.date || 'Romantic Day'}
                   </p>
                 </div>
@@ -364,20 +364,20 @@ export const EditMemoryModal: React.FC<EditMemoryModalProps> = ({
 
             {/* Right: Upload Tabs & Media Selection */}
             <div className="md:col-span-7 space-y-3">
-              <span className="text-[11px] font-semibold text-[#F7B8C5] uppercase tracking-wider flex items-center gap-1">
-                <Film className="w-3.5 h-3.5 text-[#E8899D]" />
+              <span className="text-[11px] font-semibold text-[var(--c-accent-light)] uppercase tracking-wider flex items-center gap-1">
+                <Film className="w-3.5 h-3.5 text-[var(--c-accent-main)]" />
                 Choose Photo / Video Source
               </span>
 
               {/* Source Tabs */}
-              <div className="grid grid-cols-3 gap-1 p-1 bg-[#12080D] rounded-xl border border-white/10">
+              <div className="grid grid-cols-3 gap-1 p-1 bg-[var(--c-bg-darkest)] rounded-xl border border-white/10">
                 <button
                   type="button"
                   onClick={() => setActiveTab('upload')}
                   className={`py-1.5 px-1 rounded-lg text-[11px] font-medium transition-all flex items-center justify-center gap-1 ${
                     activeTab === 'upload'
-                      ? 'bg-gradient-to-r from-[#E8899D] to-[#D8A06C] text-[#12080D] font-semibold shadow-xs'
-                      : 'text-[#F7B8C5] hover:text-white'
+                      ? 'bg-gradient-to-r from-[var(--c-accent-main)] to-[var(--c-accent-gold)] text-[var(--c-bg-darkest)] font-semibold shadow-xs'
+                      : 'text-[var(--c-accent-light)] hover:text-white'
                   }`}
                 >
                   <Upload className="w-3 h-3" />
@@ -389,8 +389,8 @@ export const EditMemoryModal: React.FC<EditMemoryModalProps> = ({
                   onClick={() => setActiveTab('presets')}
                   className={`py-1.5 px-1 rounded-lg text-[11px] font-medium transition-all flex items-center justify-center gap-1 ${
                     activeTab === 'presets'
-                      ? 'bg-gradient-to-r from-[#E8899D] to-[#D8A06C] text-[#12080D] font-semibold shadow-xs'
-                      : 'text-[#F7B8C5] hover:text-white'
+                      ? 'bg-gradient-to-r from-[var(--c-accent-main)] to-[var(--c-accent-gold)] text-[var(--c-bg-darkest)] font-semibold shadow-xs'
+                      : 'text-[var(--c-accent-light)] hover:text-white'
                   }`}
                 >
                   <Sparkles className="w-3 h-3" />
@@ -402,8 +402,8 @@ export const EditMemoryModal: React.FC<EditMemoryModalProps> = ({
                   onClick={() => setActiveTab('image-url')}
                   className={`py-1.5 px-1 rounded-lg text-[11px] font-medium transition-all flex items-center justify-center gap-1 ${
                     activeTab === 'image-url'
-                      ? 'bg-gradient-to-r from-[#E8899D] to-[#D8A06C] text-[#12080D] font-semibold shadow-xs'
-                      : 'text-[#F7B8C5] hover:text-white'
+                      ? 'bg-gradient-to-r from-[var(--c-accent-main)] to-[var(--c-accent-gold)] text-[var(--c-bg-darkest)] font-semibold shadow-xs'
+                      : 'text-[var(--c-accent-light)] hover:text-white'
                   }`}
                 >
                   <ImageIcon className="w-3 h-3" />
@@ -423,8 +423,8 @@ export const EditMemoryModal: React.FC<EditMemoryModalProps> = ({
                   onClick={() => fileInputRef.current?.click()}
                   className={`relative p-5 border-2 border-dashed rounded-2xl cursor-pointer transition-all flex flex-col items-center justify-center text-center group ${
                     dragOver
-                      ? 'border-[#E8899D] bg-[#E8899D]/15 scale-[1.01]'
-                      : 'border-[#E8899D]/40 bg-[#12080D]/60 hover:border-[#E8899D] hover:bg-[#2A101B]/40'
+                      ? 'border-[var(--c-accent-main)] bg-[var(--c-accent-main)]/15 scale-[1.01]'
+                      : 'border-[var(--c-accent-main)]/40 bg-[var(--c-bg-darkest)]/60 hover:border-[var(--c-accent-main)] hover:bg-[var(--c-bg-dark)]/40'
                   }`}
                 >
                   <input
@@ -435,22 +435,22 @@ export const EditMemoryModal: React.FC<EditMemoryModalProps> = ({
                     className="hidden"
                     onChange={handleFileUpload}
                   />
-                  <div className="p-3 rounded-full bg-[#E8899D]/20 text-[#E8899D] group-hover:scale-110 transition-transform mb-2">
+                  <div className="p-3 rounded-full bg-[var(--c-accent-main)]/20 text-[var(--c-accent-main)] group-hover:scale-110 transition-transform mb-2">
                     <Upload className="w-6 h-6" />
                   </div>
-                  <p className="text-xs sm:text-sm font-semibold text-[#FFF3EF]">
+                  <p className="text-xs sm:text-sm font-semibold text-[var(--c-text-main)]">
                     {isProcessing
                       ? 'Processing photo(s)...'
                       : !memory
                       ? 'Click to select 1 or multiple Photos (No Limit)'
                       : 'Click to select or drop Photo'}
                   </p>
-                  <p className="text-[10px] text-[#F7B8C5]/70 mt-1 flex items-center justify-center gap-1">
-                    <Sparkles className="w-3 h-3 text-[#D8A06C]" />
+                  <p className="text-[10px] text-[var(--c-accent-light)]/70 mt-1 flex items-center justify-center gap-1">
+                    <Sparkles className="w-3 h-3 text-[var(--c-accent-gold)]" />
                     <span>Upload JPG, PNG, WEBP photos • No Limit</span>
                   </p>
                   {uploadCountNotice && (
-                    <div className="mt-2 text-xs font-semibold text-[#D8A06C] bg-[#D8A06C]/10 px-3 py-1 rounded-full border border-[#D8A06C]/30 animate-pulse">
+                    <div className="mt-2 text-xs font-semibold text-[var(--c-accent-gold)] bg-[var(--c-accent-gold)]/10 px-3 py-1 rounded-full border border-[var(--c-accent-gold)]/30 animate-pulse">
                       {uploadCountNotice}
                     </div>
                   )}
@@ -459,7 +459,7 @@ export const EditMemoryModal: React.FC<EditMemoryModalProps> = ({
 
               {/* Tab 2: Presets (Photos Only) */}
               {activeTab === 'presets' && (
-                <div className="space-y-2 bg-[#12080D]/60 p-2 rounded-2xl border border-white/10">
+                <div className="space-y-2 bg-[var(--c-bg-darkest)]/60 p-2 rounded-2xl border border-white/10">
                   <div className="grid grid-cols-3 gap-2 max-h-[160px] overflow-y-auto p-1 custom-scrollbar">
                     {ROMANTIC_PRESET_PHOTOS.map((preset, idx) => (
                       <button
@@ -468,7 +468,7 @@ export const EditMemoryModal: React.FC<EditMemoryModalProps> = ({
                         onClick={() => handleSelectPhotoPreset(preset.url)}
                         className={`relative aspect-[4/3] rounded-lg overflow-hidden border-2 transition-all group ${
                           formData.image === preset.url
-                            ? 'border-[#E8899D] ring-2 ring-[#E8899D]/50 scale-95'
+                            ? 'border-[var(--c-accent-main)] ring-2 ring-[var(--c-accent-main)]/50 scale-95'
                             : 'border-transparent hover:border-white/40 opacity-80 hover:opacity-100'
                         }`}
                       >
@@ -489,24 +489,24 @@ export const EditMemoryModal: React.FC<EditMemoryModalProps> = ({
 
               {/* Tab 4: Image URL Input */}
               {activeTab === 'image-url' && (
-                <div className="space-y-2 bg-[#12080D]/60 p-3 rounded-2xl border border-white/10">
+                <div className="space-y-2 bg-[var(--c-bg-darkest)]/60 p-3 rounded-2xl border border-white/10">
                   <div className="flex gap-2">
                     <input
                       type="url"
                       placeholder="https://example.com/our-photo.jpg"
                       value={urlInput}
                       onChange={e => setUrlInput(e.target.value)}
-                      className="flex-1 bg-[#1C0B13] border border-[#E8899D]/30 rounded-xl px-3 py-2 text-xs text-[#FFF3EF] focus:outline-none focus:border-[#E8899D]"
+                      className="flex-1 bg-[var(--c-bg-darker)] border border-[var(--c-accent-main)]/30 rounded-xl px-3 py-2 text-xs text-[var(--c-text-main)] focus:outline-none focus:border-[var(--c-accent-main)]"
                     />
                     <button
                       type="button"
                       onClick={handleApplyImageUrl}
-                      className="px-3 py-2 rounded-xl bg-[#E8899D] text-[#12080D] font-bold text-xs hover:bg-[#F7B8C5] transition-colors cursor-pointer"
+                      className="px-3 py-2 rounded-xl bg-[var(--c-accent-main)] text-[var(--c-bg-darkest)] font-bold text-xs hover:bg-[var(--c-accent-light)] transition-colors cursor-pointer"
                     >
                       Apply Photo
                     </button>
                   </div>
-                  <p className="text-[10px] text-[#F7B8C5]/70">
+                  <p className="text-[10px] text-[var(--c-accent-light)]/70">
                     Paste any direct public web photo URL
                   </p>
                 </div>
@@ -518,7 +518,7 @@ export const EditMemoryModal: React.FC<EditMemoryModalProps> = ({
           <div className="space-y-3 pt-2 border-t border-white/10">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-[#F7B8C5] uppercase tracking-wider mb-1">
+                <label className="block text-xs font-semibold text-[var(--c-accent-light)] uppercase tracking-wider mb-1">
                   Dream Title
                 </label>
                 <input
@@ -527,20 +527,20 @@ export const EditMemoryModal: React.FC<EditMemoryModalProps> = ({
                   value={formData.title}
                   onChange={e => setFormData({ ...formData, title: e.target.value })}
                   placeholder="e.g. That Sunset Shore / Our Proposal Video"
-                  className="w-full bg-[#12080D] border border-[#E8899D]/30 rounded-xl px-3.5 py-2 text-sm text-[#FFF3EF] focus:outline-none focus:border-[#E8899D]"
+                  className="w-full bg-[var(--c-bg-darkest)] border border-[var(--c-accent-main)]/30 rounded-xl px-3.5 py-2 text-sm text-[var(--c-text-main)] focus:outline-none focus:border-[var(--c-accent-main)]"
                 />
               </div>
 
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className="block text-xs font-semibold text-[#F7B8C5] uppercase tracking-wider flex items-center gap-1">
-                    <Clock className="w-3.5 h-3.5 text-[#D8A06C]" />
+                  <label className="block text-xs font-semibold text-[var(--c-accent-light)] uppercase tracking-wider flex items-center gap-1">
+                    <Clock className="w-3.5 h-3.5 text-[var(--c-accent-gold)]" />
                     <span>Real-time Date & Time</span>
                   </label>
                   <button
                     type="button"
                     onClick={handleRefreshDateTime}
-                    className="text-[10px] text-[#D8A06C] hover:text-white flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-white/5 hover:bg-white/10 transition-colors cursor-pointer"
+                    className="text-[10px] text-[var(--c-accent-gold)] hover:text-white flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-white/5 hover:bg-white/10 transition-colors cursor-pointer"
                     title="Set to Current Real-time"
                   >
                     <span>Now 🕒</span>
@@ -551,7 +551,7 @@ export const EditMemoryModal: React.FC<EditMemoryModalProps> = ({
                   value={formData.date}
                   onChange={e => setFormData({ ...formData, date: e.target.value })}
                   placeholder="e.g. 14 Aug 2026, 12:05 PM"
-                  className="w-full bg-[#12080D] border border-[#E8899D]/30 rounded-xl px-3.5 py-2 text-sm text-[#FFF3EF] focus:outline-none focus:border-[#E8899D]"
+                  className="w-full bg-[var(--c-bg-darkest)] border border-[var(--c-accent-main)]/30 rounded-xl px-3.5 py-2 text-sm text-[var(--c-text-main)] focus:outline-none focus:border-[var(--c-accent-main)]"
                 />
               </div>
             </div>
@@ -559,15 +559,15 @@ export const EditMemoryModal: React.FC<EditMemoryModalProps> = ({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className="block text-xs font-semibold text-[#F7B8C5] uppercase tracking-wider flex items-center gap-1">
-                    <MapPin className="w-3.5 h-3.5 text-[#E8899D]" />
+                  <label className="block text-xs font-semibold text-[var(--c-accent-light)] uppercase tracking-wider flex items-center gap-1">
+                    <MapPin className="w-3.5 h-3.5 text-[var(--c-accent-main)]" />
                     <span>Location</span>
                   </label>
                   <button
                     type="button"
                     onClick={handleDetectLocation}
                     disabled={isDetectingLocation}
-                    className="text-[10px] text-[#E8899D] hover:text-white flex items-center gap-1 px-1.5 py-0.5 rounded bg-white/5 hover:bg-white/10 transition-colors cursor-pointer disabled:opacity-50"
+                    className="text-[10px] text-[var(--c-accent-main)] hover:text-white flex items-center gap-1 px-1.5 py-0.5 rounded bg-white/5 hover:bg-white/10 transition-colors cursor-pointer disabled:opacity-50"
                     title="Detect Current Live Location"
                   >
                     {isDetectingLocation ? (
@@ -588,13 +588,13 @@ export const EditMemoryModal: React.FC<EditMemoryModalProps> = ({
                   value={formData.location || ''}
                   onChange={e => setFormData({ ...formData, location: e.target.value })}
                   placeholder="e.g. Mumbai, India / Our favorite spot"
-                  className="w-full bg-[#12080D] border border-[#E8899D]/30 rounded-xl px-3.5 py-2 text-sm text-[#FFF3EF] focus:outline-none focus:border-[#E8899D]"
+                  className="w-full bg-[var(--c-bg-darkest)] border border-[var(--c-accent-main)]/30 rounded-xl px-3.5 py-2 text-sm text-[var(--c-text-main)] focus:outline-none focus:border-[var(--c-accent-main)]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#F7B8C5] uppercase tracking-wider mb-1 flex items-center gap-1">
-                  <Sparkles className="w-3 h-3 text-[#D8A06C]" />
+                <label className="block text-xs font-semibold text-[var(--c-accent-light)] uppercase tracking-wider mb-1 flex items-center gap-1">
+                  <Sparkles className="w-3 h-3 text-[var(--c-accent-gold)]" />
                   <span>Badge Tag (Optional)</span>
                 </label>
                 <input
@@ -602,13 +602,13 @@ export const EditMemoryModal: React.FC<EditMemoryModalProps> = ({
                   value={formData.badge || ''}
                   onChange={e => setFormData({ ...formData, badge: e.target.value })}
                   placeholder="e.g. 🎥 Video / Pure Magic"
-                  className="w-full bg-[#12080D] border border-[#E8899D]/30 rounded-xl px-3.5 py-2 text-sm text-[#FFF3EF] focus:outline-none focus:border-[#E8899D]"
+                  className="w-full bg-[var(--c-bg-darkest)] border border-[var(--c-accent-main)]/30 rounded-xl px-3.5 py-2 text-sm text-[var(--c-text-main)] focus:outline-none focus:border-[var(--c-accent-main)]"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#F7B8C5] uppercase tracking-wider mb-1">
+              <label className="block text-xs font-semibold text-[var(--c-accent-light)] uppercase tracking-wider mb-1">
                 Story / Description
               </label>
               <textarea
@@ -617,7 +617,7 @@ export const EditMemoryModal: React.FC<EditMemoryModalProps> = ({
                 value={formData.description}
                 onChange={e => setFormData({ ...formData, description: e.target.value })}
                 placeholder="Describe what made this moment or video clip so unforgettable..."
-                className="w-full bg-[#12080D] border border-[#E8899D]/30 rounded-xl px-3.5 py-2 text-sm text-[#FFF3EF] focus:outline-none focus:border-[#E8899D]"
+                className="w-full bg-[var(--c-bg-darkest)] border border-[var(--c-accent-main)]/30 rounded-xl px-3.5 py-2 text-sm text-[var(--c-text-main)] focus:outline-none focus:border-[var(--c-accent-main)]"
               />
             </div>
           </div>
@@ -652,7 +652,7 @@ export const EditMemoryModal: React.FC<EditMemoryModalProps> = ({
               <button
                 id="save-memory-photo-btn"
                 type="submit"
-                className="flex items-center gap-1.5 px-5 py-2 text-xs font-semibold rounded-xl bg-gradient-to-r from-[#E8899D] via-[#F7B8C5] to-[#D8A06C] text-[#12080D] shadow-[0_0_20px_rgba(232,137,157,0.5)] hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                className="flex items-center gap-1.5 px-5 py-2 text-xs font-semibold rounded-xl bg-gradient-to-r from-[var(--c-accent-main)] via-[var(--c-accent-light)] to-[var(--c-accent-gold)] text-[var(--c-bg-darkest)] shadow-[0_0_20px_rgba(232,137,157,0.5)] hover:scale-105 active:scale-95 transition-all cursor-pointer"
               >
                 {saveSuccess ? (
                   <>
@@ -661,7 +661,7 @@ export const EditMemoryModal: React.FC<EditMemoryModalProps> = ({
                   </>
                 ) : (
                   <>
-                    <Heart className="w-4 h-4 fill-[#12080D]" />
+                    <Heart className="w-4 h-4 fill-[var(--c-bg-darkest)]" />
                     <span>Save {formData.mediaType === 'video' ? 'Video' : 'Photo'} Dream</span>
                   </>
                 )}

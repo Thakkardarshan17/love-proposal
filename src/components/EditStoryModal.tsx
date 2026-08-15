@@ -155,7 +155,7 @@ export const EditStoryModal: React.FC<EditStoryModalProps> = ({
   const getSelectedIcon = () => {
     const found = AVAILABLE_ICONS.find(i => i.id === formData.iconName);
     const IconComp = found ? found.icon : Sparkles;
-    return <IconComp className="w-4 h-4 text-[#FFF3EF]" />;
+    return <IconComp className="w-4 h-4 text-[var(--c-text-main)]" />;
   };
 
   return (
@@ -166,20 +166,20 @@ export const EditStoryModal: React.FC<EditStoryModalProps> = ({
     >
       <div
         id="edit-story-modal-container"
-        className="relative max-w-xl w-full max-h-[92vh] flex flex-col bg-[#1C0B13] border border-[#E8899D]/40 rounded-3xl shadow-[0_25px_60px_rgba(0,0,0,0.9)] text-[#FFF3EF] overflow-hidden animate-in zoom-in-95 duration-300"
+        className="relative max-w-xl w-full max-h-[92vh] flex flex-col bg-[var(--c-bg-darker)] border border-[var(--c-accent-main)]/40 rounded-3xl shadow-[0_25px_60px_rgba(0,0,0,0.9)] text-[var(--c-text-main)] overflow-hidden animate-in zoom-in-95 duration-300"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-6 pt-5 pb-3 border-b border-white/10">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-full bg-[#E8899D]/20 text-[#E8899D]">
-              <Heart className="w-5 h-5 fill-[#E8899D]" />
+            <div className="p-2 rounded-full bg-[var(--c-accent-main)]/20 text-[var(--c-accent-main)]">
+              <Heart className="w-5 h-5 fill-[var(--c-accent-main)]" />
             </div>
             <div>
-              <h3 className="text-lg font-serif font-bold text-[#FFF3EF]">
+              <h3 className="text-lg font-serif font-bold text-[var(--c-text-main)]">
                 {event ? 'Edit Love Story Chapter' : 'Add New Story Chapter'}
               </h3>
-              <p className="text-xs text-[#F7B8C5]">
+              <p className="text-xs text-[var(--c-accent-light)]">
                 Personalize your milestones, dates, memories, and descriptions
               </p>
             </div>
@@ -188,7 +188,7 @@ export const EditStoryModal: React.FC<EditStoryModalProps> = ({
           <button
             id="close-edit-story-btn"
             onClick={onClose}
-            className="p-2 rounded-full bg-white/5 text-[#FFF3EF] hover:bg-[#E8899D] hover:text-[#12080D] transition-colors cursor-pointer"
+            className="p-2 rounded-full bg-white/5 text-[var(--c-text-main)] hover:bg-[var(--c-accent-main)] hover:text-[var(--c-bg-darkest)] transition-colors cursor-pointer"
             aria-label="Close edit story"
           >
             <X className="w-5 h-5" />
@@ -199,8 +199,8 @@ export const EditStoryModal: React.FC<EditStoryModalProps> = ({
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4">
           {/* Quick Preset Ideas */}
           <div>
-            <div className="flex items-center gap-1.5 text-xs text-[#F7B8C5] uppercase font-semibold tracking-wider mb-2">
-              <Lightbulb className="w-3.5 h-3.5 text-[#D8A06C]" />
+            <div className="flex items-center gap-1.5 text-xs text-[var(--c-accent-light)] uppercase font-semibold tracking-wider mb-2">
+              <Lightbulb className="w-3.5 h-3.5 text-[var(--c-accent-gold)]" />
               <span>Quick Romantic Inspiration</span>
             </div>
             <div className="flex flex-wrap gap-1.5">
@@ -209,9 +209,9 @@ export const EditStoryModal: React.FC<EditStoryModalProps> = ({
                   key={idx}
                   type="button"
                   onClick={() => applyPreset(preset)}
-                  className="text-[11px] py-1 px-2.5 rounded-full bg-white/5 hover:bg-[#E8899D]/20 border border-[#E8899D]/30 text-[#FFF3EF] transition-all hover:border-[#E8899D] cursor-pointer flex items-center gap-1"
+                  className="text-[11px] py-1 px-2.5 rounded-full bg-white/5 hover:bg-[var(--c-accent-main)]/20 border border-[var(--c-accent-main)]/30 text-[var(--c-text-main)] transition-all hover:border-[var(--c-accent-main)] cursor-pointer flex items-center gap-1"
                 >
-                  <Sparkles className="w-2.5 h-2.5 text-[#D8A06C]" />
+                  <Sparkles className="w-2.5 h-2.5 text-[var(--c-accent-gold)]" />
                   <span>{preset.title}</span>
                 </button>
               ))}
@@ -219,29 +219,29 @@ export const EditStoryModal: React.FC<EditStoryModalProps> = ({
           </div>
 
           {/* Live Preview Card */}
-          <div className="p-3.5 rounded-2xl bg-[#12080D] border border-[#E8899D]/40 space-y-2">
-            <span className="text-[10px] uppercase font-bold tracking-widest text-[#F7B8C5]/70">
+          <div className="p-3.5 rounded-2xl bg-[var(--c-bg-darkest)] border border-[var(--c-accent-main)]/40 space-y-2">
+            <span className="text-[10px] uppercase font-bold tracking-widest text-[var(--c-accent-light)]/70">
               Live Preview in Timeline
             </span>
-            <div className="p-4 rounded-xl glass-panel border border-[#E8899D]/30 shadow-md">
+            <div className="p-4 rounded-xl glass-panel border border-[var(--c-accent-main)]/30 shadow-md">
               <div className="flex items-center justify-between gap-2 mb-1">
-                <span className="text-[10px] uppercase font-bold tracking-wider text-[#D8A06C] bg-[#12080D]/80 px-2 py-0.5 rounded-full border border-[#D8A06C]/30">
+                <span className="text-[10px] uppercase font-bold tracking-wider text-[var(--c-accent-gold)] bg-[var(--c-bg-darkest)]/80 px-2 py-0.5 rounded-full border border-[var(--c-accent-gold)]/30">
                   {formData.badge || 'Chapter'}
                 </span>
-                <span className="text-[11px] text-[#F7B8C5]/80 font-mono">
+                <span className="text-[11px] text-[var(--c-accent-light)]/80 font-mono">
                   {formData.date || 'That Special Day'}
                 </span>
               </div>
-              <h4 className="text-base font-serif font-semibold text-[#FFF3EF] flex items-center gap-1.5">
-                <span className="p-1 rounded-full bg-[#E8899D]/30 inline-flex">
+              <h4 className="text-base font-serif font-semibold text-[var(--c-text-main)] flex items-center gap-1.5">
+                <span className="p-1 rounded-full bg-[var(--c-accent-main)]/30 inline-flex">
                   {getSelectedIcon()}
                 </span>
                 <span>{formData.title || 'Your Chapter Title'}</span>
               </h4>
-              <p className="text-xs text-[#F7B8C5] italic mb-1.5">
+              <p className="text-xs text-[var(--c-accent-light)] italic mb-1.5">
                 {formData.subtitle || 'A short romantic subtitle'}
               </p>
-              <p className="text-xs text-[#FFF3EF]/85 leading-relaxed">
+              <p className="text-xs text-[var(--c-text-main)]/85 leading-relaxed">
                 {formData.description || 'Your heartfelt love story details will be displayed here beautifully...'}
               </p>
             </div>
@@ -250,7 +250,7 @@ export const EditStoryModal: React.FC<EditStoryModalProps> = ({
           {/* Form Fields */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#F7B8C5] uppercase tracking-wider mb-1">
+              <label className="block text-xs font-semibold text-[var(--c-accent-light)] uppercase tracking-wider mb-1">
                 Chapter Title *
               </label>
               <input
@@ -259,13 +259,13 @@ export const EditStoryModal: React.FC<EditStoryModalProps> = ({
                 value={formData.title}
                 onChange={e => setFormData({ ...formData, title: e.target.value })}
                 placeholder="e.g. The Day We Met"
-                className="w-full bg-[#12080D] border border-[#E8899D]/30 rounded-xl px-3.5 py-2 text-sm text-[#FFF3EF] focus:outline-none focus:border-[#E8899D]"
+                className="w-full bg-[var(--c-bg-darkest)] border border-[var(--c-accent-main)]/30 rounded-xl px-3.5 py-2 text-sm text-[var(--c-text-main)] focus:outline-none focus:border-[var(--c-accent-main)]"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#F7B8C5] uppercase tracking-wider mb-1">
+              <label className="block text-xs font-semibold text-[var(--c-accent-light)] uppercase tracking-wider mb-1">
                 Badge / Tag
               </label>
               <input
@@ -274,14 +274,14 @@ export const EditStoryModal: React.FC<EditStoryModalProps> = ({
                 value={formData.badge || ''}
                 onChange={e => setFormData({ ...formData, badge: e.target.value })}
                 placeholder="e.g. Chapter 01, Milestone, Forever"
-                className="w-full bg-[#12080D] border border-[#E8899D]/30 rounded-xl px-3.5 py-2 text-sm text-[#FFF3EF] focus:outline-none focus:border-[#E8899D]"
+                className="w-full bg-[var(--c-bg-darkest)] border border-[var(--c-accent-main)]/30 rounded-xl px-3.5 py-2 text-sm text-[var(--c-text-main)] focus:outline-none focus:border-[var(--c-accent-main)]"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#F7B8C5] uppercase tracking-wider mb-1">
+              <label className="block text-xs font-semibold text-[var(--c-accent-light)] uppercase tracking-wider mb-1">
                 Romantic Subtitle
               </label>
               <input
@@ -290,12 +290,12 @@ export const EditStoryModal: React.FC<EditStoryModalProps> = ({
                 value={formData.subtitle}
                 onChange={e => setFormData({ ...formData, subtitle: e.target.value })}
                 placeholder="e.g. The spark that started our universe"
-                className="w-full bg-[#12080D] border border-[#E8899D]/30 rounded-xl px-3.5 py-2 text-sm text-[#FFF3EF] focus:outline-none focus:border-[#E8899D]"
+                className="w-full bg-[var(--c-bg-darkest)] border border-[var(--c-accent-main)]/30 rounded-xl px-3.5 py-2 text-sm text-[var(--c-text-main)] focus:outline-none focus:border-[var(--c-accent-main)]"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#F7B8C5] uppercase tracking-wider mb-1">
+              <label className="block text-xs font-semibold text-[var(--c-accent-light)] uppercase tracking-wider mb-1">
                 Date / Moment
               </label>
               <input
@@ -304,14 +304,14 @@ export const EditStoryModal: React.FC<EditStoryModalProps> = ({
                 value={formData.date}
                 onChange={e => setFormData({ ...formData, date: e.target.value })}
                 placeholder="e.g. October 14th, That Magical Evening"
-                className="w-full bg-[#12080D] border border-[#E8899D]/30 rounded-xl px-3.5 py-2 text-sm text-[#FFF3EF] focus:outline-none focus:border-[#E8899D]"
+                className="w-full bg-[var(--c-bg-darkest)] border border-[var(--c-accent-main)]/30 rounded-xl px-3.5 py-2 text-sm text-[var(--c-text-main)] focus:outline-none focus:border-[var(--c-accent-main)]"
               />
             </div>
           </div>
 
           {/* Icon Selector */}
           <div>
-            <label className="block text-xs font-semibold text-[#F7B8C5] uppercase tracking-wider mb-2">
+            <label className="block text-xs font-semibold text-[var(--c-accent-light)] uppercase tracking-wider mb-2">
               Select Chapter Emblem / Icon
             </label>
             <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
@@ -325,7 +325,7 @@ export const EditStoryModal: React.FC<EditStoryModalProps> = ({
                     onClick={() => setFormData({ ...formData, iconName: item.id })}
                     className={`flex flex-col items-center justify-center p-2 rounded-xl border transition-all cursor-pointer ${
                       isSelected
-                        ? 'bg-[#E8899D]/30 border-[#E8899D] text-[#FFF3EF] shadow-[0_0_10px_rgba(232,137,157,0.4)]'
+                        ? 'bg-[var(--c-accent-main)]/30 border-[var(--c-accent-main)] text-[var(--c-text-main)] shadow-[0_0_10px_rgba(232,137,157,0.4)]'
                         : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white'
                     }`}
                   >
@@ -341,7 +341,7 @@ export const EditStoryModal: React.FC<EditStoryModalProps> = ({
 
           {/* Description Textarea */}
           <div>
-            <label className="block text-xs font-semibold text-[#F7B8C5] uppercase tracking-wider mb-1">
+            <label className="block text-xs font-semibold text-[var(--c-accent-light)] uppercase tracking-wider mb-1">
               Story Paragraph / Details *
             </label>
             <textarea
@@ -350,7 +350,7 @@ export const EditStoryModal: React.FC<EditStoryModalProps> = ({
               value={formData.description}
               onChange={e => setFormData({ ...formData, description: e.target.value })}
               placeholder="Write your genuine memory, feelings, laughter, or the exact thoughts you had during this moment in your relationship..."
-              className="w-full bg-[#12080D] border border-[#E8899D]/30 rounded-xl px-3.5 py-2.5 text-sm text-[#FFF3EF] focus:outline-none focus:border-[#E8899D] leading-relaxed"
+              className="w-full bg-[var(--c-bg-darkest)] border border-[var(--c-accent-main)]/30 rounded-xl px-3.5 py-2.5 text-sm text-[var(--c-text-main)] focus:outline-none focus:border-[var(--c-accent-main)] leading-relaxed"
               required
             />
           </div>
@@ -385,7 +385,7 @@ export const EditStoryModal: React.FC<EditStoryModalProps> = ({
               <button
                 id="save-story-chapter-btn"
                 type="submit"
-                className="flex items-center gap-1.5 px-5 py-2 text-xs font-semibold rounded-xl bg-gradient-to-r from-[#E8899D] to-[#D8A06C] text-[#12080D] shadow-[0_0_15px_rgba(232,137,157,0.5)] hover:scale-105 transition-all cursor-pointer font-bold"
+                className="flex items-center gap-1.5 px-5 py-2 text-xs font-semibold rounded-xl bg-gradient-to-r from-[var(--c-accent-main)] to-[var(--c-accent-gold)] text-[var(--c-bg-darkest)] shadow-[0_0_15px_rgba(232,137,157,0.5)] hover:scale-105 transition-all cursor-pointer font-bold"
               >
                 {isSaved ? (
                   <>
@@ -394,7 +394,7 @@ export const EditStoryModal: React.FC<EditStoryModalProps> = ({
                   </>
                 ) : (
                   <>
-                    <Heart className="w-4 h-4 fill-[#12080D]" />
+                    <Heart className="w-4 h-4 fill-[var(--c-bg-darkest)]" />
                     <span>Save Love Story Chapter</span>
                   </>
                 )}

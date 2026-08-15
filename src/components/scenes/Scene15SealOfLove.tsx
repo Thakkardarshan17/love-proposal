@@ -55,7 +55,7 @@ export const Scene15SealOfLove: React.FC<Scene15SealOfLoveProps> = ({
       particleCount: 80,
       spread: 70,
       origin: { y: 0.6 },
-      colors: ['#FF2A55', '#E8899D', '#F7B8C5', '#D8A06C', '#FFFFFF']
+      colors: ['#FF2A55', 'var(--c-accent-main)', 'var(--c-accent-light)', 'var(--c-accent-gold)', '#FFFFFF']
     });
 
     setTimeout(() => {
@@ -64,14 +64,14 @@ export const Scene15SealOfLove: React.FC<Scene15SealOfLoveProps> = ({
         angle: 60,
         spread: 55,
         origin: { x: 0 },
-        colors: ['#FF2A55', '#E8899D', '#D8A06C']
+        colors: ['#FF2A55', 'var(--c-accent-main)', 'var(--c-accent-gold)']
       });
       confetti({
         particleCount: 50,
         angle: 120,
         spread: 55,
         origin: { x: 1 },
-        colors: ['#FF2A55', '#E8899D', '#D8A06C']
+        colors: ['#FF2A55', 'var(--c-accent-main)', 'var(--c-accent-gold)']
       });
     }, 250);
   };
@@ -83,14 +83,14 @@ export const Scene15SealOfLove: React.FC<Scene15SealOfLoveProps> = ({
       className="relative flex flex-col items-center justify-between min-h-svh w-full px-4 sm:px-6 pt-20 sm:pt-24 pb-8 sm:pb-12 bg-gradient-to-b from-[#2B0E1D] via-[#3B1327] to-[#16060F] text-center overflow-y-auto z-20"
     >
       {/* Radiant Atmosphere Glow */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] sm:w-[650px] h-[350px] sm:h-[650px] rounded-full bg-gradient-to-tr from-[#FF2A55]/25 via-[#E8899D]/25 to-[#D8A06C]/25 blur-[140px] pointer-events-none" />
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] sm:w-[650px] h-[350px] sm:h-[650px] rounded-full bg-gradient-to-tr from-[#FF2A55]/25 via-[var(--c-accent-main)]/25 to-[var(--c-accent-gold)]/25 blur-[140px] pointer-events-none" />
 
       {/* Header */}
       <div className="seal-header pt-2 flex flex-col items-center space-y-1.5 shrink-0">
-        <div className="flex items-center gap-2 text-[11px] sm:text-xs uppercase tracking-[0.25em] text-[#D8A06C] font-semibold">
-          <Sparkles className="w-3.5 h-3.5 text-[#D8A06C]" />
+        <div className="flex items-center gap-2 text-[11px] sm:text-xs uppercase tracking-[0.25em] text-[var(--c-accent-gold)] font-semibold">
+          <Sparkles className="w-3.5 h-3.5 text-[var(--c-accent-gold)]" />
           <span>Wada-E-Ishq • Forever Pledged</span>
-          <Sparkles className="w-3.5 h-3.5 text-[#D8A06C]" />
+          <Sparkles className="w-3.5 h-3.5 text-[var(--c-accent-gold)]" />
         </div>
         <h2 className="text-2xl sm:text-3xl font-serif font-black text-gradient-rose tracking-wide">
           Hamari Kasam, Hamara Wada ❤️
@@ -100,9 +100,9 @@ export const Scene15SealOfLove: React.FC<Scene15SealOfLoveProps> = ({
       {/* Center Shayari & Seal Mechanism */}
       <div className="relative my-auto py-3 flex flex-col items-center max-w-sm sm:max-w-md w-full space-y-5">
         {/* Culmination Shayari Card */}
-        <div className="seal-shayari-card relative w-full p-6 sm:p-7 rounded-3xl bg-gradient-to-b from-[#2E1021]/95 to-[#1A0813]/98 border-2 border-[#E8899D]/40 shadow-[0_0_45px_rgba(232,137,157,0.35)] text-center backdrop-blur-md">
+        <div className="seal-shayari-card relative w-full p-6 sm:p-7 rounded-3xl bg-gradient-to-b from-[#2E1021]/95 to-[#1A0813]/98 border-2 border-[var(--c-accent-main)]/40 shadow-[0_0_45px_rgba(232,137,157,0.35)] text-center backdrop-blur-md">
           {primaryPhoto && (
-            <div className="mx-auto mb-3 w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-[#D8A06C] shadow-[0_0_25px_rgba(216,160,108,0.5)]">
+            <div className="mx-auto mb-3 w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-[var(--c-accent-gold)] shadow-[0_0_25px_rgba(216,160,108,0.5)]">
               <img
                 src={primaryPhoto}
                 alt="Our Eternal Love"
@@ -113,22 +113,22 @@ export const Scene15SealOfLove: React.FC<Scene15SealOfLoveProps> = ({
           )}
 
           {/* Top Star Ornaments */}
-          <div className="flex justify-center gap-2 mb-3 text-[#D8A06C]">
+          <div className="flex justify-center gap-2 mb-3 text-[var(--c-accent-gold)]">
             <Star className="w-3.5 h-3.5 fill-current" />
             <Star className="w-4 h-4 fill-current" />
             <Star className="w-3.5 h-3.5 fill-current" />
           </div>
 
-          <div className="space-y-3.5 text-[#FFF3EF]">
-            <p className="font-serif text-base sm:text-lg leading-relaxed text-[#FFF3EF]">
+          <div className="space-y-3.5 text-[var(--c-text-main)]">
+            <p className="font-serif text-base sm:text-lg leading-relaxed text-[var(--c-text-main)]">
               &ldquo;Duniya ki bheed me bas ek tujhe hi chuna hai,
             </p>
-            <p className="font-serif text-base sm:text-lg leading-relaxed text-[#F7B8C5]">
+            <p className="font-serif text-base sm:text-lg leading-relaxed text-[var(--c-accent-light)]">
               Humne apne har khwaab ko tere naam se buna hai...&rdquo;
             </p>
 
-            <div className="pt-2 border-t border-[#E8899D]/20">
-              <p className="font-serif text-base sm:text-lg leading-relaxed text-[#D8A06C] font-bold">
+            <div className="pt-2 border-t border-[var(--c-accent-main)]/20">
+              <p className="font-serif text-base sm:text-lg leading-relaxed text-[var(--c-accent-gold)] font-bold">
                 &ldquo;Kasam hai is dil ki dhadkano ki aur in sitaron ki, <br />
                 Mera har aane wala janam sirf tera hona hai.&rdquo; ❤️
               </p>
@@ -137,7 +137,7 @@ export const Scene15SealOfLove: React.FC<Scene15SealOfLoveProps> = ({
 
           {/* Sealed Stamp Badge */}
           {isSealed && (
-            <div className="mt-5 p-3 rounded-2xl bg-[#25D366]/20 border border-[#25D366]/60 text-xs text-[#FFF3EF] flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(37,211,102,0.4)] animate-in fade-in zoom-in-95">
+            <div className="mt-5 p-3 rounded-2xl bg-[#25D366]/20 border border-[#25D366]/60 text-xs text-[var(--c-text-main)] flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(37,211,102,0.4)] animate-in fade-in zoom-in-95">
               <CheckCircle2 className="w-4 h-4 text-[#25D366]" />
               <span className="font-bold text-[#25D366]">SEALED ETERNALLY IN THE STARS</span>
             </div>
@@ -151,13 +151,13 @@ export const Scene15SealOfLove: React.FC<Scene15SealOfLoveProps> = ({
               id="seal-promises-action-btn"
               type="button"
               onClick={handleSealPledge}
-              className="group w-full py-4 px-6 rounded-full bg-gradient-to-r from-[#FF2A55] via-[#E8899D] to-[#D8A06C] text-[#12080D] font-extrabold text-sm tracking-wider uppercase shadow-[0_0_35px_rgba(255,42,85,0.7)] hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer shine-effect"
+              className="group w-full py-4 px-6 rounded-full bg-gradient-to-r from-[#FF2A55] via-[var(--c-accent-main)] to-[var(--c-accent-gold)] text-[var(--c-bg-darkest)] font-extrabold text-sm tracking-wider uppercase shadow-[0_0_35px_rgba(255,42,85,0.7)] hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer shine-effect"
             >
-              <Stamp className="w-5 h-5 text-[#12080D]" />
+              <Stamp className="w-5 h-5 text-[var(--c-bg-darkest)]" />
               <span>Tap to Seal Our Love Promises ❤️</span>
             </button>
           ) : (
-            <div className="w-full flex items-center justify-center gap-2 py-2 text-xs text-[#F7B8C5] italic">
+            <div className="w-full flex items-center justify-center gap-2 py-2 text-xs text-[var(--c-accent-light)] italic">
               <span>Promises Locked in Love by {config.yourName} &amp; {config.partnerName}</span>
             </div>
           )}
@@ -172,10 +172,10 @@ export const Scene15SealOfLove: React.FC<Scene15SealOfLoveProps> = ({
             audioEngine.playSparkle();
             onNext();
           }}
-          className="group w-full py-4 px-6 rounded-full bg-gradient-to-r from-[#E8899D] via-[#F7B8C5] to-[#D8A06C] text-[#12080D] font-bold text-sm tracking-wider uppercase shadow-[0_0_30px_rgba(232,137,157,0.6)] hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer shine-effect"
+          className="group w-full py-4 px-6 rounded-full bg-gradient-to-r from-[var(--c-accent-main)] via-[var(--c-accent-light)] to-[var(--c-accent-gold)] text-[var(--c-bg-darkest)] font-bold text-sm tracking-wider uppercase shadow-[0_0_30px_rgba(232,137,157,0.6)] hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer shine-effect"
         >
           <span>Enter Our Forever World</span>
-          <ChevronRight className="w-4 h-4 text-[#12080D] group-hover:translate-x-1 transition-transform" />
+          <ChevronRight className="w-4 h-4 text-[var(--c-bg-darkest)] group-hover:translate-x-1 transition-transform" />
         </button>
       </div>
     </section>

@@ -18,7 +18,8 @@ import {
   CheckCircle2,
   Play,
   Pause,
-  Layers
+  Layers,
+  Palette
 } from 'lucide-react';
 import { ProposalConfig, MemoryItem, TimelineEvent } from '../types';
 import { initialProposalConfig, initialMemories, initialTimelineEvents } from '../config/proposalData';
@@ -57,7 +58,7 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
   syncStatus = 'synced',
   lastUpdatedBy
 }) => {
-  const [activeTab, setActiveTab] = useState<'names' | 'timeline' | 'photos' | 'music'>('names');
+  const [activeTab, setActiveTab] = useState<'names' | 'timeline' | 'photos' | 'music' | 'theme'>('names');
   const [formData, setFormData] = useState<ProposalConfig>(config);
   const [isSaved, setIsSaved] = useState(false);
   const [isUploadingBatch, setIsUploadingBatch] = useState(false);
@@ -157,7 +158,7 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
     >
       <div
         id="customization-modal-container"
-        className="relative max-w-2xl w-full max-h-[92vh] flex flex-col bg-[#1C0B13] border border-[#E8899D]/40 rounded-3xl shadow-[0_25px_60px_rgba(0,0,0,0.9)] text-[#FFF3EF] overflow-hidden animate-in zoom-in-95 duration-300"
+        className="relative max-w-2xl w-full max-h-[92vh] flex flex-col bg-[var(--c-bg-darker)] border border-[var(--c-accent-main)]/40 rounded-3xl shadow-[0_25px_60px_rgba(0,0,0,0.9)] text-[var(--c-text-main)] overflow-hidden animate-in zoom-in-95 duration-300"
         onClick={e => e.stopPropagation()}
       >
         {/* Hidden Audio File Input */}
@@ -172,15 +173,15 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
         {/* Top Header */}
         <div className="flex items-start justify-between px-5 sm:px-6 pt-5 pb-3 border-b border-white/10 gap-3">
           <div className="flex items-start gap-2.5 min-w-0">
-            <Heart className="w-5 h-5 text-[#E8899D] fill-[#E8899D] shrink-0 mt-0.5" />
+            <Heart className="w-5 h-5 text-[var(--c-accent-main)] fill-[var(--c-accent-main)] shrink-0 mt-0.5" />
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="text-lg sm:text-xl font-serif font-bold text-[#FFF3EF] leading-snug">
+                <h3 className="text-lg sm:text-xl font-serif font-bold text-[var(--c-text-main)] leading-snug">
                   Personalize Your Love Story &amp; Proposal
                 </h3>
                 <CloudSyncIndicator compact status={syncStatus} lastUpdatedBy={lastUpdatedBy} />
               </div>
-              <p className="text-xs text-[#F7B8C5] mt-0.5">
+              <p className="text-xs text-[var(--c-accent-light)] mt-0.5">
                 Customize names, chapters, dreams &amp; photos, and music (live synced across devices)
               </p>
             </div>
@@ -189,7 +190,7 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
           <button
             id="close-customization-modal-btn"
             onClick={onClose}
-            className="p-2 rounded-full bg-white/5 text-[#FFF3EF] hover:bg-[#E8899D] hover:text-[#12080D] transition-colors cursor-pointer shrink-0"
+            className="p-2 rounded-full bg-white/5 text-[var(--c-text-main)] hover:bg-[var(--c-accent-main)] hover:text-[var(--c-bg-darkest)] transition-colors cursor-pointer shrink-0"
             aria-label="Close customization"
           >
             <X className="w-5 h-5" />
@@ -197,14 +198,14 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
         </div>
 
         {/* 4-Tab Switcher (Clean, no-scrollbar, pill tabs) */}
-        <div className="flex items-center px-4 sm:px-6 py-2.5 gap-2 bg-[#2A101B]/50 border-b border-white/10 overflow-x-auto no-scrollbar">
+        <div className="flex items-center px-4 sm:px-6 py-2.5 gap-2 bg-[var(--c-bg-dark)]/50 border-b border-white/10 overflow-x-auto no-scrollbar">
           <button
             type="button"
             onClick={() => setActiveTab('names')}
             className={`py-1.5 sm:py-2 px-3 sm:px-3.5 rounded-xl text-xs font-semibold tracking-wide transition-all flex items-center gap-1.5 shrink-0 cursor-pointer whitespace-nowrap ${
               activeTab === 'names'
-                ? 'bg-gradient-to-r from-[#E8899D] to-[#D8A06C] text-[#12080D] shadow-md font-bold'
-                : 'bg-white/5 text-[#F7B8C5]/80 hover:bg-white/10 hover:text-[#FFF3EF]'
+                ? 'bg-gradient-to-r from-[var(--c-accent-main)] to-[var(--c-accent-gold)] text-[var(--c-bg-darkest)] shadow-md font-bold'
+                : 'bg-white/5 text-[var(--c-accent-light)]/80 hover:bg-white/10 hover:text-[var(--c-text-main)]'
             }`}
           >
             <UserCheck className="w-3.5 h-3.5" />
@@ -216,8 +217,8 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
             onClick={() => setActiveTab('timeline')}
             className={`py-1.5 sm:py-2 px-3 sm:px-3.5 rounded-xl text-xs font-semibold tracking-wide transition-all flex items-center gap-1.5 shrink-0 cursor-pointer whitespace-nowrap ${
               activeTab === 'timeline'
-                ? 'bg-gradient-to-r from-[#E8899D] to-[#D8A06C] text-[#12080D] shadow-md font-bold'
-                : 'bg-white/5 text-[#F7B8C5]/80 hover:bg-white/10 hover:text-[#FFF3EF]'
+                ? 'bg-gradient-to-r from-[var(--c-accent-main)] to-[var(--c-accent-gold)] text-[var(--c-bg-darkest)] shadow-md font-bold'
+                : 'bg-white/5 text-[var(--c-accent-light)]/80 hover:bg-white/10 hover:text-[var(--c-text-main)]'
             }`}
           >
             <BookHeart className="w-3.5 h-3.5" />
@@ -229,8 +230,8 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
             onClick={() => setActiveTab('photos')}
             className={`py-1.5 sm:py-2 px-3 sm:px-3.5 rounded-xl text-xs font-semibold tracking-wide transition-all flex items-center gap-1.5 shrink-0 cursor-pointer whitespace-nowrap ${
               activeTab === 'photos'
-                ? 'bg-gradient-to-r from-[#E8899D] to-[#D8A06C] text-[#12080D] shadow-md font-bold'
-                : 'bg-white/5 text-[#F7B8C5]/80 hover:bg-white/10 hover:text-[#FFF3EF]'
+                ? 'bg-gradient-to-r from-[var(--c-accent-main)] to-[var(--c-accent-gold)] text-[var(--c-bg-darkest)] shadow-md font-bold'
+                : 'bg-white/5 text-[var(--c-accent-light)]/80 hover:bg-white/10 hover:text-[var(--c-text-main)]'
             }`}
           >
             <Camera className="w-3.5 h-3.5" />
@@ -242,12 +243,24 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
             onClick={() => setActiveTab('music')}
             className={`py-1.5 sm:py-2 px-3 sm:px-3.5 rounded-xl text-xs font-semibold tracking-wide transition-all flex items-center gap-1.5 shrink-0 cursor-pointer whitespace-nowrap ${
               activeTab === 'music'
-                ? 'bg-gradient-to-r from-[#E8899D] to-[#D8A06C] text-[#12080D] shadow-md font-bold'
-                : 'bg-white/5 text-[#F7B8C5]/80 hover:bg-white/10 hover:text-[#FFF3EF]'
+                ? 'bg-gradient-to-r from-[var(--c-accent-main)] to-[var(--c-accent-gold)] text-[var(--c-bg-darkest)] shadow-md font-bold'
+                : 'bg-white/5 text-[var(--c-accent-light)]/80 hover:bg-white/10 hover:text-[var(--c-text-main)]'
             }`}
           >
             <Music className="w-3.5 h-3.5" />
             <span>Soundtrack</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('theme')}
+            className={`py-1.5 sm:py-2 px-3 sm:px-3.5 rounded-xl text-xs font-semibold tracking-wide transition-all flex items-center gap-1.5 shrink-0 cursor-pointer whitespace-nowrap ${
+              activeTab === 'theme'
+                ? 'bg-gradient-to-r from-[var(--c-accent-main)] to-[var(--c-accent-gold)] text-[var(--c-bg-darkest)] shadow-md font-bold'
+                : 'bg-white/5 text-[var(--c-accent-light)]/80 hover:bg-white/10 hover:text-[var(--c-text-main)]'
+            }`}
+          >
+            <Palette className="w-3.5 h-3.5" />
+            <span>Theme</span>
           </button>
         </div>
 
@@ -256,7 +269,7 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
           <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-[#F7B8C5] uppercase tracking-wider mb-1">
+                <label className="block text-xs font-semibold text-[var(--c-accent-light)] uppercase tracking-wider mb-1">
                   Your Name / Nickname
                 </label>
                 <input
@@ -264,13 +277,13 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
                   type="text"
                   value={formData.yourName}
                   onChange={e => setFormData({ ...formData, yourName: e.target.value })}
-                  className="w-full bg-[#12080D] border border-[#E8899D]/30 rounded-xl px-3.5 py-2.5 text-sm text-[#FFF3EF] focus:outline-none focus:border-[#E8899D] focus:ring-1 focus:ring-[#E8899D]"
+                  className="w-full bg-[var(--c-bg-darkest)] border border-[var(--c-accent-main)]/30 rounded-xl px-3.5 py-2.5 text-sm text-[var(--c-text-main)] focus:outline-none focus:border-[var(--c-accent-main)] focus:ring-1 focus:ring-[var(--c-accent-main)]"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#F7B8C5] uppercase tracking-wider mb-1">
+                <label className="block text-xs font-semibold text-[var(--c-accent-light)] uppercase tracking-wider mb-1">
                   Partner&apos;s Name / Sweetheart
                 </label>
                 <input
@@ -278,14 +291,14 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
                   type="text"
                   value={formData.partnerName}
                   onChange={e => setFormData({ ...formData, partnerName: e.target.value })}
-                  className="w-full bg-[#12080D] border border-[#E8899D]/30 rounded-xl px-3.5 py-2.5 text-sm text-[#FFF3EF] focus:outline-none focus:border-[#E8899D] focus:ring-1 focus:ring-[#E8899D]"
+                  className="w-full bg-[var(--c-bg-darkest)] border border-[var(--c-accent-main)]/30 rounded-xl px-3.5 py-2.5 text-sm text-[var(--c-text-main)] focus:outline-none focus:border-[var(--c-accent-main)] focus:ring-1 focus:ring-[var(--c-accent-main)]"
                   required
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#F7B8C5] uppercase tracking-wider mb-1">
+              <label className="block text-xs font-semibold text-[var(--c-accent-light)] uppercase tracking-wider mb-1">
                 Proposal Question
               </label>
               <input
@@ -293,13 +306,13 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
                 type="text"
                 value={formData.question}
                 onChange={e => setFormData({ ...formData, question: e.target.value })}
-                className="w-full bg-[#12080D] border border-[#E8899D]/30 rounded-xl px-3.5 py-2.5 text-sm text-[#FFF3EF] focus:outline-none focus:border-[#E8899D]"
+                className="w-full bg-[var(--c-bg-darkest)] border border-[var(--c-accent-main)]/30 rounded-xl px-3.5 py-2.5 text-sm text-[var(--c-text-main)] focus:outline-none focus:border-[var(--c-accent-main)]"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#F7B8C5] uppercase tracking-wider mb-1">
+              <label className="block text-xs font-semibold text-[var(--c-accent-light)] uppercase tracking-wider mb-1">
                 Proposal Subtitle
               </label>
               <textarea
@@ -307,12 +320,12 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
                 rows={2}
                 value={formData.subQuestion}
                 onChange={e => setFormData({ ...formData, subQuestion: e.target.value })}
-                className="w-full bg-[#12080D] border border-[#E8899D]/30 rounded-xl px-3.5 py-2 text-sm text-[#FFF3EF] focus:outline-none focus:border-[#E8899D]"
+                className="w-full bg-[var(--c-bg-darkest)] border border-[var(--c-accent-main)]/30 rounded-xl px-3.5 py-2 text-sm text-[var(--c-text-main)] focus:outline-none focus:border-[var(--c-accent-main)]"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#F7B8C5] uppercase tracking-wider mb-1">
+              <label className="block text-xs font-semibold text-[var(--c-accent-light)] uppercase tracking-wider mb-1">
                 Final Message (Screen 11)
               </label>
               <textarea
@@ -320,12 +333,12 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
                 rows={2}
                 value={formData.finalMessage}
                 onChange={e => setFormData({ ...formData, finalMessage: e.target.value })}
-                className="w-full bg-[#12080D] border border-[#E8899D]/30 rounded-xl px-3.5 py-2 text-sm text-[#FFF3EF] focus:outline-none focus:border-[#E8899D]"
+                className="w-full bg-[var(--c-bg-darkest)] border border-[var(--c-accent-main)]/30 rounded-xl px-3.5 py-2 text-sm text-[var(--c-text-main)] focus:outline-none focus:border-[var(--c-accent-main)]"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#F7B8C5] uppercase tracking-wider mb-1 flex items-center justify-between">
+              <label className="block text-xs font-semibold text-[var(--c-accent-light)] uppercase tracking-wider mb-1 flex items-center justify-between">
                 <span>Signature Prefix</span>
               </label>
               <input
@@ -333,7 +346,7 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
                 type="text"
                 value={formData.signatureText}
                 onChange={e => setFormData({ ...formData, signatureText: e.target.value })}
-                className="w-full bg-[#12080D] border border-[#E8899D]/30 rounded-xl px-3.5 py-2.5 text-sm text-[#FFF3EF] focus:outline-none focus:border-[#E8899D]"
+                className="w-full bg-[var(--c-bg-darkest)] border border-[var(--c-accent-main)]/30 rounded-xl px-3.5 py-2.5 text-sm text-[var(--c-text-main)] focus:outline-none focus:border-[var(--c-accent-main)]"
               />
             </div>
 
@@ -348,9 +361,9 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
                 value={formData.whatsappNumber || '+91 7201030048'}
                 onChange={e => setFormData({ ...formData, whatsappNumber: e.target.value })}
                 placeholder="+91 7201030048"
-                className="w-full bg-[#12080D] border border-[#25D366]/40 rounded-xl px-3.5 py-2.5 text-sm text-[#FFF3EF] focus:outline-none focus:border-[#25D366]"
+                className="w-full bg-[var(--c-bg-darkest)] border border-[#25D366]/40 rounded-xl px-3.5 py-2.5 text-sm text-[var(--c-text-main)] focus:outline-none focus:border-[#25D366]"
               />
-              <p className="text-[10px] text-[#F7B8C5]/70 mt-1">
+              <p className="text-[10px] text-[var(--c-accent-light)]/70 mt-1">
                 When your sweetheart taps &quot;Send Answer on WhatsApp&quot;, their romantic response is sent directly to this number.
               </p>
             </div>
@@ -360,7 +373,7 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
                 id="reset-config-btn"
                 type="button"
                 onClick={handleResetConfig}
-                className="flex items-center gap-1.5 text-xs text-[#F7B8C5]/70 hover:text-[#F7B8C5] transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 text-xs text-[var(--c-accent-light)]/70 hover:text-[var(--c-accent-light)] transition-colors cursor-pointer"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 <span>Reset to Defaults</span>
@@ -379,7 +392,7 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
                 <button
                   id="save-config-btn"
                   type="submit"
-                  className="flex items-center gap-1.5 px-5 py-2 text-xs font-semibold rounded-xl bg-gradient-to-r from-[#E8899D] to-[#D8A06C] text-[#12080D] shadow-[0_0_15px_rgba(232,137,157,0.5)] hover:scale-105 transition-all cursor-pointer font-bold"
+                  className="flex items-center gap-1.5 px-5 py-2 text-xs font-semibold rounded-xl bg-gradient-to-r from-[var(--c-accent-main)] to-[var(--c-accent-gold)] text-[var(--c-bg-darkest)] shadow-[0_0_15px_rgba(232,137,157,0.5)] hover:scale-105 transition-all cursor-pointer font-bold"
                 >
                   {isSaved ? (
                     <>
@@ -403,7 +416,7 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
           <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-white/10">
               <div>
-                <p className="text-xs text-[#F7B8C5] font-medium">
+                <p className="text-xs text-[var(--c-accent-light)] font-medium">
                   Personalize the storyline milestones and memories in Scene 4: Our Love Story.
                 </p>
               </div>
@@ -412,7 +425,7 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
                 <button
                   type="button"
                   onClick={() => onOpenStoryEditor()}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#E8899D] to-[#D8A06C] text-[#12080D] font-bold text-xs shadow-md hover:scale-105 transition-all shrink-0 cursor-pointer"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-[var(--c-accent-main)] to-[var(--c-accent-gold)] text-[var(--c-bg-darkest)] font-bold text-xs shadow-md hover:scale-105 transition-all shrink-0 cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Add New Chapter</span>
@@ -425,29 +438,29 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
               {storyEvents.map((item, idx) => (
                 <div
                   key={item.id || idx}
-                  className="p-3.5 rounded-2xl bg-[#12080D] border border-[#E8899D]/30 flex items-start justify-between gap-3 group hover:border-[#E8899D] transition-colors"
+                  className="p-3.5 rounded-2xl bg-[var(--c-bg-darkest)] border border-[var(--c-accent-main)]/30 flex items-start justify-between gap-3 group hover:border-[var(--c-accent-main)] transition-colors"
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-[10px] uppercase font-bold tracking-wider text-[#D8A06C] bg-[#2A101B] px-2 py-0.5 rounded-full border border-[#D8A06C]/30">
+                      <span className="text-[10px] uppercase font-bold tracking-wider text-[var(--c-accent-gold)] bg-[var(--c-bg-dark)] px-2 py-0.5 rounded-full border border-[var(--c-accent-gold)]/30">
                         {item.badge || `Chapter ${idx + 1}`}
                       </span>
-                      <span className="text-[11px] text-[#F7B8C5]/80 font-mono">
+                      <span className="text-[11px] text-[var(--c-accent-light)]/80 font-mono">
                         {item.date}
                       </span>
                     </div>
 
-                    <h4 className="text-sm font-semibold text-[#FFF3EF] flex items-center gap-1.5">
+                    <h4 className="text-sm font-semibold text-[var(--c-text-main)] flex items-center gap-1.5">
                       <span>{item.title}</span>
                     </h4>
 
                     {item.subtitle && (
-                      <p className="text-xs text-[#F7B8C5] italic mb-1">
+                      <p className="text-xs text-[var(--c-accent-light)] italic mb-1">
                         {item.subtitle}
                       </p>
                     )}
 
-                    <p className="text-xs text-[#FFF3EF]/75 line-clamp-2 leading-relaxed">
+                    <p className="text-xs text-[var(--c-text-main)]/75 line-clamp-2 leading-relaxed">
                       {item.description}
                     </p>
                   </div>
@@ -458,7 +471,7 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
                       <button
                         type="button"
                         onClick={() => onOpenStoryEditor(item)}
-                        className="p-2 rounded-xl bg-white/10 hover:bg-[#E8899D] hover:text-[#12080D] text-[#FFF3EF] transition-colors cursor-pointer"
+                        className="p-2 rounded-xl bg-white/10 hover:bg-[var(--c-accent-main)] hover:text-[var(--c-bg-darkest)] text-[var(--c-text-main)] transition-colors cursor-pointer"
                         title="Edit chapter"
                       >
                         <Edit3 className="w-3.5 h-3.5" />
@@ -484,7 +497,7 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
               <button
                 type="button"
                 onClick={handleResetStoryEvents}
-                className="flex items-center gap-1.5 text-xs text-[#F7B8C5]/70 hover:text-[#F7B8C5] transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 text-xs text-[var(--c-accent-light)]/70 hover:text-[var(--c-accent-light)] transition-colors cursor-pointer"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 <span>Reset to Sample Story</span>
@@ -493,7 +506,7 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-5 py-2 text-xs font-semibold rounded-xl bg-gradient-to-r from-[#E8899D] to-[#D8A06C] text-[#12080D] cursor-pointer"
+                className="px-5 py-2 text-xs font-semibold rounded-xl bg-gradient-to-r from-[var(--c-accent-main)] to-[var(--c-accent-gold)] text-[var(--c-bg-darkest)] cursor-pointer"
               >
                 Done
               </button>
@@ -548,11 +561,11 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
 
             <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-white/10">
               <div>
-                <p className="text-xs text-[#F7B8C5] font-medium flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-[#D8A06C]" />
+                <p className="text-xs text-[var(--c-accent-light)] font-medium flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-[var(--c-accent-gold)]" />
                   <span>{memories.length} Dream Photos (No Limit)</span>
                 </p>
-                <p className="text-[11px] text-[#FFF3EF]/60 mt-0.5">
+                <p className="text-[11px] text-[var(--c-text-main)]/60 mt-0.5">
                   Add unlimited photos of your romantic memories and future dreams together.
                 </p>
               </div>
@@ -562,10 +575,10 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
                   type="button"
                   onClick={() => modalFileInputRef.current?.click()}
                   disabled={isUploadingBatch}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-[#FFF3EF] font-semibold text-xs border border-white/20 transition-all cursor-pointer"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-[var(--c-text-main)] font-semibold text-xs border border-white/20 transition-all cursor-pointer"
                   title="Upload multiple photos at once"
                 >
-                  <Upload className="w-3.5 h-3.5 text-[#D8A06C]" />
+                  <Upload className="w-3.5 h-3.5 text-[var(--c-accent-gold)]" />
                   <span>{isUploadingBatch ? 'Processing...' : '+ Batch Upload'}</span>
                 </button>
 
@@ -573,7 +586,7 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
                   <button
                     type="button"
                     onClick={() => onOpenMemoryEditor()}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#E8899D] to-[#D8A06C] text-[#12080D] font-bold text-xs shadow-md hover:scale-105 transition-all shrink-0 cursor-pointer"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-[var(--c-accent-main)] to-[var(--c-accent-gold)] text-[var(--c-bg-darkest)] font-bold text-xs shadow-md hover:scale-105 transition-all shrink-0 cursor-pointer"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>Add New Dream</span>
@@ -620,10 +633,10 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
                   }
                 }
               }}
-              className="p-3 border border-dashed border-[#E8899D]/40 hover:border-[#E8899D] rounded-2xl bg-[#12080D]/50 hover:bg-[#2A101B]/40 transition-colors flex items-center justify-center gap-2 text-center cursor-pointer"
+              className="p-3 border border-dashed border-[var(--c-accent-main)]/40 hover:border-[var(--c-accent-main)] rounded-2xl bg-[var(--c-bg-darkest)]/50 hover:bg-[var(--c-bg-dark)]/40 transition-colors flex items-center justify-center gap-2 text-center cursor-pointer"
             >
-              <Upload className="w-4 h-4 text-[#E8899D]" />
-              <span className="text-xs text-[#FFF3EF]/80">
+              <Upload className="w-4 h-4 text-[var(--c-accent-main)]" />
+              <span className="text-xs text-[var(--c-text-main)]/80">
                 Drag &amp; drop photos here or click to batch upload from device
               </span>
             </div>
@@ -633,10 +646,10 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
               {memories.map((mem, idx) => (
                 <div
                   key={mem.id || idx}
-                  className="p-3 rounded-2xl bg-[#12080D] border border-[#E8899D]/30 flex gap-3 items-center group hover:border-[#E8899D] transition-colors"
+                  className="p-3 rounded-2xl bg-[var(--c-bg-darkest)] border border-[var(--c-accent-main)]/30 flex gap-3 items-center group hover:border-[var(--c-accent-main)] transition-colors"
                 >
                   {/* Thumbnail */}
-                  <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-[#2A101B] shrink-0 border border-white/10">
+                  <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-[var(--c-bg-dark)] shrink-0 border border-white/10">
                     <img
                       src={mem.image}
                       alt={mem.title}
@@ -647,13 +660,13 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
 
                   {/* Info */}
                   <div className="flex-1 min-w-0">
-                    <h4 className="text-xs font-semibold text-[#FFF3EF] truncate">
+                    <h4 className="text-xs font-semibold text-[var(--c-text-main)] truncate">
                       {mem.title}
                     </h4>
-                    <p className="text-[10px] text-[#F7B8C5]/80 truncate">
+                    <p className="text-[10px] text-[var(--c-accent-light)]/80 truncate">
                       {mem.date}
                     </p>
-                    <p className="text-[10px] text-[#FFF3EF]/60 line-clamp-1 mt-0.5">
+                    <p className="text-[10px] text-[var(--c-text-main)]/60 line-clamp-1 mt-0.5">
                       {mem.description}
                     </p>
                   </div>
@@ -664,7 +677,7 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
                       <button
                         type="button"
                         onClick={() => onOpenMemoryEditor(mem)}
-                        className="p-1.5 rounded-lg bg-white/10 hover:bg-[#E8899D] hover:text-[#12080D] text-[#FFF3EF] transition-colors cursor-pointer"
+                        className="p-1.5 rounded-lg bg-white/10 hover:bg-[var(--c-accent-main)] hover:text-[var(--c-bg-darkest)] text-[var(--c-text-main)] transition-colors cursor-pointer"
                         title="Edit photo and text"
                       >
                         <Edit3 className="w-3.5 h-3.5" />
@@ -690,7 +703,7 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
               <button
                 type="button"
                 onClick={handleResetMemories}
-                className="flex items-center gap-1.5 text-xs text-[#F7B8C5]/70 hover:text-[#F7B8C5] transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 text-xs text-[var(--c-accent-light)]/70 hover:text-[var(--c-accent-light)] transition-colors cursor-pointer"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 <span>Reset to Sample Dreams</span>
@@ -699,7 +712,7 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-5 py-2 text-xs font-semibold rounded-xl bg-gradient-to-r from-[#E8899D] to-[#D8A06C] text-[#12080D] cursor-pointer"
+                className="px-5 py-2 text-xs font-semibold rounded-xl bg-gradient-to-r from-[var(--c-accent-main)] to-[var(--c-accent-gold)] text-[var(--c-bg-darkest)] cursor-pointer"
               >
                 Done
               </button>
@@ -718,19 +731,19 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
             )}
 
             {/* Active Track Banner */}
-            <div className="p-4 rounded-2xl bg-[#2A101B]/80 border border-[#E8899D]/40 flex items-center justify-between gap-3">
+            <div className="p-4 rounded-2xl bg-[var(--c-bg-dark)]/80 border border-[var(--c-accent-main)]/40 flex items-center justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="w-10 h-10 rounded-full bg-[#E8899D]/20 border border-[#E8899D]/40 flex items-center justify-center text-[#E8899D] shrink-0">
+                <div className="w-10 h-10 rounded-full bg-[var(--c-accent-main)]/20 border border-[var(--c-accent-main)]/40 flex items-center justify-center text-[var(--c-accent-main)] shrink-0">
                   <Music className="w-5 h-5" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs text-[#F7B8C5] uppercase font-semibold tracking-wider">
+                  <p className="text-xs text-[var(--c-accent-light)] uppercase font-semibold tracking-wider">
                     Current Playing Track
                   </p>
-                  <h4 className="text-sm font-bold text-[#FFF3EF] truncate font-serif">
+                  <h4 className="text-sm font-bold text-[var(--c-text-main)] truncate font-serif">
                     {currentTrack?.name || 'Romantic Song'}
                   </h4>
-                  <p className="text-[10px] text-[#D8A06C] truncate">
+                  <p className="text-[10px] text-[var(--c-accent-gold)] truncate">
                     {currentTrack?.artist || 'Proposal Romance'}
                   </p>
                 </div>
@@ -739,29 +752,29 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
               <button
                 type="button"
                 onClick={() => audioEngine.togglePlay()}
-                className="p-3 rounded-full bg-gradient-to-r from-[#E8899D] to-[#D8A06C] text-[#12080D] shadow-md hover:scale-105 transition-all shrink-0 cursor-pointer"
+                className="p-3 rounded-full bg-gradient-to-r from-[var(--c-accent-main)] to-[var(--c-accent-gold)] text-[var(--c-bg-darkest)] shadow-md hover:scale-105 transition-all shrink-0 cursor-pointer"
               >
                 {isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current ml-0.5" />}
               </button>
             </div>
 
             {/* Upload Your Own Music Box */}
-            <div className="p-4 rounded-2xl bg-[#12080D] border border-dashed border-[#E8899D]/50 flex flex-col items-center text-center gap-2.5">
-              <div className="p-2.5 rounded-full bg-[#E8899D]/20 text-[#E8899D]">
-                <Upload className="w-5 h-5 text-[#D8A06C]" />
+            <div className="p-4 rounded-2xl bg-[var(--c-bg-darkest)] border border-dashed border-[var(--c-accent-main)]/50 flex flex-col items-center text-center gap-2.5">
+              <div className="p-2.5 rounded-full bg-[var(--c-accent-main)]/20 text-[var(--c-accent-main)]">
+                <Upload className="w-5 h-5 text-[var(--c-accent-gold)]" />
               </div>
               <div>
-                <h4 className="text-xs font-bold text-[#FFF3EF]">
+                <h4 className="text-xs font-bold text-[var(--c-text-main)]">
                   Upload Your Own Background Song (Saved Forever)
                 </h4>
-                <p className="text-[11px] text-[#F7B8C5]/70 max-w-sm mt-0.5">
+                <p className="text-[11px] text-[var(--c-accent-light)]/70 max-w-sm mt-0.5">
                   Select your favorite romantic MP3, WAV, or M4A audio file. It is permanently saved in browser storage and stays ready across page reloads!
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => modalAudioInputRef.current?.click()}
-                className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#E8899D] to-[#D8A06C] text-[#12080D] font-bold text-xs shadow-md hover:scale-105 transition-all cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-[var(--c-accent-main)] to-[var(--c-accent-gold)] text-[var(--c-bg-darkest)] font-bold text-xs shadow-md hover:scale-105 transition-all cursor-pointer"
               >
                 Choose Audio File From Device
               </button>
@@ -769,7 +782,7 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
 
             {/* Custom URL Option */}
             <form onSubmit={handleAudioUrlSubmit} className="space-y-1.5">
-              <label className="block text-[11px] font-semibold text-[#F7B8C5] uppercase tracking-wider">
+              <label className="block text-[11px] font-semibold text-[var(--c-accent-light)] uppercase tracking-wider">
                 Or Paste Online Audio Link (.mp3) (Synced to Partner)
               </label>
               <div className="flex gap-2">
@@ -778,11 +791,11 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
                   placeholder="https://example.com/your-song.mp3"
                   value={customAudioUrl}
                   onChange={e => setCustomAudioUrl(e.target.value)}
-                  className="flex-1 bg-[#12080D] border border-[#E8899D]/30 rounded-xl px-3 py-2 text-xs text-[#FFF3EF] focus:outline-none focus:border-[#E8899D]"
+                  className="flex-1 bg-[var(--c-bg-darkest)] border border-[var(--c-accent-main)]/30 rounded-xl px-3 py-2 text-xs text-[var(--c-text-main)] focus:outline-none focus:border-[var(--c-accent-main)]"
                 />
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl bg-white/10 hover:bg-[#E8899D] hover:text-[#12080D] text-xs font-semibold text-[#FFF3EF] transition-all cursor-pointer shrink-0"
+                  className="px-4 py-2 rounded-xl bg-white/10 hover:bg-[var(--c-accent-main)] hover:text-[var(--c-bg-darkest)] text-xs font-semibold text-[var(--c-text-main)] transition-all cursor-pointer shrink-0"
                 >
                   Save &amp; Play URL
                 </button>
@@ -791,7 +804,7 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
 
             {/* Built-in Tracks Library */}
             <div className="space-y-2 pt-2 border-t border-white/10">
-              <p className="text-xs font-semibold text-[#F7B8C5] uppercase tracking-wider">
+              <p className="text-xs font-semibold text-[var(--c-accent-light)] uppercase tracking-wider">
                 Soundtrack Library &amp; Saved Songs
               </p>
               <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
@@ -800,7 +813,7 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
                     key={t.id}
                     className={`p-2.5 rounded-xl border flex items-center justify-between gap-2 transition-all ${
                       currentTrack?.id === t.id
-                        ? 'bg-[#E8899D]/20 border-[#E8899D] text-[#FFF3EF]'
+                        ? 'bg-[var(--c-accent-main)]/20 border-[var(--c-accent-main)] text-[var(--c-text-main)]'
                         : 'bg-white/5 border-transparent hover:bg-white/10 text-white/80'
                     }`}
                   >
@@ -825,12 +838,12 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
                           </span>
                         )}
                       </div>
-                      <p className="text-[10px] text-[#F7B8C5]/70 truncate">{t.artist}</p>
+                      <p className="text-[10px] text-[var(--c-accent-light)]/70 truncate">{t.artist}</p>
                     </button>
 
                     <div className="flex items-center gap-1.5 shrink-0">
                       {currentTrack?.id === t.id && (
-                        <Heart className="w-3.5 h-3.5 text-[#E8899D] fill-[#E8899D]" />
+                        <Heart className="w-3.5 h-3.5 text-[var(--c-accent-main)] fill-[var(--c-accent-main)]" />
                       )}
                       {t.type === 'custom' && (
                         <button
@@ -858,7 +871,70 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-5 py-2 text-xs font-semibold rounded-xl bg-gradient-to-r from-[#E8899D] to-[#D8A06C] text-[#12080D] cursor-pointer"
+                className="px-5 py-2 text-xs font-semibold rounded-xl bg-gradient-to-r from-[var(--c-accent-main)] to-[var(--c-accent-gold)] text-[var(--c-bg-darkest)] cursor-pointer"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        )}
+        {/* Theme Settings Tab */}
+        {activeTab === 'theme' && (
+          <div className="p-4 sm:p-6 space-y-6 animate-in fade-in slide-in-from-right-4 duration-300 h-full overflow-y-auto no-scrollbar">
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold tracking-wider uppercase text-[var(--c-accent-gold)] flex items-center gap-2">
+                <Palette className="w-4 h-4" />
+                Theme Settings
+              </h3>
+              <p className="text-xs text-[var(--c-text-main)]/70">
+                Choose a theme to instantly change the vibe of your entire romantic application.
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {[
+                  { id: '', name: 'Original Burgundy', colors: ['#12080D', '#E8899D', '#D8A06C'] },
+                  { id: 'midnight', name: 'Midnight Blue', colors: ['#070B19', '#6B8AFF', '#D8A06C'] },
+                  { id: 'sunset', name: 'Soft Sunset', colors: ['#1A0D08', '#FF8A66', '#FFD166'] },
+                  { id: 'gold', name: 'Royal Gold', colors: ['#14120D', '#D8A06C', '#FFD700'] }
+                ].map((themeOpt) => (
+                  <button
+                    key={themeOpt.id || 'default'}
+                    type="button"
+                    onClick={() => {
+                      setFormData(prev => ({ ...prev, theme: themeOpt.id }));
+                      onSaveConfig({ ...formData, theme: themeOpt.id });
+                      const root = document.getElementById('romantic-app-root');
+                      if (root) {
+                        root.className = `relative min-h-svh w-full bg-[var(--c-bg-darkest)] text-[var(--c-text-main)] font-sans antialiased overflow-x-hidden select-none selection:bg-[var(--c-accent-main)] selection:text-[var(--c-bg-darkest)] ${themeOpt.id ? 'theme-' + themeOpt.id : ''}`;
+                      }
+                    }}
+                    className={`flex flex-col gap-2 p-4 rounded-2xl border transition-all cursor-pointer text-left ${
+                      (formData.theme || '') === themeOpt.id
+                        ? 'bg-[var(--c-accent-main)]/10 border-[var(--c-accent-main)] shadow-[0_0_20px_rgba(var(--c-accent-main-rgb),0.2)]'
+                        : 'bg-black/20 border-white/10 hover:border-white/30 hover:bg-black/40'
+                    }`}
+                  >
+                    <span className={`text-sm font-bold ${
+                      (formData.theme || '') === themeOpt.id ? 'text-[var(--c-accent-main)]' : 'text-[var(--c-text-main)]'
+                    }`}>
+                      {themeOpt.name}
+                    </span>
+                    <div className="flex gap-2">
+                      {themeOpt.colors.map((c, i) => (
+                        <div key={i} className="w-6 h-6 rounded-full border border-white/20 shadow-inner" style={{ backgroundColor: c }} />
+                      ))}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+            
+            {/* Done Footer */}
+            <div className="flex items-center justify-end pt-3 border-t border-white/10 mt-6">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-5 py-2 text-xs font-semibold rounded-xl bg-gradient-to-r from-[var(--c-accent-main)] to-[var(--c-accent-gold)] text-[var(--c-bg-darkest)] cursor-pointer"
               >
                 Done
               </button>

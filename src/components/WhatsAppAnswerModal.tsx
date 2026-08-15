@@ -82,23 +82,23 @@ export const WhatsAppAnswerModal: React.FC<WhatsAppAnswerModalProps> = ({
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-lg rounded-3xl glass-panel border border-[#25D366]/40 p-5 sm:p-6 shadow-[0_20px_60px_rgba(0,0,0,0.9)] text-[#FFF3EF] overflow-hidden"
+        className="relative w-full max-w-lg rounded-3xl glass-panel border border-[#25D366]/40 p-5 sm:p-6 shadow-[0_20px_60px_rgba(0,0,0,0.9)] text-[var(--c-text-main)] overflow-hidden"
         onClick={e => e.stopPropagation()}
       >
         {/* Glow accent */}
         <div className="absolute -top-16 -right-16 w-44 h-44 rounded-full bg-[#25D366]/20 blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-16 -left-16 w-44 h-44 rounded-full bg-[#E8899D]/20 blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-16 -left-16 w-44 h-44 rounded-full bg-[var(--c-accent-main)]/20 blur-3xl pointer-events-none" />
 
         {/* Modal Header */}
         <div className="flex items-center justify-between border-b border-[#25D366]/20 pb-3 mb-4">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-[#25D366] flex items-center justify-center text-[#12080D] shadow-[0_0_15px_rgba(37,211,102,0.6)]">
-              <MessageCircle className="w-4.5 h-4.5 fill-[#12080D] text-[#25D366]" />
+            <div className="w-8 h-8 rounded-full bg-[#25D366] flex items-center justify-center text-[var(--c-bg-darkest)] shadow-[0_0_15px_rgba(37,211,102,0.6)]">
+              <MessageCircle className="w-4.5 h-4.5 fill-[var(--c-bg-darkest)] text-[#25D366]" />
             </div>
             <div>
-              <h3 className="text-base font-bold font-serif text-[#FFF3EF] flex items-center gap-1.5">
+              <h3 className="text-base font-bold font-serif text-[var(--c-text-main)] flex items-center gap-1.5">
                 <span>Send Answer on WhatsApp</span>
-                <Sparkles className="w-3.5 h-3.5 text-[#D8A06C]" />
+                <Sparkles className="w-3.5 h-3.5 text-[var(--c-accent-gold)]" />
               </h3>
               <p className="text-[11px] text-[#25D366] font-mono">
                 To: {proposer} ({recipientNumber})
@@ -109,7 +109,7 @@ export const WhatsAppAnswerModal: React.FC<WhatsAppAnswerModalProps> = ({
           <button
             id="close-whatsapp-modal-btn"
             onClick={onClose}
-            className="p-1.5 rounded-full hover:bg-white/10 text-[#F7B8C5] hover:text-white transition-colors cursor-pointer"
+            className="p-1.5 rounded-full hover:bg-white/10 text-[var(--c-accent-light)] hover:text-white transition-colors cursor-pointer"
             aria-label="Close modal"
           >
             <X className="w-5 h-5" />
@@ -118,8 +118,8 @@ export const WhatsAppAnswerModal: React.FC<WhatsAppAnswerModalProps> = ({
 
         {/* Quick Romantic Message Templates */}
         <div className="mb-4">
-          <label className="block text-[11px] uppercase font-semibold text-[#F7B8C5] tracking-wider mb-2 flex items-center gap-1">
-            <Heart className="w-3 h-3 text-[#E8899D] fill-[#E8899D]" />
+          <label className="block text-[11px] uppercase font-semibold text-[var(--c-accent-light)] tracking-wider mb-2 flex items-center gap-1">
+            <Heart className="w-3 h-3 text-[var(--c-accent-main)] fill-[var(--c-accent-main)]" />
             <span>Choose Romantic Response:</span>
           </label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -130,8 +130,8 @@ export const WhatsAppAnswerModal: React.FC<WhatsAppAnswerModalProps> = ({
                 onClick={() => handleSelectTemplate(idx)}
                 className={`p-2.5 rounded-xl text-left text-xs transition-all border cursor-pointer ${
                   selectedTemplateIndex === idx
-                    ? 'bg-[#25D366]/20 border-[#25D366] text-[#FFF3EF] shadow-[0_0_12px_rgba(37,211,102,0.3)] font-medium'
-                    : 'bg-[#12080D]/60 border-white/10 hover:border-white/20 text-[#FFF3EF]/80'
+                    ? 'bg-[#25D366]/20 border-[#25D366] text-[var(--c-text-main)] shadow-[0_0_12px_rgba(37,211,102,0.3)] font-medium'
+                    : 'bg-[var(--c-bg-darkest)]/60 border-white/10 hover:border-white/20 text-[var(--c-text-main)]/80'
                 }`}
               >
                 <p className="line-clamp-2">{template}</p>
@@ -143,13 +143,13 @@ export const WhatsAppAnswerModal: React.FC<WhatsAppAnswerModalProps> = ({
         {/* Editable Message Box */}
         <div className="mb-4">
           <div className="flex items-center justify-between mb-1.5">
-            <label className="text-[11px] uppercase font-semibold text-[#F7B8C5] tracking-wider">
+            <label className="text-[11px] uppercase font-semibold text-[var(--c-accent-light)] tracking-wider">
               Your Message on WhatsApp:
             </label>
             <button
               type="button"
               onClick={handleCopyMessage}
-              className="text-[10px] text-[#F7B8C5]/70 hover:text-white flex items-center gap-1 transition-colors cursor-pointer"
+              className="text-[10px] text-[var(--c-accent-light)]/70 hover:text-white flex items-center gap-1 transition-colors cursor-pointer"
             >
               {isCopied ? (
                 <>
@@ -174,7 +174,7 @@ export const WhatsAppAnswerModal: React.FC<WhatsAppAnswerModalProps> = ({
               setSelectedTemplateIndex(-1);
             }}
             placeholder="Type your personal heartfelt response..."
-            className="w-full bg-[#12080D] border border-[#25D366]/40 rounded-2xl p-3 text-xs sm:text-sm text-[#FFF3EF] focus:outline-none focus:border-[#25D366] focus:ring-1 focus:ring-[#25D366] resize-none"
+            className="w-full bg-[var(--c-bg-darkest)] border border-[#25D366]/40 rounded-2xl p-3 text-xs sm:text-sm text-[var(--c-text-main)] focus:outline-none focus:border-[#25D366] focus:ring-1 focus:ring-[#25D366] resize-none"
           />
         </div>
 
@@ -192,7 +192,7 @@ export const WhatsAppAnswerModal: React.FC<WhatsAppAnswerModalProps> = ({
           </button>
         </div>
 
-        <p className="text-center text-[10px] text-[#F7B8C5]/60 mt-3">
+        <p className="text-center text-[10px] text-[var(--c-accent-light)]/60 mt-3">
           Opens WhatsApp with your pre-filled romantic answer ready to send to {proposer}.
         </p>
       </div>

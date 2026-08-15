@@ -36,7 +36,7 @@ export const Scene14LifetimePillars: React.FC<Scene14LifetimePillarsProps> = ({
     },
     {
       id: 1,
-      icon: <Compass className="w-5 h-5 text-[#D8A06C]" />,
+      icon: <Compass className="w-5 h-5 text-[var(--c-accent-gold)]" />,
       title: "2. Endless Patience (Beintehaa Samajh)",
       hindiSummary: "Tumhari khamoshi ko samajhna aur bina bole tumhara dard mehsoos karna.",
       detail: "I promise to listen with an open heart, to embrace your flaws just as deeply as your beauty, and to hold your hand through every emotional tide."
@@ -102,13 +102,13 @@ export const Scene14LifetimePillars: React.FC<Scene14LifetimePillarsProps> = ({
       className="relative flex flex-col items-center justify-between min-h-svh w-full px-4 sm:px-6 pt-20 sm:pt-24 pb-8 sm:pb-12 bg-gradient-to-b from-[#240C1A] via-[#331122] to-[#150610] text-center overflow-y-auto z-20"
     >
       {/* Warm Ambient Glow */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] sm:w-[650px] h-[350px] sm:h-[650px] rounded-full bg-gradient-to-tr from-[#FF2A55]/15 via-[#E8899D]/20 to-[#D8A06C]/20 blur-[140px] pointer-events-none" />
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] sm:w-[650px] h-[350px] sm:h-[650px] rounded-full bg-gradient-to-tr from-[#FF2A55]/15 via-[var(--c-accent-main)]/20 to-[var(--c-accent-gold)]/20 blur-[140px] pointer-events-none" />
 
       {/* Header */}
       <div className="pillars-header pt-2 flex flex-col items-center space-y-1.5 shrink-0">
         {primaryPhoto && (
           <div className="mb-1 relative">
-            <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-[#D8A06C] shadow-[0_0_20px_rgba(216,160,108,0.5)]">
+            <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-[var(--c-accent-gold)] shadow-[0_0_20px_rgba(216,160,108,0.5)]">
               <img
                 src={primaryPhoto}
                 alt="Our Lifetime Foundation"
@@ -116,20 +116,20 @@ export const Scene14LifetimePillars: React.FC<Scene14LifetimePillarsProps> = ({
                 referrerPolicy="no-referrer"
               />
             </div>
-            <div className="absolute -bottom-1 -right-1 bg-[#E8899D] rounded-full p-1 border border-[#12080D]">
-              <Heart className="w-3 h-3 text-[#12080D] fill-[#12080D]" />
+            <div className="absolute -bottom-1 -right-1 bg-[var(--c-accent-main)] rounded-full p-1 border border-[var(--c-bg-darkest)]">
+              <Heart className="w-3 h-3 text-[var(--c-bg-darkest)] fill-[var(--c-bg-darkest)]" />
             </div>
           </div>
         )}
-        <div className="flex items-center gap-2 text-[11px] sm:text-xs uppercase tracking-[0.25em] text-[#D8A06C] font-semibold">
-          <Sparkles className="w-3.5 h-3.5 text-[#D8A06C]" />
+        <div className="flex items-center gap-2 text-[11px] sm:text-xs uppercase tracking-[0.25em] text-[var(--c-accent-gold)] font-semibold">
+          <Sparkles className="w-3.5 h-3.5 text-[var(--c-accent-gold)]" />
           <span>5 Pillars of Forever</span>
-          <Sparkles className="w-3.5 h-3.5 text-[#D8A06C]" />
+          <Sparkles className="w-3.5 h-3.5 text-[var(--c-accent-gold)]" />
         </div>
         <h2 className="text-2xl sm:text-3xl font-serif font-black text-gradient-rose tracking-wide">
           Hamara Lifetime Promise 🌟
         </h2>
-        <p className="text-xs text-[#F7B8C5]/80 italic max-w-xs">
+        <p className="text-xs text-[var(--c-accent-light)]/80 italic max-w-xs">
           The unshakeable foundations of our love story
         </p>
       </div>
@@ -145,8 +145,8 @@ export const Scene14LifetimePillars: React.FC<Scene14LifetimePillarsProps> = ({
                 onClick={() => handleSelectPillar(p.id)}
                 className={`pillar-tab-btn px-3 py-2 rounded-2xl flex items-center gap-1.5 transition-all text-xs font-semibold cursor-pointer border shrink-0 ${
                   isActive
-                    ? 'bg-gradient-to-r from-[#E8899D] to-[#D8A06C] text-[#12080D] border-[#FFF3EF] shadow-[0_0_20px_rgba(232,137,157,0.5)] scale-105'
-                    : 'bg-[#1C0B14]/80 border-white/10 text-[#F7B8C5] hover:border-white/30'
+                    ? 'bg-gradient-to-r from-[var(--c-accent-main)] to-[var(--c-accent-gold)] text-[var(--c-bg-darkest)] border-[var(--c-text-main)] shadow-[0_0_20px_rgba(232,137,157,0.5)] scale-105'
+                    : 'bg-[#1C0B14]/80 border-white/10 text-[var(--c-accent-light)] hover:border-white/30'
                 }`}
               >
                 {p.icon}
@@ -159,39 +159,39 @@ export const Scene14LifetimePillars: React.FC<Scene14LifetimePillarsProps> = ({
 
       {/* Active Pillar Card */}
       <div className="relative my-auto py-2 flex flex-col items-center max-w-sm sm:max-w-md w-full">
-        <div className="pillar-active-card w-full p-6 sm:p-7 rounded-3xl bg-gradient-to-b from-[#2E1021]/95 to-[#1A0813]/98 border-2 border-[#E8899D]/40 shadow-[0_0_40px_rgba(232,137,157,0.3)] text-left backdrop-blur-md space-y-4">
-          <div className="flex items-center gap-3 border-b border-[#E8899D]/20 pb-3">
+        <div className="pillar-active-card w-full p-6 sm:p-7 rounded-3xl bg-gradient-to-b from-[#2E1021]/95 to-[#1A0813]/98 border-2 border-[var(--c-accent-main)]/40 shadow-[0_0_40px_rgba(232,137,157,0.3)] text-left backdrop-blur-md space-y-4">
+          <div className="flex items-center gap-3 border-b border-[var(--c-accent-main)]/20 pb-3">
             <div className="p-3 rounded-2xl bg-white/5 border border-white/10 shadow-inner">
               {pillars[activePillar].icon}
             </div>
             <div>
-              <span className="text-[10px] text-[#D8A06C] uppercase tracking-wider font-bold block">
+              <span className="text-[10px] text-[var(--c-accent-gold)] uppercase tracking-wider font-bold block">
                 Pillar {activePillar + 1} of 5
               </span>
-              <h3 className="font-serif font-black text-base sm:text-lg text-[#FFF3EF]">
+              <h3 className="font-serif font-black text-base sm:text-lg text-[var(--c-text-main)]">
                 {pillars[activePillar].title}
               </h3>
             </div>
           </div>
 
           {/* Hindi Pledge */}
-          <div className="p-3 rounded-2xl bg-[#E8899D]/10 border border-[#E8899D]/30">
-            <p className="font-serif text-xs sm:text-sm text-[#F7B8C5] leading-relaxed font-semibold">
+          <div className="p-3 rounded-2xl bg-[var(--c-accent-main)]/10 border border-[var(--c-accent-main)]/30">
+            <p className="font-serif text-xs sm:text-sm text-[var(--c-accent-light)] leading-relaxed font-semibold">
               &ldquo;{pillars[activePillar].hindiSummary}&rdquo;
             </p>
           </div>
 
           {/* English Detail */}
-          <p className="text-xs sm:text-sm text-[#FFF3EF]/90 leading-relaxed">
+          <p className="text-xs sm:text-sm text-[var(--c-text-main)]/90 leading-relaxed">
             {pillars[activePillar].detail}
           </p>
 
-          <div className="pt-2 flex items-center justify-between text-[11px] text-[#D8A06C]">
+          <div className="pt-2 flex items-center justify-between text-[11px] text-[var(--c-accent-gold)]">
             <span className="flex items-center gap-1">
               <Check className="w-3.5 h-3.5 text-[#25D366]" />
               Promised to {config.partnerName}
             </span>
-            <span className="font-script text-base text-[#FFF3EF]">
+            <span className="font-script text-base text-[var(--c-text-main)]">
               — {config.yourName}
             </span>
           </div>
@@ -206,10 +206,10 @@ export const Scene14LifetimePillars: React.FC<Scene14LifetimePillarsProps> = ({
             audioEngine.playSparkle();
             onNext();
           }}
-          className="group w-full py-4 px-6 rounded-full bg-gradient-to-r from-[#E8899D] via-[#F7B8C5] to-[#D8A06C] text-[#12080D] font-bold text-sm tracking-wider uppercase shadow-[0_0_30px_rgba(232,137,157,0.6)] hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer shine-effect"
+          className="group w-full py-4 px-6 rounded-full bg-gradient-to-r from-[var(--c-accent-main)] via-[var(--c-accent-light)] to-[var(--c-accent-gold)] text-[var(--c-bg-darkest)] font-bold text-sm tracking-wider uppercase shadow-[0_0_30px_rgba(232,137,157,0.6)] hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer shine-effect"
         >
           <span>Seal Our Eternal Love</span>
-          <ChevronRight className="w-4 h-4 text-[#12080D] group-hover:translate-x-1 transition-transform" />
+          <ChevronRight className="w-4 h-4 text-[var(--c-bg-darkest)] group-hover:translate-x-1 transition-transform" />
         </button>
       </div>
     </section>

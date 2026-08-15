@@ -51,7 +51,7 @@ import {
   initialMemories,
   initialReasons
 } from './config/proposalData';
-import { ProposalConfig, MemoryItem, TimelineEvent, ChatMessage } from './types';
+import { ProposalConfig, MemoryItem, TimelineEvent, ChatMessage, VideoCallState } from './types';
 import { SlidersHorizontal, ChevronLeft, ChevronRight, MessageCircle, Lock, Sparkles, MessageCircleHeart } from 'lucide-react';
 
 const SCENE_NAMES: Record<number, string> = {
@@ -97,6 +97,8 @@ export default function App() {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>(() => {
     return defaultSharedData.chatMessages || [];
   });
+
+  const [videoCallState, setVideoCallState] = useState<VideoCallState | null>(null);
 
 
   const [hasSentYesAnswer, setHasSentYesAnswer] = useState<boolean>(() => {
@@ -208,6 +210,14 @@ export default function App() {
         }
       }
     } catch {}
+  }, []);
+
+  // Control music based on authentication state
+  useEffect(() => {
+    if (!isAuthenticated) {
+      audioEngine.stop();
+      return;
+    }
 
     // Auto-start music by default when user enters application
     const startMusic = () => {
@@ -237,7 +247,7 @@ export default function App() {
       window.removeEventListener('touchstart', handleFirstInteraction);
       window.removeEventListener('keydown', handleFirstInteraction);
     };
-  }, []);
+  }, [isAuthenticated]);
 
   // Real-time Cloud Firestore subscription across all devices
   useEffect(() => {
@@ -316,6 +326,10 @@ export default function App() {
 
             if (cloudData.chatMessages && Array.isArray(cloudData.chatMessages)) {
               setChatMessages(cloudData.chatMessages);
+            }
+            
+            if (cloudData.videoCallState !== undefined) {
+              setVideoCallState(cloudData.videoCallState);
             }
           },
           (err) => {
@@ -472,6 +486,14 @@ export default function App() {
 
   const handleLoginSuccess = (userName?: string) => {
     setIsAuthenticated(true);
+    setCurrentScene(1);
+    
+    // Guarantee music starts precisely on user click
+    try {
+      audioEngine.init();
+      audioEngine.play();
+    } catch {}
+
     if (userName && userName.trim()) {
       setCurrentUserName(userName.trim());
       try {
@@ -482,12 +504,14 @@ export default function App() {
     try {
       sessionStorage.setItem('proposal_user_authenticated', 'true');
       localStorage.setItem('proposal_user_authenticated', 'true');
+      sessionStorage.setItem('romantic_proposal_current_scene', '1');
     } catch {}
   };
 
   const handleLogout = () => {
     setIsAuthenticated(false);
     setHasSentYesAnswer(false);
+    audioEngine.stop();
     try {
       sessionStorage.removeItem('proposal_user_authenticated');
       localStorage.removeItem('proposal_user_authenticated');
@@ -508,7 +532,7 @@ export default function App() {
     return (
       <main
         id="romantic-app-root"
-        className="relative min-h-svh w-full bg-[#12080D] text-[#FFF3EF] font-sans antialiased overflow-x-hidden select-none selection:bg-[#E8899D] selection:text-[#12080D]"
+        className={`relative min-h-svh w-full bg-[var(--c-bg-darkest)] text-[var(--c-text-main)] font-sans antialiased overflow-x-hidden select-none selection:bg-[var(--c-accent-main)] selection:text-[var(--c-bg-darkest)] ${config.theme ? `theme-${config.theme}` : ''}`}
       >
         <BackgroundEffects
           intensity="romantic"
@@ -527,7 +551,7 @@ export default function App() {
   return (
     <main
       id="romantic-app-root"
-      className="relative min-h-svh w-full bg-[#12080D] text-[#FFF3EF] font-sans antialiased overflow-x-hidden select-none selection:bg-[#E8899D] selection:text-[#12080D]"
+      className={`relative min-h-svh w-full bg-[var(--c-bg-darkest)] text-[var(--c-text-main)] font-sans antialiased overflow-x-hidden select-none selection:bg-[var(--c-accent-main)] selection:text-[var(--c-bg-darkest)] ${config.theme ? `theme-${config.theme}` : ''}`}
     >
       {/* 1. Global Atmospheric Particle Effects */}
       <BackgroundEffects
@@ -545,7 +569,7 @@ export default function App() {
         <nav
           id="global-top-navbar"
           aria-label="Proposal navigation bar"
-          className="fixed top-0 left-0 right-0 z-40 px-2 sm:px-4 md:px-6 py-2 flex items-center justify-between pointer-events-auto bg-[#12080D]/95 backdrop-blur-md border-b border-[#E8899D]/20 shadow-lg"
+          className="fixed top-0 left-0 right-0 z-40 px-2 sm:px-4 md:px-6 py-2 flex items-center justify-between pointer-events-auto bg-[var(--c-bg-darkest)]/95 backdrop-blur-md border-b border-[var(--c-accent-main)]/20 shadow-lg"
         >
           <div className="w-full max-w-6xl mx-auto flex items-center justify-between gap-1 sm:gap-2 relative">
             {/* Previous Scene Button */}
@@ -554,11 +578,11 @@ export default function App() {
                 <button
                   id="nav-prev-scene-btn"
                   onClick={() => setCurrentScene(prev => Math.max(2, prev - 1))}
-                  className="h-8 w-8 sm:w-auto sm:h-9 flex items-center justify-center gap-1 text-xs font-semibold tracking-wider text-[#F7B8C5] bg-[#2A101B]/90 hover:bg-[#2A101B] border border-[#E8899D]/30 sm:px-2.5 rounded-full transition-all hover:scale-105 active:scale-95 shadow-md cursor-pointer shrink-0"
+                  className="h-8 w-8 sm:w-auto sm:h-9 flex items-center justify-center gap-1 text-xs font-semibold tracking-wider text-[var(--c-accent-light)] bg-[var(--c-bg-dark)]/90 hover:bg-[var(--c-bg-dark)] border border-[var(--c-accent-main)]/30 sm:px-2.5 rounded-full transition-all hover:scale-105 active:scale-95 shadow-md cursor-pointer shrink-0"
                   aria-label="Previous scene"
                   title="Previous Scene"
                 >
-                  <ChevronLeft className="w-4 h-4 text-[#E8899D]" />
+                  <ChevronLeft className="w-4 h-4 text-[var(--c-accent-main)]" />
                   <span className="hidden md:inline text-xs">Prev</span>
                 </button>
               ) : (
@@ -569,11 +593,11 @@ export default function App() {
             {/* Current Step & Couple Names Tracker (Centered, Clean & Non-overlapping) */}
             <div className="flex-1 md:flex-none md:absolute md:left-1/2 md:-translate-x-1/2 min-w-0 px-2 flex flex-col items-center justify-center text-center z-0 pointer-events-none">
               <div 
-                className="text-[11px] sm:text-xs md:text-sm tracking-wider uppercase font-mono font-bold text-center leading-tight truncate max-w-[170px] sm:max-w-xs md:max-w-md drop-shadow-sm flex items-center justify-center gap-1 text-[#D8A06C]"
+                className="text-[11px] sm:text-xs md:text-sm tracking-wider uppercase font-mono font-bold text-center leading-tight truncate max-w-[170px] sm:max-w-xs md:max-w-md drop-shadow-sm flex items-center justify-center gap-1 text-[var(--c-accent-gold)]"
                 title={`${config.yourName} & ${config.partnerName}`}
               >
                 <span className="truncate">{config.yourName}</span>
-                <span className="text-[#E8899D] font-serif shrink-0">&amp;</span>
+                <span className="text-[var(--c-accent-main)] font-serif shrink-0">&amp;</span>
                 <span className="truncate">{config.partnerName}</span>
                 {syncStatus === 'synced' && (
                   <span
@@ -582,9 +606,9 @@ export default function App() {
                   />
                 )}
               </div>
-              <div className="text-[10px] sm:text-[11px] font-serif font-bold text-[#FFF3EF] flex items-center justify-center gap-1 text-center leading-tight truncate max-w-[170px] sm:max-w-xs md:max-w-md mt-0.5">
+              <div className="text-[10px] sm:text-[11px] font-serif font-bold text-[var(--c-text-main)] flex items-center justify-center gap-1 text-center leading-tight truncate max-w-[170px] sm:max-w-xs md:max-w-md mt-0.5">
                 <span className="truncate">{SCENE_NAMES[currentScene] || `Scene ${currentScene}`}</span>
-                <span className="text-[9px] sm:text-[10px] text-[#F7B8C5]/80 font-mono shrink-0">
+                <span className="text-[9px] sm:text-[10px] text-[var(--c-accent-light)]/80 font-mono shrink-0">
                   ({currentScene}/17)
                 </span>
               </div>
@@ -615,23 +639,24 @@ export default function App() {
                     }
                     setCurrentScene(prev => Math.min(17, prev + 1));
                   }}
-                  className="h-8 px-2.5 sm:h-9 sm:px-3 flex items-center justify-center gap-0.5 sm:gap-1 text-xs font-bold tracking-wider text-[#12080D] bg-gradient-to-r from-[#E8899D] to-[#D8A06C] rounded-full transition-all hover:scale-105 active:scale-95 shadow-md cursor-pointer shrink-0"
+                  className="h-8 px-2.5 sm:h-9 sm:px-3 flex items-center justify-center gap-0.5 sm:gap-1 text-xs font-bold tracking-wider text-[var(--c-bg-darkest)] bg-gradient-to-r from-[var(--c-accent-main)] to-[var(--c-accent-gold)] rounded-full transition-all hover:scale-105 active:scale-95 shadow-md cursor-pointer shrink-0"
                   aria-label="Next scene"
                   title={currentScene === 9 && !hasSentYesAnswer ? "Send YES answer to unlock" : "Next Scene"}
                 >
                   <span className="text-[11px] sm:text-xs">Next</span>
-                  <ChevronRight className="w-3.5 h-3.5 text-[#12080D]" />
+                  <ChevronRight className="w-3.5 h-3.5 text-[var(--c-bg-darkest)]" />
                 </button>
               )}
 
               {/* Embedded Top Navbar Music Player */}
               <FloatingMusicPlayer variant="navbar" />
 
+
               {/* Customizer Modal Trigger */}
               <button
                 id="open-customizer-btn"
                 onClick={() => setIsCustomizerOpen(true)}
-                className="h-8 w-8 sm:h-9 sm:w-9 flex items-center justify-center rounded-full bg-[#2A101B]/90 hover:bg-[#2A101B] border border-[#E8899D]/40 text-[#F7B8C5] hover:text-[#FFF3EF] transition-all hover:rotate-45 shadow-md cursor-pointer shrink-0"
+                className="h-8 w-8 sm:h-9 sm:w-9 flex items-center justify-center rounded-full bg-[var(--c-bg-dark)]/90 hover:bg-[var(--c-bg-dark)] border border-[var(--c-accent-main)]/40 text-[var(--c-accent-light)] hover:text-[var(--c-text-main)] transition-all hover:rotate-45 shadow-md cursor-pointer shrink-0"
                 title="Personalize Love Story, Photos & Names"
                 aria-label="Open settings and customize love story"
               >
@@ -642,11 +667,11 @@ export default function App() {
               <button
                 id="lock-app-btn"
                 onClick={handleLogout}
-                className="h-8 w-8 sm:h-9 sm:w-9 flex items-center justify-center rounded-full bg-[#2A101B]/90 hover:bg-[#2A101B] border border-[#E8899D]/40 text-[#F7B8C5] hover:text-[#FFF3EF] transition-all hover:scale-105 shadow-md cursor-pointer shrink-0"
+                className="h-8 w-8 sm:h-9 sm:w-9 flex items-center justify-center rounded-full bg-[var(--c-bg-dark)]/90 hover:bg-[var(--c-bg-dark)] border border-[var(--c-accent-main)]/40 text-[var(--c-accent-light)] hover:text-[var(--c-text-main)] transition-all hover:scale-105 shadow-md cursor-pointer shrink-0"
                 title="Lock Proposal Experience"
                 aria-label="Lock Proposal Experience"
               >
-                <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#E8899D]" />
+                <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[var(--c-accent-main)]" />
               </button>
             </div>
           </div>
@@ -827,6 +852,7 @@ export default function App() {
       />
 
       {/* 6. Customization Modal */}
+
       <CustomizationModal
         isOpen={isCustomizerOpen}
         onClose={() => setIsCustomizerOpen(false)}
@@ -883,7 +909,7 @@ export default function App() {
             initial={{ opacity: 0, y: 50, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.9 }}
-            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-full bg-[#1C0B13]/95 border border-[#25D366]/50 shadow-[0_10px_30px_rgba(0,0,0,0.8)] backdrop-blur-md flex items-center gap-2 text-xs font-semibold text-[#FFF3EF] pointer-events-none"
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-full bg-[var(--c-bg-darker)]/95 border border-[#25D366]/50 shadow-[0_10px_30px_rgba(0,0,0,0.8)] backdrop-blur-md flex items-center gap-2 text-xs font-semibold text-[var(--c-text-main)] pointer-events-none"
           >
             <span className="w-2 h-2 rounded-full bg-[#25D366] animate-ping" />
             <span>{syncToast}</span>
@@ -892,6 +918,7 @@ export default function App() {
       </AnimatePresence>
 
       {/* 11. Cross-Device Real-Time Couple Chat Widget */}
+
       <RomanticChatWidget
         currentUserName={currentUserName}
         onUpdateUserName={(name) => setCurrentUserName(name)}
@@ -900,6 +927,7 @@ export default function App() {
         chatMessages={chatMessages}
         lastUpdatedBy={lastUpdatedBy}
         isCloudSynced={syncStatus === 'synced'}
+        videoCallState={videoCallState}
       />
     </main>
   );

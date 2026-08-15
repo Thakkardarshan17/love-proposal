@@ -83,11 +83,11 @@ export const Scene05Memories: React.FC<Scene05MemoriesProps> = ({
     <section
       ref={containerRef}
       id="scene-05-memories"
-      className="relative flex flex-col items-center justify-between min-h-svh w-full px-3 sm:px-6 pt-24 sm:pt-26 pb-6 sm:pb-10 bg-gradient-to-b from-[#12080D] via-[#2A101B] to-[#1C0B13] overflow-hidden z-20"
+      className="relative flex flex-col items-center justify-between min-h-svh w-full px-3 sm:px-6 pt-24 sm:pt-26 pb-6 sm:pb-10 bg-gradient-to-b from-[var(--c-bg-darkest)] via-[var(--c-bg-dark)] to-[var(--c-bg-darker)] overflow-hidden z-20"
     >
       {/* Ambient background glow */}
-      <div className="absolute top-1/3 right-10 w-[300px] h-[300px] rounded-full bg-[#E8899D]/15 blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-1/4 left-10 w-[300px] h-[300px] rounded-full bg-[#D8A06C]/10 blur-[100px] pointer-events-none" />
+      <div className="absolute top-1/3 right-10 w-[300px] h-[300px] rounded-full bg-[var(--c-accent-main)]/15 blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-1/4 left-10 w-[300px] h-[300px] rounded-full bg-[var(--c-accent-gold)]/10 blur-[100px] pointer-events-none" />
 
       {/* Hidden batch upload file input for photos */}
       <input
@@ -101,16 +101,16 @@ export const Scene05Memories: React.FC<Scene05MemoriesProps> = ({
 
       {/* Header */}
       <div className="memories-header text-center pt-1 mb-2 max-w-lg">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#2A101B] border border-[#E8899D]/30 text-xs text-[#F7B8C5] mb-2 font-medium">
-          <Sparkles className="w-3 h-3 text-[#D8A06C]" />
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--c-bg-dark)] border border-[var(--c-accent-main)]/30 text-xs text-[var(--c-accent-light)] mb-2 font-medium">
+          <Sparkles className="w-3 h-3 text-[var(--c-accent-gold)]" />
           <span>{memories.length} Captured Dream Photos ✨ (No Limit)</span>
         </div>
-        <h2 className="text-2xl sm:text-4xl font-serif font-bold text-[#FFF3EF] tracking-wide flex items-center justify-center gap-2">
+        <h2 className="text-2xl sm:text-4xl font-serif font-bold text-[var(--c-text-main)] tracking-wide flex items-center justify-center gap-2">
           <span>Our Beautiful</span>
           <span className="text-gradient-rose">Dreams</span>
-          <Heart className="w-5 h-5 sm:w-6 sm:h-6 text-[#E8899D] fill-[#E8899D] animate-pulse-heart inline" />
+          <Heart className="w-5 h-5 sm:w-6 sm:h-6 text-[var(--c-accent-main)] fill-[var(--c-accent-main)] animate-pulse-heart inline" />
         </h2>
-        <p className="text-xs sm:text-sm text-[#F7B8C5]/80 mt-1 font-light">
+        <p className="text-xs sm:text-sm text-[var(--c-accent-light)]/80 mt-1 font-light">
           Tap any dream Polaroid to view uncropped photo &amp; read its story
         </p>
 
@@ -120,9 +120,9 @@ export const Scene05Memories: React.FC<Scene05MemoriesProps> = ({
             <button
               id="header-add-single-dream-btn"
               onClick={onAddNewMemory}
-              className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#E8899D]/20 hover:bg-[#E8899D]/35 border border-[#E8899D]/40 text-xs text-[#F7B8C5] hover:text-[#FFF3EF] transition-all cursor-pointer"
+              className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[var(--c-accent-main)]/20 hover:bg-[var(--c-accent-main)]/35 border border-[var(--c-accent-main)]/40 text-xs text-[var(--c-accent-light)] hover:text-[var(--c-text-main)] transition-all cursor-pointer"
             >
-              <Plus className="w-3.5 h-3.5 text-[#D8A06C]" />
+              <Plus className="w-3.5 h-3.5 text-[var(--c-accent-gold)]" />
               <span>+ Add Photo Dream</span>
             </button>
           )}
@@ -132,9 +132,9 @@ export const Scene05Memories: React.FC<Scene05MemoriesProps> = ({
               id="header-batch-upload-dreams-btn"
               onClick={() => fileInputRef.current?.click()}
               disabled={isProcessingBatch}
-              className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gradient-to-r from-[#E8899D]/30 to-[#D8A06C]/30 hover:from-[#E8899D]/50 hover:to-[#D8A06C]/50 border border-[#D8A06C]/40 text-xs text-[#FFF3EF] transition-all cursor-pointer shadow-xs"
+              className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gradient-to-r from-[var(--c-accent-main)]/30 to-[var(--c-accent-gold)]/30 hover:from-[var(--c-accent-main)]/50 hover:to-[var(--c-accent-gold)]/50 border border-[var(--c-accent-gold)]/40 text-xs text-[var(--c-text-main)] transition-all cursor-pointer shadow-xs"
             >
-              <Upload className="w-3.5 h-3.5 text-[#D8A06C]" />
+              <Upload className="w-3.5 h-3.5 text-[var(--c-accent-gold)]" />
               <span>{isProcessingBatch ? 'Processing Photos...' : '+ Batch Upload Photos'}</span>
             </button>
           )}
@@ -158,10 +158,10 @@ export const Scene05Memories: React.FC<Scene05MemoriesProps> = ({
                 {/* Polaroid Framed Card */}
                 <div className="polaroid-card rounded-xl border border-black/10 transform transition-all duration-300 group-hover:scale-105 group-hover:z-30 group-hover:rotate-0 shadow-lg">
                   {/* Tape Badge */}
-                  <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 w-10 sm:w-12 h-3.5 sm:h-4 bg-[#FFF3EF]/85 border border-[#D8A06C]/40 rotate-[-3deg] shadow-xs z-10 opacity-90 rounded-xs" />
+                  <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 w-10 sm:w-12 h-3.5 sm:h-4 bg-[var(--c-text-main)]/85 border border-[var(--c-accent-gold)]/40 rotate-[-3deg] shadow-xs z-10 opacity-90 rounded-xs" />
 
                   {/* Photo or Video Poster */}
-                  <div className="relative aspect-[4/3] w-full overflow-hidden rounded-md bg-[#2A101B] mb-2">
+                  <div className="relative aspect-[4/3] w-full overflow-hidden rounded-md bg-[var(--c-bg-dark)] mb-2">
                     <img
                       src={mem.image}
                       alt={mem.title}
@@ -172,15 +172,15 @@ export const Scene05Memories: React.FC<Scene05MemoriesProps> = ({
 
                     {/* Video Indicator Pill */}
                     {isVideo && (
-                      <div className="absolute top-1.5 left-1.5 bg-black/75 text-[#F7B8C5] px-1.5 py-0.5 rounded-md text-[10px] font-mono flex items-center gap-1 border border-white/20 z-10">
-                        <Video className="w-2.5 h-2.5 text-[#D8A06C]" />
+                      <div className="absolute top-1.5 left-1.5 bg-black/75 text-[var(--c-accent-light)] px-1.5 py-0.5 rounded-md text-[10px] font-mono flex items-center gap-1 border border-white/20 z-10">
+                        <Video className="w-2.5 h-2.5 text-[var(--c-accent-gold)]" />
                         <span>Video</span>
                       </div>
                     )}
 
                     {/* Hover & Center Play Overlay */}
                     <div className="absolute inset-0 bg-black/35 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5">
-                      <div className="p-1.5 sm:p-2 rounded-full bg-black/60 text-white backdrop-blur-xs hover:bg-[#E8899D] hover:text-[#12080D] transition-colors">
+                      <div className="p-1.5 sm:p-2 rounded-full bg-black/60 text-white backdrop-blur-xs hover:bg-[var(--c-accent-main)] hover:text-[var(--c-bg-darkest)] transition-colors">
                         {isVideo ? <Play className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-white" /> : <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
                       </div>
                       {onEditMemory && (
@@ -189,7 +189,7 @@ export const Scene05Memories: React.FC<Scene05MemoriesProps> = ({
                             e.stopPropagation();
                             onEditMemory(mem);
                           }}
-                          className="p-1.5 sm:p-2 rounded-full bg-black/60 text-white backdrop-blur-xs hover:bg-[#D8A06C] hover:text-[#12080D] transition-colors cursor-pointer"
+                          className="p-1.5 sm:p-2 rounded-full bg-black/60 text-white backdrop-blur-xs hover:bg-[var(--c-accent-gold)] hover:text-[var(--c-bg-darkest)] transition-colors cursor-pointer"
                           title={isVideo ? 'Edit video details' : 'Change photo'}
                         >
                           <Camera className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -200,15 +200,15 @@ export const Scene05Memories: React.FC<Scene05MemoriesProps> = ({
 
                   {/* Handwritten style caption */}
                   <div className="text-center px-1 pb-1">
-                    <p className="text-xs sm:text-sm font-script text-[#2A101B] font-bold truncate">
+                    <p className="text-xs sm:text-sm font-script text-[var(--c-bg-dark)] font-bold truncate">
                       {mem.title}
                     </p>
-                    <p className="text-[9px] text-[#2A101B]/70 font-sans tracking-tight truncate flex items-center justify-center gap-1">
-                      {isVideo && <Film className="w-2.5 h-2.5 text-[#2A101B]" />}
+                    <p className="text-[9px] text-[var(--c-bg-dark)]/70 font-sans tracking-tight truncate flex items-center justify-center gap-1">
+                      {isVideo && <Film className="w-2.5 h-2.5 text-[var(--c-bg-dark)]" />}
                       <span>{mem.date}</span>
                     </p>
                     {mem.location && (
-                      <p className="text-[8px] text-[#2A101B]/60 font-sans tracking-tight truncate flex items-center justify-center gap-0.5 mt-0.5">
+                      <p className="text-[8px] text-[var(--c-bg-dark)]/60 font-sans tracking-tight truncate flex items-center justify-center gap-0.5 mt-0.5">
                         <span>📍</span>
                         <span>{mem.location}</span>
                       </p>
@@ -226,14 +226,14 @@ export const Scene05Memories: React.FC<Scene05MemoriesProps> = ({
               className="polaroid-item relative group cursor-pointer"
               style={{ transform: 'rotate(2deg)' }}
             >
-              <div className="polaroid-card rounded-xl border-2 border-dashed border-[#E8899D]/40 bg-[#FFF3EF]/70 hover:bg-[#FFF3EF] transform transition-all duration-300 group-hover:scale-105 flex flex-col items-center justify-center p-3 sm:p-4 min-h-[140px] sm:min-h-[160px] shadow-md">
-                <div className="p-2.5 sm:p-3 rounded-full bg-[#E8899D]/20 text-[#2A101B] mb-1.5 sm:mb-2 group-hover:scale-110 group-hover:bg-[#E8899D] transition-all">
+              <div className="polaroid-card rounded-xl border-2 border-dashed border-[var(--c-accent-main)]/40 bg-[var(--c-text-main)]/70 hover:bg-[var(--c-text-main)] transform transition-all duration-300 group-hover:scale-105 flex flex-col items-center justify-center p-3 sm:p-4 min-h-[140px] sm:min-h-[160px] shadow-md">
+                <div className="p-2.5 sm:p-3 rounded-full bg-[var(--c-accent-main)]/20 text-[var(--c-bg-dark)] mb-1.5 sm:mb-2 group-hover:scale-110 group-hover:bg-[var(--c-accent-main)] transition-all">
                   <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <p className="text-xs font-script font-bold text-[#2A101B] text-center">
+                <p className="text-xs font-script font-bold text-[var(--c-bg-dark)] text-center">
                   Add Dream #{memories.length + 1}
                 </p>
-                <p className="text-[9px] text-[#2A101B]/70 font-sans text-center">
+                <p className="text-[9px] text-[var(--c-bg-dark)]/70 font-sans text-center">
                   Add Photo or Video
                 </p>
               </div>
@@ -247,10 +247,10 @@ export const Scene05Memories: React.FC<Scene05MemoriesProps> = ({
         <button
           id="memories-continue-btn"
           onClick={onNext}
-          className="group w-full py-3 sm:py-3.5 px-6 rounded-full bg-gradient-to-r from-[#E8899D] via-[#F7B8C5] to-[#D8A06C] text-[#12080D] font-semibold text-sm tracking-wide shadow-[0_0_25px_rgba(232,137,157,0.5)] hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
+          className="group w-full py-3 sm:py-3.5 px-6 rounded-full bg-gradient-to-r from-[var(--c-accent-main)] via-[var(--c-accent-light)] to-[var(--c-accent-gold)] text-[var(--c-bg-darkest)] font-semibold text-sm tracking-wide shadow-[0_0_25px_rgba(232,137,157,0.5)] hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
         >
           <span>Reasons I Love You</span>
-          <ChevronRight className="w-4 h-4 text-[#12080D] group-hover:translate-x-1 transition-transform" />
+          <ChevronRight className="w-4 h-4 text-[var(--c-bg-darkest)] group-hover:translate-x-1 transition-transform" />
         </button>
       </div>
     </section>

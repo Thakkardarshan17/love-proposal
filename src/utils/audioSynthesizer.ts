@@ -183,7 +183,7 @@ class RomanticAudioEngine {
 
     if (!this.audioElement && typeof window !== 'undefined') {
       this.audioElement = new Audio();
-      this.audioElement.loop = true;
+      this.audioElement.loop = false;
       this.audioElement.volume = this.volume;
       this.audioElement.crossOrigin = 'anonymous';
 

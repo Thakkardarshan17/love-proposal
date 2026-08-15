@@ -36,14 +36,14 @@ export const Scene12SacredPromises: React.FC<Scene12SacredPromisesProps> = ({
     },
     {
       id: 2,
-      icon: <Shield className="w-4 h-4 text-[#D8A06C]" />,
+      icon: <Shield className="w-4 h-4 text-[var(--c-accent-gold)]" />,
       title: "2. Shield in Every Storm (Dukh-Sukh Ka Saath)",
       hindiVow: "Zindagi me chahe dhoop ho ya chhaon, tumhara hath kabhi nahi chhodunga.",
       englishMeaning: "In your hardest days, I promise to be your strongest shelter and softest place to land."
     },
     {
       id: 3,
-      icon: <Moon className="w-4 h-4 text-[#F7B8C5]" />,
+      icon: <Moon className="w-4 h-4 text-[var(--c-accent-light)]" />,
       title: "3. Never Sleep in Anger (Shikwa Mita Kar Sona)",
       hindiVow: "Chahe din kitna bhi ladaayi bhara ho, raat dhalne se pehle gale lagkar sab theek karenge.",
       englishMeaning: "No misunderstanding or ego will ever be bigger than our love."
@@ -117,13 +117,13 @@ export const Scene12SacredPromises: React.FC<Scene12SacredPromisesProps> = ({
       className="relative flex flex-col items-center justify-between min-h-svh w-full px-4 sm:px-6 pt-20 sm:pt-24 pb-8 sm:pb-12 bg-gradient-to-b from-[#220B17] via-[#2F0F20] to-[#14060E] text-center overflow-y-auto z-20"
     >
       {/* Warm Ambient Glow */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] sm:w-[650px] h-[350px] sm:h-[650px] rounded-full bg-gradient-to-tr from-[#FF2A55]/15 via-[#E8899D]/20 to-[#D8A06C]/15 blur-[140px] pointer-events-none" />
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] sm:w-[650px] h-[350px] sm:h-[650px] rounded-full bg-gradient-to-tr from-[#FF2A55]/15 via-[var(--c-accent-main)]/20 to-[var(--c-accent-gold)]/15 blur-[140px] pointer-events-none" />
 
       {/* Header */}
       <div className="promises-header pt-2 flex flex-col items-center space-y-1.5 shrink-0">
         {primaryPhoto && (
           <div className="mb-1 relative">
-            <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-[#D8A06C] shadow-[0_0_20px_rgba(216,160,108,0.5)]">
+            <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-[var(--c-accent-gold)] shadow-[0_0_20px_rgba(216,160,108,0.5)]">
               <img
                 src={primaryPhoto}
                 alt="Our Dream Promises"
@@ -131,32 +131,32 @@ export const Scene12SacredPromises: React.FC<Scene12SacredPromisesProps> = ({
                 referrerPolicy="no-referrer"
               />
             </div>
-            <div className="absolute -bottom-1 -right-1 bg-[#E8899D] rounded-full p-1 border border-[#12080D]">
-              <Heart className="w-3 h-3 text-[#12080D] fill-[#12080D]" />
+            <div className="absolute -bottom-1 -right-1 bg-[var(--c-accent-main)] rounded-full p-1 border border-[var(--c-bg-darkest)]">
+              <Heart className="w-3 h-3 text-[var(--c-bg-darkest)] fill-[var(--c-bg-darkest)]" />
             </div>
           </div>
         )}
-        <div className="flex items-center gap-2 text-[11px] sm:text-xs uppercase tracking-[0.25em] text-[#D8A06C] font-semibold">
-          <Sparkles className="w-3.5 h-3.5 text-[#D8A06C]" />
+        <div className="flex items-center gap-2 text-[11px] sm:text-xs uppercase tracking-[0.25em] text-[var(--c-accent-gold)] font-semibold">
+          <Sparkles className="w-3.5 h-3.5 text-[var(--c-accent-gold)]" />
           <span>Sacred Lifetime Vows</span>
-          <Sparkles className="w-3.5 h-3.5 text-[#D8A06C]" />
+          <Sparkles className="w-3.5 h-3.5 text-[var(--c-accent-gold)]" />
         </div>
         <h2 className="text-2xl sm:text-3xl font-serif font-black text-gradient-rose tracking-wide">
           Saat Pheron Ke 7 Vade 💍
         </h2>
-        <p className="text-xs text-[#F7B8C5]/80 italic max-w-xs">
+        <p className="text-xs text-[var(--c-accent-light)]/80 italic max-w-xs">
           My eternal pledges to you, {config.partnerName}. Tap each to seal in our hearts.
         </p>
 
         {/* Progress pill */}
         <div className="flex items-center gap-2 pt-1">
-          <span className="text-[11px] font-bold px-3 py-1 rounded-full bg-[#E8899D]/20 border border-[#E8899D]/40 text-[#FFF3EF]">
+          <span className="text-[11px] font-bold px-3 py-1 rounded-full bg-[var(--c-accent-main)]/20 border border-[var(--c-accent-main)]/40 text-[var(--c-text-main)]">
             {pledged.length} / 7 Vows Sealed ❤️
           </span>
           {pledged.length < 7 && (
             <button
               onClick={handlePledgeAll}
-              className="text-[10px] text-[#D8A06C] underline hover:text-[#FFF3EF] cursor-pointer"
+              className="text-[10px] text-[var(--c-accent-gold)] underline hover:text-[var(--c-text-main)] cursor-pointer"
             >
               Seal All Vows ✨
             </button>
@@ -174,7 +174,7 @@ export const Scene12SacredPromises: React.FC<Scene12SacredPromisesProps> = ({
               onClick={() => handleTogglePledge(p.id)}
               className={`promise-item-card p-4 rounded-2xl transition-all cursor-pointer text-left border ${
                 isSealed
-                  ? 'bg-gradient-to-r from-[#2F1020]/90 to-[#220B17]/95 border-[#E8899D]/50 shadow-[0_0_20px_rgba(232,137,157,0.25)]'
+                  ? 'bg-gradient-to-r from-[#2F1020]/90 to-[#220B17]/95 border-[var(--c-accent-main)]/50 shadow-[0_0_20px_rgba(232,137,157,0.25)]'
                   : 'bg-[#1C0B14]/80 border-white/10 opacity-70 hover:opacity-100 hover:border-white/20'
               }`}
             >
@@ -183,21 +183,21 @@ export const Scene12SacredPromises: React.FC<Scene12SacredPromisesProps> = ({
                   <div className="p-1.5 rounded-lg bg-white/5 border border-white/10">
                     {p.icon}
                   </div>
-                  <h3 className="font-serif font-bold text-xs sm:text-sm text-[#FFF3EF]">
+                  <h3 className="font-serif font-bold text-xs sm:text-sm text-[var(--c-text-main)]">
                     {p.title}
                   </h3>
                 </div>
                 {isSealed ? (
                   <CheckCircle2 className="w-4 h-4 text-[#25D366] shrink-0" />
                 ) : (
-                  <span className="text-[10px] text-[#F7B8C5]/60">Tap to seal</span>
+                  <span className="text-[10px] text-[var(--c-accent-light)]/60">Tap to seal</span>
                 )}
               </div>
 
-              <p className="font-serif text-xs sm:text-sm text-[#F7B8C5] leading-relaxed pl-8">
+              <p className="font-serif text-xs sm:text-sm text-[var(--c-accent-light)] leading-relaxed pl-8">
                 &ldquo;{p.hindiVow}&rdquo;
               </p>
-              <p className="text-[11px] text-[#D8A06C]/90 italic pl-8 pt-1">
+              <p className="text-[11px] text-[var(--c-accent-gold)]/90 italic pl-8 pt-1">
                 {p.englishMeaning}
               </p>
             </div>
@@ -213,10 +213,10 @@ export const Scene12SacredPromises: React.FC<Scene12SacredPromisesProps> = ({
             audioEngine.playSparkle();
             onNext();
           }}
-          className="group w-full py-4 px-6 rounded-full bg-gradient-to-r from-[#E8899D] via-[#F7B8C5] to-[#D8A06C] text-[#12080D] font-bold text-sm tracking-wider uppercase shadow-[0_0_30px_rgba(232,137,157,0.6)] hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer shine-effect"
+          className="group w-full py-4 px-6 rounded-full bg-gradient-to-r from-[var(--c-accent-main)] via-[var(--c-accent-light)] to-[var(--c-accent-gold)] text-[var(--c-bg-darkest)] font-bold text-sm tracking-wider uppercase shadow-[0_0_30px_rgba(232,137,157,0.6)] hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer shine-effect"
         >
           <span>Read Next Love Shayari</span>
-          <ChevronRight className="w-4 h-4 text-[#12080D] group-hover:translate-x-1 transition-transform" />
+          <ChevronRight className="w-4 h-4 text-[var(--c-bg-darkest)] group-hover:translate-x-1 transition-transform" />
         </button>
       </div>
     </section>
