@@ -15,6 +15,7 @@ import { WhatsAppAnswerModal } from './components/WhatsAppAnswerModal';
 import { RomanticLoginGate } from './components/RomanticLoginGate';
 import { CloudSyncIndicator } from './components/CloudSyncIndicator';
 import { RomanticChatWidget } from './components/RomanticChatWidget';
+import { DailyLovePulse } from './components/DailyLovePulse';
 import {
   initAuth,
   subscribeToSharedProposal,
@@ -53,7 +54,7 @@ import {
   initialReasons
 } from './config/proposalData';
 import { ProposalConfig, MemoryItem, TimelineEvent, ChatMessage, VideoCallState } from './types';
-import { SlidersHorizontal, ChevronLeft, ChevronRight, MessageCircle, Lock, Sparkles, MessageCircleHeart, Heart } from 'lucide-react';
+import { SlidersHorizontal, ChevronLeft, ChevronRight, MessageCircle, Lock, Sparkles, MessageCircleHeart, Heart, X } from 'lucide-react';
 
 const SCENE_NAMES: Record<number, string> = {
   1: 'Loading',
@@ -172,6 +173,7 @@ export default function App() {
   const [syncStatus, setSyncStatus] = useState<'synced' | 'syncing' | 'offline'>('offline');
   const [loveSignal, setLoveSignal] = useState<LoveSignalState | null>(null);
   const [receivedSignal, setReceivedSignal] = useState<LoveSignalState | null>(null);
+  const [isGlobalLovePulseOpen, setIsGlobalLovePulseOpen] = useState<boolean>(false);
   const lastSignalTimestampRef = React.useRef<number>(0);
   const [lastUpdatedBy, setLastUpdatedBy] = useState<string>('');
   const [syncToast, setSyncToast] = useState<string | null>(null);
@@ -1082,6 +1084,64 @@ export default function App() {
                   Close
                 </button>
               </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Global Floating Daily Love Spark Button (Visible across all active scenes on the bottom-left) */}
+      {isAuthenticated && currentScene > 2 && (
+        <div className="fixed bottom-5 left-5 z-40 flex items-center gap-2">
+          <button
+            onClick={() => setIsGlobalLovePulseOpen(true)}
+            className="relative flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-r from-[var(--c-accent-main)] to-[var(--c-accent-gold)] text-[var(--c-bg-darkest)] shadow-[0_0_20px_rgba(225,29,72,0.4)] hover:shadow-[0_0_30px_rgba(225,29,72,0.7)] hover:scale-110 active:scale-95 transition-all cursor-pointer group"
+            title="Open Daily Love Spark Panel"
+          >
+            <Heart className="w-5.5 h-5.5 fill-[var(--c-bg-darkest)] text-[var(--c-bg-darkest)] animate-pulse" />
+            <span className="absolute -top-1 -right-1 flex h-3 w-3">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--c-accent-gold)] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-[var(--c-accent-gold)]"></span>
+            </span>
+          </button>
+        </div>
+      )}
+
+      {/* Global Daily Love Pulse Modal Overlay */}
+      <AnimatePresence>
+        {isGlobalLovePulseOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
+            onClick={() => setIsGlobalLovePulseOpen(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 15 }}
+              className="relative w-full max-w-sm"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Close Button */}
+              <button
+                onClick={() => setIsGlobalLovePulseOpen(false)}
+                className="absolute top-4 right-4 z-10 p-1 bg-black/60 hover:bg-black/80 rounded-full text-[var(--c-accent-light)] hover:text-white transition-all cursor-pointer"
+                title="Close"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              <DailyLovePulse
+                currentUserName={currentUserName}
+                partnerName={config.partnerName}
+                loveSignal={loveSignal}
+                onSendFeedback={(msg) => {
+                  showSyncToast(msg);
+                  // Sweet automatic micro delay before close to show success state
+                  setTimeout(() => setIsGlobalLovePulseOpen(false), 1200);
+                }}
+              />
             </motion.div>
           </motion.div>
         )}
