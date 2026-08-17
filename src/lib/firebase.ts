@@ -59,6 +59,14 @@ export interface LoveSignalState {
   history?: { senderName: string; timestamp: number }[];
 }
 
+export interface GussaSignalState {
+  senderName: string;
+  timestamp: number;
+  type: 'bottle' | 'punch' | 'slap';
+  count: number;
+  message: string;
+}
+
 export interface SharedProposalData {
   config: ProposalConfig;
   storyEvents: TimelineEvent[];
@@ -67,6 +75,7 @@ export interface SharedProposalData {
   chatMessages?: ChatMessage[];
   videoCallState?: VideoCallState | null;
   loveSignal?: LoveSignalState | null;
+  gussaSignal?: GussaSignalState | null;
   hasAnsweredYes: boolean;
   yesTimestamp?: number | null;
   lastUpdatedBy?: string;

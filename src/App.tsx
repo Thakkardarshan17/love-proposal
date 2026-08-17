@@ -45,6 +45,7 @@ import { Scene14LifetimePillars } from './components/scenes/Scene14LifetimePilla
 import { Scene15SealOfLove } from './components/scenes/Scene15SealOfLove';
 import { Scene16LoveQuiz } from './components/scenes/Scene16LoveQuiz';
 import { Scene12Forever } from './components/scenes/Scene12Forever';
+import { Scene18GussaRelief } from './components/scenes/Scene18GussaRelief';
 
 // Configurations and Data
 import {
@@ -73,7 +74,8 @@ const SCENE_NAMES: Record<number, string> = {
   14: 'Lifetime Pillars',
   15: 'Eternal Promise',
   16: 'Love Quiz',
-  17: 'Forever & Always'
+  17: 'Forever & Always',
+  18: 'Gussa Relief Zone'
 };
 
 export default function App() {
@@ -114,7 +116,7 @@ export default function App() {
   const [currentScene, setCurrentScene] = useState<number>(() => {
     try {
       const saved = sessionStorage.getItem('romantic_proposal_current_scene');
-      return saved ? Math.max(1, Math.min(17, parseInt(saved, 10))) : 1;
+      return saved ? Math.max(1, Math.min(18, parseInt(saved, 10))) : 1;
     } catch {
       return 1;
     }
@@ -173,8 +175,12 @@ export default function App() {
   const [syncStatus, setSyncStatus] = useState<'synced' | 'syncing' | 'offline'>('offline');
   const [loveSignal, setLoveSignal] = useState<LoveSignalState | null>(null);
   const [receivedSignal, setReceivedSignal] = useState<LoveSignalState | null>(null);
+  const [gussaSignal, setGussaSignal] = useState<any | null>(null);
+  const [receivedGussaSignal, setReceivedGussaSignal] = useState<any | null>(null);
+  const [screenParticles, setScreenParticles] = useState<{ id: number; emoji: string; x: number; y: number; scale: number; vx: number; vy: number; rotation: number }[]>([]);
   const [isGlobalLovePulseOpen, setIsGlobalLovePulseOpen] = useState<boolean>(false);
   const lastSignalTimestampRef = React.useRef<number>(0);
+  const lastGussaTimestampRef = React.useRef<number>(0);
   const [lastUpdatedBy, setLastUpdatedBy] = useState<string>('');
   const [syncToast, setSyncToast] = useState<string | null>(null);
 
@@ -392,12 +398,55 @@ export default function App() {
                 lastSignalTimestampRef.current = cloudData.loveSignal.timestamp;
               } else if (cloudData.loveSignal.timestamp > lastSignalTimestampRef.current) {
                 lastSignalTimestampRef.current = cloudData.loveSignal.timestamp;
-                if (cloudData.loveSignal.senderName !== currentUserName) {
+                const senderLower = (cloudData.loveSignal.senderName || '').trim().toLowerCase();
+                const currentUserLower = (currentUserName || '').trim().toLowerCase();
+                if (senderLower !== currentUserLower) {
                   setReceivedSignal(cloudData.loveSignal);
                   playSweetLoveChime();
+                  triggerScreenParticlesForSignal(cloudData.loveSignal.message || '');
                   setTimeout(() => {
                     setReceivedSignal(null);
                   }, 6000);
+                }
+              }
+            }
+
+            if (cloudData.gussaSignal) {
+              setGussaSignal(cloudData.gussaSignal);
+              if (lastGussaTimestampRef.current === 0) {
+                lastGussaTimestampRef.current = cloudData.gussaSignal.timestamp;
+              } else if (cloudData.gussaSignal.timestamp > lastGussaTimestampRef.current) {
+                lastGussaTimestampRef.current = cloudData.gussaSignal.timestamp;
+                const senderLower = (cloudData.gussaSignal.senderName || '').trim().toLowerCase();
+                const currentUserLower = (currentUserName || '').trim().toLowerCase();
+                if (senderLower !== currentUserLower) {
+                  setReceivedGussaSignal(cloudData.gussaSignal);
+                  // Play a comical alert sound!
+                  try {
+                    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+                    if (AudioContextClass) {
+                      const ctx = new AudioContextClass();
+                      const osc1 = ctx.createOscillator();
+                      const osc2 = ctx.createOscillator();
+                      const gain = ctx.createGain();
+                      osc1.frequency.setValueAtTime(140, ctx.currentTime);
+                      osc1.frequency.linearRampToValueAtTime(280, ctx.currentTime + 0.15);
+                      osc2.frequency.setValueAtTime(170, ctx.currentTime);
+                      osc2.frequency.linearRampToValueAtTime(340, ctx.currentTime + 0.15);
+                      gain.gain.setValueAtTime(0.12, ctx.currentTime);
+                      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+                      osc1.connect(gain);
+                      osc2.connect(gain);
+                      gain.connect(ctx.destination);
+                      osc1.start();
+                      osc2.start();
+                      osc1.stop(ctx.currentTime + 0.26);
+                      osc2.stop(ctx.currentTime + 0.26);
+                    }
+                  } catch {}
+                  setTimeout(() => {
+                    setReceivedGussaSignal(null);
+                  }, 8000);
                 }
               }
             }
@@ -416,6 +465,39 @@ export default function App() {
       if (unsubscribe) unsubscribe();
     };
   }, []);
+
+  const triggerScreenParticlesForSignal = (message: string) => {
+    const msg = (message || '').toLowerCase();
+    let emojis: string[] = ['❤️', '💖', '✨', '🌸', '🥰'];
+    if (msg.includes('kiss') || msg.includes('💋') || msg.includes('chumma') || msg.includes('cheeks') || msg.includes('mwah')) {
+      emojis = ['💋', '😘', '❤️', '💋', '💖', '✨', '🌹', '🥰', '😘', '💋'];
+    } else if (msg.includes('hug') || msg.includes('🧸') || msg.includes('warm') || msg.includes('cuddle')) {
+      emojis = ['🧸', '🤗', '❤️', '🧸', '💖', '✨', '🌸', '🥰', '🤗', '🧸'];
+    }
+
+    // Generate 45 beautiful floating particles
+    const newParticles = Array.from({ length: 45 }).map((_, i) => {
+      const angle = (Math.random() * Math.PI) + Math.PI; // upward direction angles (between PI and 2*PI)
+      const speed = 3 + Math.random() * 8;
+      return {
+        id: Date.now() + i + Math.floor(Math.random() * 1000),
+        emoji: emojis[i % emojis.length],
+        x: 10 + Math.random() * 80, // spread horizontally across screen
+        y: 85 + Math.random() * 10,  // start near the bottom
+        scale: 0.6 + Math.random() * 1.4,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - 4, // strong upward thrust
+        rotation: Math.random() * 360,
+      };
+    });
+
+    setScreenParticles(newParticles);
+    
+    // Auto-clear after 6 seconds
+    setTimeout(() => {
+      setScreenParticles([]);
+    }, 6000);
+  };
 
   // Save config to localStorage & Cloud Firestore whenever changed
   const handleSaveConfig = (newConfig: ProposalConfig) => {
@@ -679,7 +761,7 @@ export default function App() {
               <div className="text-[10px] sm:text-[11px] font-serif font-bold text-[var(--c-text-main)] flex items-center justify-center gap-1 text-center leading-tight truncate max-w-[170px] sm:max-w-xs md:max-w-md mt-0.5">
                 <span className="truncate">{SCENE_NAMES[currentScene] || `Scene ${currentScene}`}</span>
                 <span className="text-[9px] sm:text-[10px] text-[var(--c-accent-light)]/80 font-mono shrink-0">
-                  ({currentScene}/17)
+                  ({currentScene}/18)
                 </span>
               </div>
             </div>
@@ -699,7 +781,7 @@ export default function App() {
                 </button>
               )}
 
-              {currentScene < 17 && currentScene > 1 && (
+              {currentScene < 18 && currentScene > 1 && (
                 <button
                   id="nav-next-scene-btn"
                   onClick={() => {
@@ -707,7 +789,7 @@ export default function App() {
                       setIsWhatsAppModalOpen(true);
                       return;
                     }
-                    setCurrentScene(prev => Math.min(17, prev + 1));
+                    setCurrentScene(prev => Math.min(18, prev + 1));
                   }}
                   className="h-8 px-2.5 sm:h-9 sm:px-3 flex items-center justify-center gap-0.5 sm:gap-1 text-xs font-bold tracking-wider text-[var(--c-bg-darkest)] bg-gradient-to-r from-[var(--c-accent-main)] to-[var(--c-accent-gold)] rounded-full transition-all hover:scale-105 active:scale-95 shadow-md cursor-pointer shrink-0"
                   aria-label="Next scene"
@@ -782,6 +864,8 @@ export default function App() {
               <Scene04OurStory
                 events={storyEvents}
                 memories={memories}
+                config={config}
+                onSaveConfig={handleSaveConfig}
                 onNext={() => setCurrentScene(5)}
                 onEditEvent={event => setEditingStoryEvent(event)}
                 onAddNewEvent={() => setEditingStoryEvent(null)}
@@ -905,6 +989,15 @@ export default function App() {
                 onOpenCustomizer={() => setIsCustomizerOpen(true)}
                 onOpenWhatsAppModal={() => setIsWhatsAppModalOpen(true)}
                 onSendFeedback={(msg) => showSyncToast(msg)}
+                onGoToGussaZone={() => setCurrentScene(18)}
+              />
+            )}
+
+            {currentScene === 18 && (
+              <Scene18GussaRelief
+                config={config}
+                currentUserName={currentUserName}
+                onNext={() => setCurrentScene(17)}
               />
             )}
           </motion.div>
@@ -1089,8 +1182,137 @@ export default function App() {
         )}
       </AnimatePresence>
 
+      {/* Real-time received "Partner is Angry" Gussa Corner popup overlay */}
+      <AnimatePresence>
+        {receivedGussaSignal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md"
+          >
+            {/* Animated flying red warning hearts/fire icons */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              {Array.from({ length: 12 }).map((_, i) => (
+                <motion.div
+                  key={i}
+                  initial={{
+                    opacity: 0,
+                    scale: Math.random() * 0.4 + 0.4,
+                    x: Math.random() * (window.innerWidth || 500),
+                    y: (window.innerHeight || 800) + 100
+                  }}
+                  animate={{
+                    opacity: [0, 0.85, 0.35, 0],
+                    y: -100,
+                    x: `calc(${Math.random() * (window.innerWidth || 500)}px + ${Math.sin(i) * 50}px)`
+                  }}
+                  transition={{
+                    duration: Math.random() * 2.5 + 2.5,
+                    ease: "easeOut",
+                    delay: Math.random() * 1
+                  }}
+                  className="absolute text-red-500 text-3xl"
+                >
+                  {i % 2 === 0 ? '😡' : '💥'}
+                </motion.div>
+              ))}
+            </div>
+
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0, y: 50 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.85, opacity: 0, y: -30 }}
+              transition={{ type: "spring", damping: 15 }}
+              className="bg-gradient-to-br from-[var(--c-bg-dark)] to-black border-2 border-red-500/50 rounded-3xl p-6 text-center shadow-[0_0_50px_rgba(239,68,68,0.5)] max-w-sm w-full pointer-events-auto z-50 relative"
+            >
+              <div className="relative mx-auto w-16 h-16 mb-4 flex items-center justify-center">
+                <div className="absolute inset-0 bg-red-500/20 rounded-full animate-ping" />
+                <div className="w-14 h-14 bg-gradient-to-tr from-red-600 to-rose-400 rounded-full flex items-center justify-center shadow-lg shadow-red-500/40">
+                  <span className="text-2xl">😡</span>
+                </div>
+              </div>
+
+              <h2 className="text-lg font-bold font-serif text-[var(--c-text-main)] mb-1">
+                Gussa Alert! 🚨
+              </h2>
+              <p className="text-[10px] text-red-400 font-bold uppercase tracking-wider mb-3">
+                {receivedGussaSignal.senderName} is venting some frustration!
+              </p>
+
+              <div className="bg-red-950/40 border border-red-500/20 rounded-2xl py-3 px-4 mb-4 text-xs text-red-300 font-semibold italic">
+                &ldquo;{receivedGussaSignal.message || "Blowing off some playful steam in the Gussa Corner! 🍾💥"}&rdquo;
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <div className="flex gap-2">
+                  <button
+                    onClick={async () => {
+                      const todayStr = new Date().toISOString().split('T')[0];
+                      const currentHistory = loveSignal?.history || [];
+                      const updatedHistory = [{ senderName: currentUserName, timestamp: Date.now() }, ...currentHistory].slice(0, 10);
+                      
+                      await saveSharedProposalData({
+                        loveSignal: {
+                          senderName: currentUserName,
+                          timestamp: Date.now(),
+                          message: "Sent you a tight magical warm hug to melt your anger! 🧸💖",
+                          count: (loveSignal?.count || 0) + 1,
+                          streak: loveSignal?.streak || 1,
+                          streakLastDateStr: todayStr,
+                          history: updatedHistory
+                        }
+                      }, currentUserName);
+                      triggerScreenParticlesForSignal("Sent you a tight magical warm hug to melt your anger! 🧸💖");
+                      setReceivedGussaSignal(null);
+                      showSyncToast('Tight Hug sent! 🧸🥰');
+                    }}
+                    className="flex-1 px-3 py-2.5 bg-gradient-to-r from-amber-500 to-yellow-500 text-black font-bold text-xs rounded-xl hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-1"
+                  >
+                    <span>🧸 Send Hug</span>
+                  </button>
+
+                  <button
+                    onClick={async () => {
+                      const todayStr = new Date().toISOString().split('T')[0];
+                      const currentHistory = loveSignal?.history || [];
+                      const updatedHistory = [{ senderName: currentUserName, timestamp: Date.now() }, ...currentHistory].slice(0, 10);
+                      
+                      await saveSharedProposalData({
+                        loveSignal: {
+                          senderName: currentUserName,
+                          timestamp: Date.now(),
+                          message: "Mwah! A big warm digital kiss for your cheeks! 💋😘",
+                          count: (loveSignal?.count || 0) + 1,
+                          streak: loveSignal?.streak || 1,
+                          streakLastDateStr: todayStr,
+                          history: updatedHistory
+                        }
+                      }, currentUserName);
+                      triggerScreenParticlesForSignal("Mwah! A big warm digital kiss for your cheeks! 💋😘");
+                      setReceivedGussaSignal(null);
+                      showSyncToast('Sweet Kiss sent! 💋🥰');
+                    }}
+                    className="flex-1 px-3 py-2.5 bg-gradient-to-r from-rose-500 to-pink-500 text-white font-bold text-xs rounded-xl hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-1"
+                  >
+                    <span>💋 Send Kiss</span>
+                  </button>
+                </div>
+
+                <button
+                  onClick={() => setReceivedGussaSignal(null)}
+                  className="w-full py-2 bg-black/45 border border-red-500/15 text-[var(--c-accent-light)]/60 hover:text-white font-medium text-xs rounded-xl hover:border-red-500/30 transition-all cursor-pointer"
+                >
+                  Close
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Global Floating Daily Love Spark Button (Visible across all active scenes on the bottom-left) */}
-      {isAuthenticated && currentScene > 2 && (
+      {isAuthenticated && (
         <div className="fixed bottom-5 left-5 z-40 flex items-center gap-2">
           <button
             onClick={() => setIsGlobalLovePulseOpen(true)}
@@ -1159,6 +1381,33 @@ export default function App() {
         isCloudSynced={syncStatus === 'synced'}
         videoCallState={videoCallState}
       />
+
+      {/* 12. Full-Screen Magical Floating Kiss and Hug Particle Explosion */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-[9999]">
+        <AnimatePresence>
+          {screenParticles.map((p) => (
+            <motion.div
+              key={p.id}
+              initial={{ x: `${p.x}vw`, y: `${p.y}vh`, scale: 0, opacity: 0, rotate: p.rotation }}
+              animate={{
+                x: `${p.x + (p.vx * 3.5)}vw`,
+                y: `calc(${p.y}vh - 88vh)`,
+                scale: [0, p.scale, p.scale, p.scale * 1.35, 0],
+                opacity: [0, 1, 1, 0.85, 0],
+                rotate: p.rotation + 360,
+              }}
+              exit={{ opacity: 0, scale: 0 }}
+              transition={{
+                duration: 4.5 + Math.random() * 2,
+                ease: "easeOut",
+              }}
+              className="absolute pointer-events-none select-none text-4xl sm:text-6xl drop-shadow-[0_4px_12px_rgba(239,68,68,0.35)]"
+            >
+              {p.emoji}
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
     </main>
   );
 }

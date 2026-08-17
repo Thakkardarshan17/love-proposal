@@ -15,6 +15,7 @@ interface Scene12ForeverProps {
   loveSignal: LoveSignalState | null;
   currentUserName: string;
   onSendFeedback?: (msg: string) => void;
+  onGoToGussaZone?: () => void;
 }
 
 export const Scene12Forever: React.FC<Scene12ForeverProps> = ({
@@ -25,7 +26,8 @@ export const Scene12Forever: React.FC<Scene12ForeverProps> = ({
   primaryPhoto,
   loveSignal,
   currentUserName,
-  onSendFeedback
+  onSendFeedback,
+  onGoToGussaZone
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const heartGlowRef = useRef<HTMLDivElement | null>(null);
@@ -225,6 +227,17 @@ export const Scene12Forever: React.FC<Scene12ForeverProps> = ({
           <RotateCcw className="w-4 h-4" />
           <span>Replay Our Love Story</span>
         </button>
+
+        {onGoToGussaZone && (
+          <button
+            id="forever-gussa-btn"
+            onClick={onGoToGussaZone}
+            className="w-full py-3 px-6 rounded-full bg-red-950/40 hover:bg-red-900/60 text-red-300 border border-red-500/35 font-bold text-sm tracking-wide shadow-md hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <span className="text-base">😡</span>
+            <span>Gussa Relief Zone (गुस्सा शांत करें)</span>
+          </button>
+        )}
 
         <div className="flex gap-2">
           <button

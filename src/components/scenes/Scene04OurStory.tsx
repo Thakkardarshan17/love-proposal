@@ -18,10 +18,13 @@ import {
   Moon
 } from 'lucide-react';
 import gsap from 'gsap';
-import { TimelineEvent, MemoryItem } from '../../types';
+import { TimelineEvent, MemoryItem, ProposalConfig } from '../../types';
+import { WhereWeMetMap } from '../WhereWeMetMap';
 
 interface Scene04OurStoryProps {
   events: TimelineEvent[];
+  config: ProposalConfig;
+  onSaveConfig: (updatedConfig: ProposalConfig) => void;
   onNext: () => void;
   onEditEvent?: (event: TimelineEvent) => void;
   onAddNewEvent?: () => void;
@@ -30,6 +33,8 @@ interface Scene04OurStoryProps {
 
 export const Scene04OurStory: React.FC<Scene04OurStoryProps> = ({
   events,
+  config,
+  onSaveConfig,
   onNext,
   onEditEvent,
   onAddNewEvent,
@@ -133,6 +138,14 @@ export const Scene04OurStory: React.FC<Scene04OurStoryProps> = ({
             </button>
           </div>
         )}
+      </div>
+
+      {/* Where We Met Interactive Map Feature */}
+      <div className="w-full max-w-md px-1 py-1 z-10">
+        <WhereWeMetMap 
+          config={config} 
+          onSaveConfig={onSaveConfig} 
+        />
       </div>
 
       {/* Vertical Timeline Structure */}

@@ -921,12 +921,32 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
                 Choose a theme to instantly change the vibe of your entire romantic application.
               </p>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[350px] overflow-y-auto pr-1 custom-scrollbar">
                 {[
                   { id: '', name: 'Original Burgundy', colors: ['#12080D', '#E8899D', '#D8A06C'] },
                   { id: 'midnight', name: 'Midnight Blue', colors: ['#070B19', '#6B8AFF', '#D8A06C'] },
                   { id: 'sunset', name: 'Soft Sunset', colors: ['#1A0D08', '#FF8A66', '#FFD166'] },
-                  { id: 'gold', name: 'Royal Gold', colors: ['#14120D', '#D8A06C', '#FFD700'] }
+                  { id: 'gold', name: 'Royal Gold', colors: ['#14120D', '#D8A06C', '#FFD700'] },
+                  { id: 'lavender', name: 'Lavender Fields', colors: ['#0E0717', '#B388FF', '#FFE082'] },
+                  { id: 'emerald', name: 'Precious Emerald', colors: ['#040E0A', '#34D399', '#FCD34D'] },
+                  { id: 'blossom', name: 'Cherry Blossom', colors: ['#1A0910', '#FB7185', '#FCD34D'] },
+                  { id: 'ocean', name: 'Deep Ocean Pearl', colors: ['#050E17', '#38BDF8', '#A7F3D0'] },
+                  { id: 'ruby', name: 'Royal Crimson Ruby', colors: ['#180507', '#F43F5E', '#FBBF24'] },
+                  { id: 'indigo', name: 'Indigo Stardust', colors: ['#0B091B', '#818CF8', '#FDE047'] },
+                  { id: 'peach', name: 'Sweet Peach Melba', colors: ['#1B0F0B', '#FDA4AF', '#FFEDD5'] },
+                  { id: 'forest', name: 'Enchanted Forest', colors: ['#060E08', '#10B981', '#FBBF24'] },
+                  { id: 'violet', name: 'Electric Violet', colors: ['#10051C', '#C084FC', '#FCD34D'] },
+                  { id: 'rosewood', name: 'Antique Rosewood', colors: ['#160D0E', '#FDA4AF', '#F59E0B'] },
+                  { id: 'chocolate', name: 'Chocolate Truffle', colors: ['#100B09', '#F59E0B', '#F43F5E'] },
+                  { id: 'aurora', name: 'Northern Aurora', colors: ['#050B0D', '#2DD4BF', '#FDE047'] },
+                  { id: 'amethyst', name: 'Sparkling Amethyst', colors: ['#0C0512', '#D8B4FE', '#FDA4AF'] },
+                  { id: 'champagne', name: 'Vintage Champagne', colors: ['#110F0A', '#F59E0B', '#FFF'] },
+                  { id: 'mint', name: 'Cool Mint Whisper', colors: ['#050E0C', '#34D399', '#E0F2FE'] },
+                  { id: 'fairytale', name: 'Fairytale Magenta', colors: ['#1A0512', '#EC4899', '#FDE047'] },
+                  { id: 'sapphire', name: 'Imperial Sapphire', colors: ['#03081A', '#60A5FA', '#FCD34D'] },
+                  { id: 'maroon', name: 'Cozy Brick Crimson', colors: ['#140506', '#EF4444', '#FCD34D'] },
+                  { id: 'plum', name: 'Enchanted Plum', colors: ['#110512', '#D946EF', '#FDE047'] },
+                  { id: 'candy', name: 'Cotton Candy Sky', colors: ['#060D1A', '#F472B6', '#38BDF8'] }
                 ].map((themeOpt) => (
                   <button
                     key={themeOpt.id || 'default'}

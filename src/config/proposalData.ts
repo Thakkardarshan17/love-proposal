@@ -11,6 +11,9 @@ export const initialProposalConfig: ProposalConfig = {
   musicArtist: "Always You",
   whatsappNumber: "+91 7201030048",
   anniversaryDate: "2025-08-16",
+  whereWeMetName: "Cozy Library Corner",
+  whereWeMetX: 58.5,
+  whereWeMetY: 46.2,
 };
 
 export const initialTimelineEvents: TimelineEvent[] = [

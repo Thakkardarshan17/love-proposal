@@ -13,6 +13,9 @@ export interface ProposalConfig {
   selectedTrackId?: string;
   theme?: string;
   anniversaryDate?: string;
+  whereWeMetName?: string;
+  whereWeMetX?: number;
+  whereWeMetY?: number;
 }
 
 export interface TimelineEvent {
