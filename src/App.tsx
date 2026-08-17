@@ -20,7 +20,8 @@ import {
   subscribeToSharedProposal,
   saveSharedProposalData,
   defaultSharedData,
-  SharedProposalData
+  SharedProposalData,
+  LoveSignalState
 } from './lib/firebase';
 import { getVideoObjectUrl, deleteVideoBlob } from './utils/mediaStore';
 import { audioEngine } from './utils/audioSynthesizer';
@@ -52,7 +53,7 @@ import {
   initialReasons
 } from './config/proposalData';
 import { ProposalConfig, MemoryItem, TimelineEvent, ChatMessage, VideoCallState } from './types';
-import { SlidersHorizontal, ChevronLeft, ChevronRight, MessageCircle, Lock, Sparkles, MessageCircleHeart } from 'lucide-react';
+import { SlidersHorizontal, ChevronLeft, ChevronRight, MessageCircle, Lock, Sparkles, MessageCircleHeart, Heart } from 'lucide-react';
 
 const SCENE_NAMES: Record<number, string> = {
   1: 'Loading',
@@ -169,6 +170,9 @@ export default function App() {
 
   // Real-time Cloud Sync state
   const [syncStatus, setSyncStatus] = useState<'synced' | 'syncing' | 'offline'>('offline');
+  const [loveSignal, setLoveSignal] = useState<LoveSignalState | null>(null);
+  const [receivedSignal, setReceivedSignal] = useState<LoveSignalState | null>(null);
+  const lastSignalTimestampRef = React.useRef<number>(0);
   const [lastUpdatedBy, setLastUpdatedBy] = useState<string>('');
   const [syncToast, setSyncToast] = useState<string | null>(null);
 
@@ -249,6 +253,40 @@ export default function App() {
     };
   }, [isAuthenticated]);
 
+  // Play beautiful triple synthesized chime when receiving a love signal
+  const playSweetLoveChime = () => {
+    try {
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContextClass) return;
+      const ctx = new AudioContextClass();
+      
+      const playNote = (freq: number, delay: number, duration: number) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + delay);
+        
+        gain.gain.setValueAtTime(0, ctx.currentTime + delay);
+        gain.gain.linearRampToValueAtTime(0.12, ctx.currentTime + delay + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + duration);
+        
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        
+        osc.start(ctx.currentTime + delay);
+        osc.stop(ctx.currentTime + delay + duration);
+      };
+      
+      playNote(523.25, 0, 0.5);      // C5
+      playNote(659.25, 0.12, 0.5);   // E5
+      playNote(783.99, 0.24, 0.6);   // G5
+      playNote(1046.50, 0.36, 0.8);  // C6
+    } catch (err) {
+      console.warn("Could not play love chime:", err);
+    }
+  };
+
   // Real-time Cloud Firestore subscription across all devices
   useEffect(() => {
     let unsubscribe: (() => void) | undefined;
@@ -269,7 +307,12 @@ export default function App() {
               } catch {}
 
               // Sync background music URL and track selection across devices
+              let musicChangedRemotely = false;
               if (cloudData.config.bgMusicUrl) {
+                const localUrl = localStorage.getItem('romantic_custom_audio_url');
+                if (localUrl !== cloudData.config.bgMusicUrl) {
+                  musicChangedRemotely = true;
+                }
                 audioEngine.setCustomAudioUrl(
                   cloudData.config.bgMusicUrl,
                   cloudData.config.bgMusicName || cloudData.config.musicTitle || 'Custom Love Song',
@@ -277,7 +320,16 @@ export default function App() {
                 );
               }
               if (cloudData.config.selectedTrackId) {
+                const localTrackId = localStorage.getItem('romantic_selected_track_id');
+                if (localTrackId !== cloudData.config.selectedTrackId) {
+                  musicChangedRemotely = true;
+                }
                 audioEngine.selectTrackById(cloudData.config.selectedTrackId, false);
+              }
+              
+              if (musicChangedRemotely) {
+                 // The user wants an "I love you" message when music changes!
+                 showSyncToast("I Love You! ❤️ (Partner played a new song for you)");
               }
             }
 
@@ -330,6 +382,22 @@ export default function App() {
             
             if (cloudData.videoCallState !== undefined) {
               setVideoCallState(cloudData.videoCallState);
+            }
+
+            if (cloudData.loveSignal) {
+              setLoveSignal(cloudData.loveSignal);
+              if (lastSignalTimestampRef.current === 0) {
+                lastSignalTimestampRef.current = cloudData.loveSignal.timestamp;
+              } else if (cloudData.loveSignal.timestamp > lastSignalTimestampRef.current) {
+                lastSignalTimestampRef.current = cloudData.loveSignal.timestamp;
+                if (cloudData.loveSignal.senderName !== currentUserName) {
+                  setReceivedSignal(cloudData.loveSignal);
+                  playSweetLoveChime();
+                  setTimeout(() => {
+                    setReceivedSignal(null);
+                  }, 6000);
+                }
+              }
             }
           },
           (err) => {
@@ -829,9 +897,12 @@ export default function App() {
               <Scene12Forever
                 config={config}
                 primaryPhoto={primaryPhoto}
+                loveSignal={loveSignal}
+                currentUserName={currentUserName}
                 onReplay={() => setCurrentScene(2)}
                 onOpenCustomizer={() => setIsCustomizerOpen(true)}
                 onOpenWhatsAppModal={() => setIsWhatsAppModalOpen(true)}
+                onSendFeedback={(msg) => showSyncToast(msg)}
               />
             )}
           </motion.div>
@@ -913,6 +984,105 @@ export default function App() {
           >
             <span className="w-2 h-2 rounded-full bg-[#25D366] animate-ping" />
             <span>{syncToast}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Real-time received "I Love You" pulse screen-burst notification overlay */}
+      <AnimatePresence>
+        {receivedSignal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md"
+          >
+            {/* Animated floating background hearts */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              {Array.from({ length: 15 }).map((_, i) => (
+                <motion.div
+                  key={i}
+                  initial={{
+                    opacity: 0,
+                    scale: Math.random() * 0.5 + 0.5,
+                    x: Math.random() * (window.innerWidth || 500),
+                    y: (window.innerHeight || 800) + 100
+                  }}
+                  animate={{
+                    opacity: [0, 0.9, 0.4, 0],
+                    y: -100,
+                    x: `calc(${Math.random() * (window.innerWidth || 500)}px + ${Math.sin(i) * 60}px)`
+                  }}
+                  transition={{
+                    duration: Math.random() * 3 + 3,
+                    ease: "easeOut",
+                    delay: Math.random() * 1.5
+                  }}
+                  className="absolute text-rose-500/80 text-4xl"
+                >
+                  ❤️
+                </motion.div>
+              ))}
+            </div>
+
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0, y: 50 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.85, opacity: 0, y: -30 }}
+              transition={{ type: "spring", damping: 15 }}
+              className="bg-gradient-to-br from-[var(--c-bg-dark)] to-[var(--c-bg-darkest)] border border-[var(--c-accent-main)]/50 rounded-3xl p-6 text-center shadow-[0_0_50px_rgba(225,29,72,0.4)] max-w-sm w-full pointer-events-auto z-50 relative"
+            >
+              <div className="relative mx-auto w-16 h-16 mb-4 flex items-center justify-center">
+                <div className="absolute inset-0 bg-rose-500/20 rounded-full animate-ping" />
+                <div className="w-14 h-14 bg-gradient-to-tr from-rose-500 to-amber-400 rounded-full flex items-center justify-center shadow-lg shadow-rose-500/40">
+                  <Heart className="w-7 h-7 text-white fill-current animate-pulse" />
+                </div>
+              </div>
+
+              <h2 className="text-lg font-bold font-serif text-[var(--c-text-main)] mb-1">
+                {receivedSignal.senderName} is thinking of you!
+              </h2>
+              <p className="text-[10px] text-[var(--c-accent-light)] uppercase tracking-wider mb-3">
+                Sent a Daily Love Pulse ❤️
+              </p>
+
+              <div className="bg-black/35 border border-[var(--c-accent-main)]/20 rounded-2xl py-3 px-4 mb-4 text-xs font-semibold text-rose-300 italic">
+                &ldquo;{receivedSignal.message}&rdquo;
+              </div>
+
+              <div className="flex justify-center gap-2">
+                <button
+                  onClick={async () => {
+                    const todayStr = new Date().toISOString().split('T')[0];
+                    const currentHistory = loveSignal?.history || [];
+                    const updatedHistory = [{ senderName: currentUserName, timestamp: Date.now() }, ...currentHistory].slice(0, 10);
+                    
+                    await saveSharedProposalData({
+                      loveSignal: {
+                        senderName: currentUserName,
+                        timestamp: Date.now(),
+                        message: "I Love You Too! 💖",
+                        count: (loveSignal?.count || 0) + 1,
+                        streak: loveSignal?.streak || 1,
+                        streakLastDateStr: todayStr,
+                        history: updatedHistory
+                      }
+                    }, currentUserName);
+                    setReceivedSignal(null);
+                    showSyncToast('Response sent instantly! 🥰');
+                  }}
+                  className="px-4 py-2 bg-gradient-to-r from-[var(--c-accent-main)] to-[var(--c-accent-gold)] text-[var(--c-bg-darkest)] font-bold text-xs rounded-xl hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                >
+                  Say "I Love You Too!" ❤️
+                </button>
+                <button
+                  onClick={() => setReceivedSignal(null)}
+                  className="px-3 py-2 bg-[var(--c-bg-darkest)] border border-[var(--c-accent-main)]/20 text-[var(--c-accent-light)] hover:text-white font-medium text-xs rounded-xl hover:border-[var(--c-accent-main)]/50 transition-all cursor-pointer"
+                >
+                  Close
+                </button>
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>

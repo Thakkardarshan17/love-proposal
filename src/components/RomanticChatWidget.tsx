@@ -1483,7 +1483,8 @@ export const RomanticChatWidget: React.FC<RomanticChatWidgetProps> = ({
                     prejoinPageEnabled: false
                   }}
                   userInfo={{
-                    displayName: currentUserName
+                    displayName: currentUserName,
+                    email: `${currentUserName.toLowerCase().replace(/[^a-z]/g, '') || 'partner'}@lovestory.com`
                   }}
                 />
               </div>

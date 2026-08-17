@@ -10,6 +10,7 @@ export const initialProposalConfig: ProposalConfig = {
   musicTitle: "Our Song",
   musicArtist: "Always You",
   whatsappNumber: "+91 7201030048",
+  anniversaryDate: "2025-08-16",
 };
 
 export const initialTimelineEvents: TimelineEvent[] = [

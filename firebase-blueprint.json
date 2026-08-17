@@ -10,6 +10,7 @@
         "memories": { "type": "array", "description": "Memory photo polaroids" },
         "reasons": { "type": "array", "description": "Reasons for loving partner" },
         "chatMessages": { "type": "array", "description": "List of recent chat messages" },
+        "loveSignal": { "type": "object", "description": "Daily real-time I Love You pulse and streak tracker" },
         "hasAnsweredYes": { "type": "boolean", "description": "Whether partner accepted proposal" },
         "yesTimestamp": { "type": "number", "description": "Timestamp of acceptance" },
         "lastUpdatedBy": { "type": "string", "description": "Name of user who last modified state" },

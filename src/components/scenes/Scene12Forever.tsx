@@ -2,6 +2,9 @@ import React, { useEffect, useRef } from 'react';
 import { Heart, Sparkles, RotateCcw, SlidersHorizontal, Share2, Check, MessageCircle } from 'lucide-react';
 import gsap from 'gsap';
 import { ProposalConfig } from '../../types';
+import { LoveAnniversaryCountdown } from '../LoveAnniversaryCountdown';
+import { LoveSignalState } from '../../lib/firebase';
+import { DailyLovePulse } from '../DailyLovePulse';
 
 interface Scene12ForeverProps {
   config: ProposalConfig;
@@ -9,6 +12,9 @@ interface Scene12ForeverProps {
   onOpenCustomizer: () => void;
   onOpenWhatsAppModal?: () => void;
   primaryPhoto?: string;
+  loveSignal: LoveSignalState | null;
+  currentUserName: string;
+  onSendFeedback?: (msg: string) => void;
 }
 
 export const Scene12Forever: React.FC<Scene12ForeverProps> = ({
@@ -16,7 +22,10 @@ export const Scene12Forever: React.FC<Scene12ForeverProps> = ({
   onReplay,
   onOpenCustomizer,
   onOpenWhatsAppModal,
-  primaryPhoto
+  primaryPhoto,
+  loveSignal,
+  currentUserName,
+  onSendFeedback
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const heartGlowRef = useRef<HTMLDivElement | null>(null);
@@ -138,6 +147,19 @@ export const Scene12Forever: React.FC<Scene12ForeverProps> = ({
           <p className="text-xs text-[var(--c-accent-light)]/70 font-light mt-0.5">
             Two souls, one timeless journey
           </p>
+        </div>
+
+        {/* Love Anniversary Countdown */}
+        <LoveAnniversaryCountdown anniversaryDate={config.anniversaryDate} />
+
+        {/* Daily Love Signal Pulse */}
+        <div className="w-full max-w-sm mt-4 mb-2 z-10">
+          <DailyLovePulse
+            currentUserName={currentUserName}
+            partnerName={config.partnerName}
+            loveSignal={loveSignal}
+            onSendFeedback={onSendFeedback}
+          />
         </div>
 
         {/* Silhouette of Couple Sitting Together Under Starlight */}

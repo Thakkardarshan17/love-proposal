@@ -49,6 +49,16 @@ export const initAuth = async () => {
 
 export const PROPOSAL_DOC_ID = 'shared_love_story';
 
+export interface LoveSignalState {
+  senderName: string;
+  timestamp: number;
+  message: string;
+  count: number;
+  streak: number;
+  streakLastDateStr: string; // YYYY-MM-DD
+  history?: { senderName: string; timestamp: number }[];
+}
+
 export interface SharedProposalData {
   config: ProposalConfig;
   storyEvents: TimelineEvent[];
@@ -56,6 +66,7 @@ export interface SharedProposalData {
   reasons?: ReasonItem[];
   chatMessages?: ChatMessage[];
   videoCallState?: VideoCallState | null;
+  loveSignal?: LoveSignalState | null;
   hasAnsweredYes: boolean;
   yesTimestamp?: number | null;
   lastUpdatedBy?: string;
@@ -80,6 +91,14 @@ export const defaultSharedData: SharedProposalData = {
       reaction: '💖'
     }
   ],
+  loveSignal: {
+    senderName: 'Deep',
+    timestamp: Date.now() - 3600 * 24 * 1000, // yesterday
+    message: 'I Love You! ❤️',
+    count: 1,
+    streak: 1,
+    streakLastDateStr: new Date(Date.now() - 3600 * 24 * 1000).toISOString().split('T')[0]
+  },
   hasAnsweredYes: false,
   yesTimestamp: null,
   updatedAt: Date.now()

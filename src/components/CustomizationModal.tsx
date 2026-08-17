@@ -360,6 +360,22 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
             </div>
 
             <div>
+              <label className="block text-xs font-semibold text-[var(--c-accent-light)] uppercase tracking-wider mb-1 flex items-center justify-between">
+                <span>Love Anniversary Date</span>
+              </label>
+              <input
+                id="input-anniversary-date"
+                type="date"
+                value={formData.anniversaryDate || '2025-08-16'}
+                onChange={e => setFormData({ ...formData, anniversaryDate: e.target.value })}
+                className="w-full bg-[var(--c-bg-darkest)] border border-[var(--c-accent-main)]/30 rounded-xl px-3.5 py-2.5 text-sm text-[var(--c-text-main)] focus:outline-none focus:border-[var(--c-accent-main)] focus:ring-1 focus:ring-[var(--c-accent-main)]"
+              />
+              <p className="text-[10px] text-[var(--c-accent-light)]/70 mt-1">
+                Used to calculate the countdown timer shown prominently on the Forever &amp; Always screen.
+              </p>
+            </div>
+
+            <div>
               <label className="block text-xs font-semibold text-[#25D366] uppercase tracking-wider mb-1 flex items-center justify-between">
                 <span>WhatsApp Number For Responses</span>
                 <span className="text-[10px] text-[#25D366]/80 font-normal">Active: +91 7201030048</span>

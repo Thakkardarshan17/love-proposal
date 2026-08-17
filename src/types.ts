@@ -12,6 +12,7 @@ export interface ProposalConfig {
   bgMusicName?: string;
   selectedTrackId?: string;
   theme?: string;
+  anniversaryDate?: string;
 }
 
 export interface TimelineEvent {
